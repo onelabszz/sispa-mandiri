@@ -10,13 +10,16 @@ import { Dashboard } from './modules/dashboard.js';
 import { Guru } from './modules/guru.js';
 import { Profil } from './modules/profil.js';
 import { Program } from './modules/program.js';
-// Modul berikut menyusul di batch 3:
-// import { Supervisi } from './modules/supervisi.js';
-// import { Akademik } from './modules/akademik.js';
-// import { Coaching } from './modules/coaching.js';
-// import { Analisis } from './modules/analisis.js';
-// import { Laporan } from './modules/laporan.js';
-// import { Pengaturan } from './modules/pengaturan.js';
+import { Supervisi } from './modules/supervisi.js';
+import { Akademik } from './modules/akademik.js';
+import { Coaching } from './modules/coaching.js';
+import { Analisis } from './modules/analisis.js';
+import { Laporan } from './modules/laporan.js';
+import { Pengaturan } from './modules/pengaturan.js';
+
+// Expose globals needed by Utils.modal/toast (batch 1 helper)
+window.Utils = Utils;
+window.Icons = Icons;
 
 const App = {
   async init() {
@@ -78,6 +81,12 @@ const App = {
     Router.register('guru', Guru);
     Router.register('profil', Profil);
     Router.register('program', Program);
+    Router.register('supervisi', Supervisi);
+    Router.register('akademik', Akademik);
+    Router.register('coaching', Coaching);
+    Router.register('analisis', Analisis);
+    Router.register('laporan', Laporan);
+    Router.register('pengaturan', Pengaturan);
     Router.navigate('dashboard');
   },
 
