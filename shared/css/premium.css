@@ -558,7 +558,7 @@ tbody tr { transition: background var(--t-fast); }
 }
 /* Memaksa setup screen menutupi seluruh layar & mengalahkan z-index dashboard */
 #setupScreen.auth-split {
-  display: grid !important;
+  display: grid; /* <-- Tanpa !important */
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
