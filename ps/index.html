@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SISPA PS — Pengawas</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SISPA PS">
+<link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
+<link rel="stylesheet" href="../shared/css/tokens.css">
+<link rel="stylesheet" href="../shared/css/base.css">
+<link rel="stylesheet" href="../shared/css/layout.css">
+<link rel="stylesheet" href="../shared/css/components.css">
+<link rel="stylesheet" href="../shared/css/print.css">
+<link rel="stylesheet" href="../shared/css/premium.css">
+</head>
+<body>
+
+<div id="pinScreen"></div>
+<div id="setupScreen" class="setup-wrap" style="display:none"></div>
+
+<div id="app" style="display:none">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="overlay" id="overlay"></div>
+  <div class="app-content">
+    <header class="header" id="header"></header>
+    <main class="app-main" id="main"></main>
+  </div>
+</div>
+
+<div class="profile-menu" id="profileMenu"></div>
+
+<div class="modal-backdrop" id="modalBack">
+  <div class="modal-panel" id="modalPanel">
+    <div class="modal-h">
+      <span id="modalTitle"></span>
+      <button class="btn-icon sm" id="modalCloseBtn" aria-label="Tutup">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-b" id="modalBody"></div>
+    <div class="modal-f" id="modalFooter"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
