@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Panduan Pengawas — SISPA Mandiri</title>
+<meta name="description" content="Panduan lengkap penggunaan SISPA Mandiri untuk Pengawas — alur kerja agregasi data, analisis, evaluasi, dan laporan.">
+<link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
+<meta name="theme-color" content="#4f46e5">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .guide-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,.92); backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid #e2e8f0; padding: .85rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    box-shadow: 0 1px 3px rgba(15,23,42,.04);
+  }
+  .guide-header .brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: inherit; }
+  .guide-header .brand-logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: #fff; flex-shrink: 0;
+  }
+  .guide-header .brand-name { font-weight: 800; font-size: .95rem; letter-spacing: -.01em; line-height: 1.1; }
+  .guide-header .brand-sub { font-size: .68rem; color: #64748b; margin-top: .15rem; }
+  .guide-header .spacer { flex: 1; }
+  .guide-header .hdr-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .5rem .9rem; font-size: .8rem; font-weight: 600;
+    border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; color: #334155;
+    text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit;
+  }
+  .guide-header .hdr-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+  .guide-header .hdr-btn.primary {
+    background: linear-gradient(180deg, #0ea5e9, #0284c7); color: #fff; border-color: transparent;
+    box-shadow: 0 1px 2px rgba(15,23,42,.1);
+  }
+  .guide-header .hdr-btn.primary:hover {
+    background: linear-gradient(180deg, #0284c7, #0369a1);
+    box-shadow: 0 4px 12px -2px rgba(14,165,233,.4);
+  }
+  @media (max-width: 640px) {
+    .guide-header { padding: .7rem 1rem; }
+    .guide-header .hdr-btn .hdr-text { display: none; }
+    .guide-header .brand-sub { display: none; }
+  }
+  .guide-layout {
+    display: grid; grid-template-columns: 260px 1fr; max-width: 1280px; margin: 0 auto;
+    gap: 2rem; padding: 2rem 1.5rem 4rem;
+  }
+  @media (max-width: 900px) { .guide-layout { grid-template-columns: 1fr; padding: 1.25rem 1rem 3rem; } }
+  .toc { position: sticky; top: 4.5rem; align-self: start; max-height: calc(100vh - 5.5rem); overflow-y: auto; padding-right: .5rem; scrollbar-width: thin; }
+  .toc::-webkit-scrollbar { width: 6px; }
+  .toc::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  .toc-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: #64748b; font-weight: 700; margin-bottom: .75rem; padding-left: .5rem; }
+  .toc a { display: block; padding: .45rem .75rem; font-size: .82rem; color: #475569; text-decoration: none; border-radius: 8px; border-left: 2px solid transparent; margin-bottom: 2px; transition: all .12s; line-height: 1.4; }
+  .toc a:hover { background: #f1f5f9; color: #0f172a; }
+  .toc a.sub { padding-left: 1.5rem; font-size: .78rem; color: #64748b; }
+  .toc a.active { background: #e0f2fe; color: #0284c7; border-left-color: #0ea5e9; font-weight: 600; }
+  @media (max-width: 900px) {
+    .toc { position: relative; top: 0; max-height: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
+    .toc a.sub { display: none; }
+  }
+  .guide-content { max-width: 760px; min-width: 0; }
+  .guide-content h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin: 0 0 .75rem; color: #0f172a; }
+  .guide-content .lead { font-size: 1rem; color: #475569; line-height: 1.7; margin: 0 0 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid #e2e8f0; }
+  .guide-content h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.01em; margin: 3rem 0 1rem; color: #0f172a; scroll-margin-top: 5rem; padding-bottom: .35rem; border-bottom: 2px solid #e2e8f0; }
+  .guide-content h2:first-of-type { margin-top: 1rem; }
+  .guide-content h3 { font-size: 1.1rem; font-weight: 700; margin: 2rem 0 .75rem; color: #0f172a; scroll-margin-top: 5rem; }
+  .guide-content h4 { font-size: .95rem; font-weight: 600; margin: 1.5rem 0 .5rem; color: #334155; }
+  .guide-content p { font-size: .92rem; color: #334155; margin: 0 0 1rem; line-height: 1.7; }
+  .guide-content ul, .guide-content ol { font-size: .92rem; color: #334155; line-height: 1.75; margin: 0 0 1.25rem; padding-left: 1.5rem; }
+  .guide-content li { margin-bottom: .35rem; }
+  .guide-content strong { color: #0f172a; font-weight: 600; }
+  .guide-content code { background: #f1f5f9; color: #0284c7; padding: .15rem .4rem; border-radius: 4px; font-size: .85em; font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace; font-weight: 500; }
+  .callout { padding: 1rem 1.15rem; border-radius: 12px; margin: 1.25rem 0; font-size: .88rem; line-height: 1.65; display: flex; gap: .75rem; align-items: flex-start; }
+  .callout .callout-icon { flex-shrink: 0; margin-top: 1px; }
+  .callout .callout-title { font-weight: 700; display: block; margin-bottom: .15rem; }
+  .callout.info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+  .callout.warn { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .callout.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .callout.danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .callout.tip { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+  .steps { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0 2rem; }
+  .step-card { display: flex; gap: 1rem; padding: 1.15rem 1.25rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; align-items: flex-start; transition: box-shadow .15s, transform .15s; }
+  .step-card:hover { box-shadow: 0 4px 12px -2px rgba(15,23,42,.08); transform: translateY(-1px); }
+  .step-num { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; font-weight: 800; font-size: .95rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 6px -1px rgba(14,165,233,.4); }
+  .step-content { flex: 1; min-width: 0; }
+  .step-title { font-size: .95rem; font-weight: 700; color: #0f172a; margin: 0 0 .25rem; }
+  .step-desc { font-size: .85rem; color: #475569; line-height: 1.6; margin: 0; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .85rem; margin: 1.25rem 0 2rem; }
+  .feature-box { padding: 1rem 1.15rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; transition: border-color .15s, box-shadow .15s; }
+  .feature-box:hover { border-color: #bae6fd; box-shadow: 0 4px 10px -3px rgba(14,165,233,.15); }
+  .feature-box .fb-icon { width: 36px; height: 36px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; margin-bottom: .7rem; }
+  .feature-box .fb-title { font-size: .88rem; font-weight: 700; color: #0f172a; margin: 0 0 .25rem; }
+  .feature-box .fb-desc { font-size: .78rem; color: #64748b; line-height: 1.5; margin: 0; }
+  .workflow { display: flex; flex-direction: column; gap: .65rem; margin: 1.5rem 0 2rem; }
+  .workflow-step { display: flex; align-items: center; gap: 1rem; padding: .85rem 1.15rem; background: linear-gradient(90deg, #e0f2fe 0%, #f8fafc 100%); border: 1px solid #bae6fd; border-radius: 12px; position: relative; }
+  .workflow-step .wf-icon { width: 32px; height: 32px; border-radius: 8px; background: #fff; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 3px rgba(14,165,233,.15); }
+  .workflow-step .wf-text { flex: 1; font-size: .88rem; color: #334155; line-height: 1.5; }
+  .workflow-step .wf-text strong { color: #0f172a; }
+  .faq-item { padding: 1rem 1.15rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: .65rem; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+  .faq-item:hover { border-color: #bae6fd; }
+  .faq-item[open] { border-color: #bae6fd; box-shadow: 0 4px 12px -2px rgba(14,165,233,.1); }
+  .faq-item summary { font-size: .92rem; font-weight: 600; color: #0f172a; list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: '+'; font-size: 1.25rem; color: #64748b; font-weight: 300; transition: transform .2s; flex-shrink: 0; }
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-item .faq-answer { margin-top: .75rem; padding-top: .75rem; border-top: 1px solid #f1f5f9; font-size: .88rem; color: #475569; line-height: 1.7; }
+  .guide-content table { width: 100%; border-collapse: collapse; margin: 1.25rem 0 2rem; font-size: .85rem; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,.05); }
+  .guide-content thead th { background: #f8fafc; padding: .7rem .85rem; text-align: left; font-weight: 600; color: #475569; font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid #e2e8f0; }
+  .guide-content tbody td { padding: .75rem .85rem; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: top; }
+  .guide-content tbody tr:last-child td { border-bottom: none; }
+  .back-top { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(180deg, #0ea5e9, #0284c7); color: #fff; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 20px -4px rgba(14,165,233,.5); border: none; z-index: 40; transition: transform .15s; }
+  .back-top:hover { transform: translateY(-2px); }
+  .back-top.show { display: flex; }
+  @media print {
+    body { background: #fff; font-size: 10pt; }
+    .guide-header { position: static; box-shadow: none; border: none; padding: 0 0 1rem; }
+    .guide-header .hdr-btn { display: none; }
+    .guide-layout { display: block; max-width: 100%; padding: 0; }
+    .toc { display: none; }
+    .guide-content { max-width: 100%; }
+    .back-top { display: none !important; }
+    .step-card, .feature-box, .callout, .faq-item { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="guide-header">
+  <a href="index.html" class="brand">
+    <div class="brand-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">Panduan Pengawas</div>
+      <div class="brand-sub">SISPA Mandiri · v2.0.0</div>
+    </div>
+  </a>
+  <div class="spacer"></div>
+  <button class="hdr-btn" onclick="window.print()" title="Cetak atau simpan PDF">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect width="12" height="8" x="6" y="14"/>
+    </svg>
+    <span class="hdr-text">Cetak</span>
+  </button>
+  <a href="index.html" class="hdr-btn primary">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    <span class="hdr-text">Kembali ke Aplikasi</span>
+  </a>
+</header>
+
+<div class="guide-layout">
+
+  <aside class="toc" id="toc">
+    <div class="toc-title">Daftar Isi</div>
+    <a href="#intro">Pengenalan</a>
+    <a href="#install">Pasang & Akses Aplikasi</a>
+    <a href="#setup">Setup Awal</a>
+    <a href="#alur">Alur Kerja Pengawas</a>
+    <a href="#alur-1" class="sub">1. Terima JSON dari KS</a>
+    <a href="#alur-2" class="sub">2. Import</a>
+    <a href="#alur-3" class="sub">3. Dashboard Agregat</a>
+    <a href="#alur-4" class="sub">4. Analisis & Benchmark</a>
+    <a href="#alur-5" class="sub">5. Evaluasi KS</a>
+    <a href="#alur-6" class="sub">6. Laporan ke Dinas</a>
+    <a href="#fitur">Detail Fitur</a>
+    <a href="#import">Mode Merge vs Replace</a>
+    <a href="#backup">Backup & Restore</a>
+    <a href="#faq">FAQ & Troubleshooting</a>
+    <a href="#tips">Tips Profesional</a>
+  </aside>
+
+  <main class="guide-content">
+
+    <h1>Panduan Pengawas</h1>
+    <p class="lead">
+      Panduan lengkap penggunaan aplikasi <strong>SISPA Mandiri</strong> untuk Pengawas — dari
+      instalasi, alur kerja agregasi data dari banyak KS, analisis kinerja, evaluasi, hingga
+      cetak laporan ke Dinas Pendidikan.
+    </p>
+
+    <h2 id="intro">Pengenalan</h2>
+    <p>
+      <strong>SISPA Pengawas</strong> adalah aplikasi semi-online untuk Pengawas Sekolah dalam
+      mengelola data supervisi dari banyak sekolah binaan. Anda menerima file JSON dari setiap
+      KS, mengimpor ke aplikasi, dan menganalisis hasilnya lintas sekolah.
+    </p>
+
+    <div class="callout info">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Data disimpan lokal, bukan cloud</span>
+        Semua data tersimpan di laptop Anda (IndexedDB). Tidak ada server cloud. Untuk backup,
+        ekspor seluruh data ke file JSON secara berkala.
+      </div>
+    </div>
+
+    <h3>Yang Bisa Anda Lakukan</h3>
+    <div class="feature-grid">
+      <div class="feature-box">
+        <div class="fb-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+          </svg>
+        </div>
+        <div class="fb-title">Import JSON dari KS</div>
+        <div class="fb-desc">Merge otomatis, deteksi duplikat.</div>
+      </div>
+      <div class="feature-box">
+        <div class="fb-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+            <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+          </svg>
+        </div>
+        <div class="fb-title">Dashboard Agregat</div>
+        <div class="fb-desc">Ringkasan semua sekolah binaan.</div>
+      </div>
+      <div class="feature-box">
+        <div class="fb-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
+          </svg>
+        </div>
+        <div class="fb-title">Analisis & Benchmark</div>
+        <div class="fb-desc">Bandingkan coverage & kualitas antar sekolah.</div>
+      </div>
+      <div class="feature-box">
+        <div class="fb-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        <div class="fb-title">Evaluasi Kinerja KS</div>
+        <div class="fb-desc">Ranking + rekomendasi otomatis.</div>
+      </div>
+      <div class="feature-box">
+        <div class="fb-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/>
+          </svg>
+        </div>
+        <div class="fb-title">Laporan Rekap</div>
+        <div class="fb-desc">PDF resmi + CSV untuk Dinas.</div>
+      </div>
+      <div class="feature-box">
+        <div class="fb-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+        </div>
+        <div class="fb-title">Backup JSON</div>
+        <div class="fb-desc">Simpan semua data ke file.</div>
+      </div>
+    </div>
+
+    <h2 id="install">Pasang & Akses Aplikasi</h2>
+    <p>Sama seperti versi KS. Buka URL PS, install PWA, buka seperti aplikasi biasa.</p>
+
+    <div class="callout warn">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+          <path d="M12 9v4"/><path d="M12 17h.01"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Gunakan Chrome/Edge Desktop</span>
+        PS sebaiknya diakses dari laptop/PC, bukan HP, karena tabel analitik lebih nyaman di
+        layar besar. HP bisa dipakai untuk impor cepat tapi tidak direkomendasikan untuk analisis.
+      </div>
+    </div>
+
+    <h2 id="setup">Setup Awal</h2>
+    <p>Isi identitas pengawas: nama lengkap, NIP, dan wilayah binaan. Wilayah binaan penting karena akan tampil di header dan laporan PDF.</p>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Isi Nama Pengawas</div>
+          <div class="step-desc">Lengkap dengan gelar. Contoh: <strong>Dr. Ahmad Suryadi, M.Pd</strong>.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Isi NIP</div>
+          <div class="step-desc">NIP Anda, akan tercetak di laporan PDF.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Isi Wilayah Binaan</div>
+          <div class="step-desc">Contoh: <strong>Kec. Sukamaju</strong>. Nama wilayah akan tampil di header aplikasi dan rekap PDF.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Klik "Simpan & Mulai"</div>
+          <div class="step-desc">Anda akan masuk ke Dashboard (masih kosong, akan diisi setelah import).</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="alur">Alur Kerja Pengawas</h2>
+
+    <div class="workflow">
+      <div class="workflow-step">
+        <div class="wf-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+          </svg>
+        </div>
+        <div class="wf-text"><strong>1. Terima JSON dari KS</strong> — via WhatsApp atau Email.</div>
+      </div>
+      <div class="workflow-step">
+        <div class="wf-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+          </svg>
+        </div>
+        <div class="wf-text"><strong>2. Import</strong> — dengan mode Merge atau Replace.</div>
+      </div>
+      <div class="workflow-step">
+        <div class="wf-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+            <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+          </svg>
+        </div>
+        <div class="wf-text"><strong>3. Dashboard</strong> — pantau agregat semua sekolah.</div>
+      </div>
+      <div class="workflow-step">
+        <div class="wf-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
+          </svg>
+        </div>
+        <div class="wf-text"><strong>4. Analisis</strong> — benchmark coverage & kualitas.</div>
+      </div>
+      <div class="workflow-step">
+        <div class="wf-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        <div class="wf-text"><strong>5. Evaluasi KS</strong> — ranking + rekomendasi pembinaan.</div>
+      </div>
+      <div class="workflow-step">
+        <div class="wf-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/>
+          </svg>
+        </div>
+        <div class="wf-text"><strong>6. Laporan</strong> — cetak rekap PDF atau ekspor CSV ke Dinas.</div>
+      </div>
+    </div>
+
+    <h3 id="alur-1">1. Terima JSON dari KS</h3>
+    <p>
+      KS akan mengirim file JSON via WhatsApp atau Email secara berkala (mingguan atau akhir semester).
+      File contoh: <code>SISPA_Backup_2026-10-20.json</code>.
+    </p>
+    <p>
+      Simpan file ke folder lokal di laptop Anda, misal <code>Dokumen/SISPA/[Nama Sekolah]/</code>.
+      Pisahkan per sekolah agar mudah dilacak.
+    </p>
+
+    <h3 id="alur-2">2. Import File JSON</h3>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Buka menu "Sekolah Binaan"</div>
+          <div class="step-desc">Sidebar kiri.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Klik "Import JSON dari KS"</div>
+          <div class="step-desc">Tombol biru di kanan atas.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Pilih file JSON</div>
+          <div class="step-desc">Klik "Pilih File" atau drag-drop. Sistem akan analisis otomatis.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Review preview</div>
+          <div class="step-desc">Muncul dialog dengan info: nama sekolah, NPSN, KS, dan diff per jenis (X baru / Y update / Z sama).</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Pilih mode & Import</div>
+          <div class="step-desc">Pilih <strong>Merge</strong> (aman, sync rutin) atau <strong>Replace</strong> (reset sekolah). Klik Import.</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="import">Mode Merge vs Replace — Kapan Pakai?</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Situasi</th>
+          <th>Mode</th>
+          <th>Efek</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sync rutin (KS kirim tiap minggu)</td>
+          <td><strong>Merge</strong></td>
+          <td>Data lama dipertahankan, hanya item baru/diubah yang di-update. Aman.</td>
+        </tr>
+        <tr>
+          <td>KS beri tahu "saya hapus X, tolong update"</td>
+          <td><strong>Replace</strong></td>
+          <td>Data lama dihapus, diganti total dengan data dari file. Bersih tapi berisiko.</td>
+        </tr>
+        <tr>
+          <td>Sekolah baru pertama kali import</td>
+          <td><strong>—</strong></td>
+          <td>Otomatis ditambahkan (tidak perlu pilih mode).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+          <path d="M12 9v4"/><path d="M12 17h.01"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Selalu backup sebelum Replace</span>
+        Replace akan menghapus data lama. Jika KS ternyata salah kirim file (data lama), data Anda
+        hilang. Sebelum Replace, ekspor backup Pengawas dulu di Pengaturan.
+      </div>
+    </div>
+
+    <h3 id="alur-3">3. Dashboard Agregat</h2>
+    <p>
+      Setelah import beberapa sekolah, dashboard menampilkan:
+    </p>
+    <ul>
+      <li>Total sekolah binaan</li>
+      <li>Total guru lintas sekolah</li>
+      <li>Total sesi supervisi (3T + Akademik + Coaching)</li>
+      <li>Distribusi tipe guru (Dropout/Unfocused/Analytical/Professional)</li>
+      <li>Chart sesi per sekolah (top 6)</li>
+      <li>Warning sekolah yang belum kirim data &gt;30 hari</li>
+      <li>Aktivitas terbaru (6 sesi terakhir lintas sekolah)</li>
+    </ul>
+
+    <h3 id="alur-4">4. Analisis & Benchmark</h3>
+    <p>
+      Menu <strong>Analisis & Benchmark</strong>. Fitur utama untuk membandingkan performa antar sekolah:
+    </p>
+    <ul>
+      <li><strong>Coverage per sekolah</strong> — % guru yang sudah ≥1× disupervisi. Warna hijau (≥80%), kuning (50-79%), merah (&lt;50%).</li>
+      <li><strong>Rata-rata skor per sekolah</strong> — akademik (/76) dan coaching (/32).</li>
+      <li><strong>Chart prinsip PM & pengalaman</strong> — agregat lintas sekolah.</li>
+      <li><strong>8 Dimensi Profil Lulusan</strong> — bar horizontal agregat.</li>
+      <li><strong>Integrasi KKA</strong> — % sesi 3T yang menyertakan Koding/AI.</li>
+    </ul>
+
+    <h3 id="alur-5">5. Evaluasi Kinerja KS</h3>
+    <p>
+      Menu <strong>Evaluasi Kinerja KS</strong>. Sistem memberi ranking KS berdasarkan 3 metrics
+      weighted:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Bobot</th>
+          <th>Cara Hitung</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Coverage</td>
+          <td>40%</td>
+          <td>% guru yang sudah ≥1× disupervisi (3T/Ak/Co)</td>
+        </tr>
+        <tr>
+          <td>Volume</td>
+          <td>30%</td>
+          <td>Sesi supervisi per guru (target 4 = 100%)</td>
+        </tr>
+        <tr>
+          <td>Kelengkapan RTL</td>
+          <td>30%</td>
+          <td>% sesi dengan RTL terisi</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Kategori:</strong></p>
+    <ul>
+      <li>🥇 <strong>Sangat Baik</strong> — skor ≥85</li>
+      <li>🥈 <strong>Baik</strong> — skor 70-84</li>
+      <li>🥉 <strong>Cukup</strong> — skor 50-69</li>
+      <li>⚠️ <strong>Perlu Pembinaan</strong> — skor &lt;50</li>
+    </ul>
+
+    <p>
+      Sistem juga memberi <strong>rekomendasi otomatis</strong> per KS. Contoh: "Coverage 45% — prioritas
+      pembinaan: jadwalkan supervisi untuk guru yang belum".
+    </p>
+
+    <h3 id="alur-6">6. Laporan ke Dinas</h3>
+    <p>
+      Menu <strong>Laporan Rekap</strong>. Tiga jenis output:
+    </p>
+
+    <h4>A. Cetak Rekap Pengawas (1 halaman)</h4>
+    <p>
+      Ringkasan semua sekolah binaan: jumlah guru, sesi, coverage, skor, kategori. Format A4 dengan
+      tanda tangan Kepala Dinas + Pengawas. Cocok untuk laporan bulanan/semester.
+    </p>
+
+    <h4>B. Cetak Rekap per Sekolah</h4>
+    <p>
+      Detail per sekolah: distribusi tipe guru, daftar guru dengan riwayat supervisi, dan tanda tangan
+      KS + Pengawas. Untuk dokumentasi pembinaan per sekolah.
+    </p>
+
+    <h4>C. Export CSV</h4>
+    <p>Tiga file CSV untuk Excel Dinas:</p>
+    <ul>
+      <li><strong>CSV Guru</strong> — data semua guru lintas sekolah + supervisi.</li>
+      <li><strong>CSV Supervisi</strong> — semua sesi supervisi.</li>
+      <li><strong>CSV Rekap</strong> — rekap per sekolah dengan metrics kinerja.</li>
+    </ul>
+
+    <h2 id="fitur">Detail Fitur</h2>
+
+    <h3>Data Guru Lintas Sekolah</h3>
+    <p>
+      Semua guru dari semua sekolah dalam satu tabel. Filter by sekolah, tipe, atau search nama/mapel/NIP.
+      Klik <strong>Detail</strong> untuk melihat riwayat supervisi lengkap per guru.
+    </p>
+
+    <h3>Semua Supervisi</h3>
+    <p>
+      Semua sesi supervisi lintas sekolah, jenis, dan tanggal. Filter by sekolah/jenis/bulan/nama guru.
+      Klik ikon mata untuk detail, ikon printer untuk cetak.
+    </p>
+
+    <h2 id="backup">Backup & Restore</h2>
+
+    <div class="callout danger">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+          <path d="M12 9v4"/><path d="M12 17h.01"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">WAJIB: Backup mingguan</span>
+        Data Anda lebih banyak dan berharga dari KS (banyak sekolah). Backup mingguan minimal,
+        sebaiknya setiap kali selesai batch import.
+      </div>
+    </div>
+
+    <h3>Backup</h3>
+    <p>
+      Pengaturan → <strong>Ekspor Backup</strong>. File JSON dengan semua data semua sekolah akan
+      terunduh. Simpan ke Google Drive.
+    </p>
+
+    <h3>Restore</h3>
+    <p>
+      Pengaturan → <strong>Restore Backup</strong> → pilih file JSON → konfirmasi. Semua data saat
+      ini akan <strong>diganti</strong> dengan data dari file.
+    </p>
+
+    <h2 id="faq">FAQ & Troubleshooting</h2>
+
+    <details class="faq-item">
+      <summary>Berapa banyak sekolah yang bisa ditangani?</summary>
+      <div class="faq-answer">
+        Secara teknis tidak ada batas keras — IndexedDB bisa menampung ratusan MB. Untuk 100-200
+        sekolah (20 guru × 30 sesi per sekolah) masih aman. Untuk &gt;500 sekolah, pertimbangkan
+        split per wilayah atau backup bulanan.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Import file yang sama berulang kali, aman?</summary>
+      <div class="faq-answer">
+        Ya, aman di mode Merge. Sistem akan mendeteksi tidak ada yang baru, jadi tidak ada duplikasi.
+        Ini yang direkomendasikan untuk sync rutin.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>KS sudah hapus data, tapi file JSON saya masih ada. Gimana?</summary>
+      <div class="faq-answer">
+        Import ulang file dengan mode <strong>Replace</strong>. Data lama yang ada di aplikasi akan
+        diganti total dengan data dari file. Efeknya = "mengembalikan" state ke waktu file dibuat.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Bagaimana kalau KS pindah tugaskan tanpa kirim JSON final?</summary>
+      <div class="faq-answer">
+        Hubungi KS baru untuk akses laptop lama, atau hubungi KS lama langsung. Jika data tidak bisa
+        diakses, mulai dari state terakhir yang Anda punya (file JSON backup terakhir). Data setelahnya
+        akan hilang, tapi data historis tetap utuh.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Bisa ganti nama sekolah yang sudah diimport?</summary>
+      <div class="faq-answer">
+        Bisa. Menu Sekolah Binaan → klik ikon pensil (Edit) di baris sekolah. Bisa ganti nama, NPSN,
+        nama KS, NIP KS. Data dalam tidak berubah.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Data saya hilang setelah clear browsing data. Bisa pulih?</summary>
+      <div class="faq-answer">
+        Tidak bisa, kecuali Anda punya file backup JSON. Ini alasan mengapa <strong>backup mingguan
+        wajib</strong>. Ke depannya: ekspor backup setelah setiap sesi batch import, simpan di
+        Google Drive dengan nama tanggal.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>CSV export tidak bisa dibuka di Excel?</summary>
+      <div class="faq-answer">
+        Buka Excel → Data → From Text/CSV → pilih file → delimiter titik-koma → encoding UTF-8.
+        Atau drag-drop file langsung ke Excel — biasanya otomatis handle.
+      </div>
+    </details>
+
+    <h2 id="tips">Tips Profesional</h2>
+
+    <div class="callout tip">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+          <path d="M9 18h6"/><path d="M10 22h4"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Buat folder per sekolah di laptop</span>
+        Simpan setiap file JSON dari KS di <code>Dokumen/SISPA/Nama Sekolah/</code>. Beri nama
+        dengan tanggal. Kalau perlu restore ke versi tertentu, mudah dicari.
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+          <path d="M9 18h6"/><path d="M10 22h4"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Jadwal sync rutin</span>
+        Tetapkan jadwal: setiap Jumat minta KS kirim JSON mingguan, atau setiap akhir bulan untuk
+        sekolah dengan volume rendah. Konsistensi lebih penting dari frekuensi.
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+          <path d="M9 18h6"/><path d="M10 22h4"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Gunakan Evaluasi KS untuk pembinaan, bukan hukuman</span>
+        Ranking digunakan untuk mengidentifikasi KS yang perlu pendampingan intensif. Komunikasikan
+        dengan suportif, bukan punitif.
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+          <path d="M9 18h6"/><path d="M10 22h4"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Cetak rekap bulanan</span>
+        Cetak rekap Pengawas setiap akhir bulan, simpan di arsip. Bukti dokumentasi lengkap untuk
+        Dinas, plus mudah dijadikan lampiran laporan tahunan.
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+          <path d="M9 18h6"/><path d="M10 22h4"/>
+        </svg>
+      </span>
+      <div>
+        <span class="callout-title">Backup sebelum Replace</span>
+        Setiap kali mau pakai mode Replace, wajib backup dulu. Kebiasaan ini bisa menyelamatkan
+        Anda dari kehilangan data tak terduga.
+      </div>
+    </div>
+
+    <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; text-align: center;">
+      <p style="font-size: .85rem; color: #64748b;">
+        Butuh bantuan lebih lanjut? Hubungi <strong>admin Dinas Pendidikan</strong> atau tim teknis wilayah.
+      </p>
+      <p style="font-size: .75rem; color: #94a3b8; margin-top: .5rem;">
+        SISPA Mandiri v2.0.0 · Panduan PS · Terakhir diperbarui: 2026
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-top" id="backTop" aria-label="Kembali ke atas">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m18 15-6-6-6 6"/>
+  </svg>
+</button>
+
+<script>
+  (function() {
+    const btn = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      btn.classList.toggle('show', window.scrollY > 600);
+    });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    const sections = document.querySelectorAll('.guide-content h2[id], .guide-content h3[id]');
+    const tocLinks = document.querySelectorAll('.toc a');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          tocLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    sections.forEach(s => observer.observe(s));
+
+    tocLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const top = target.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
