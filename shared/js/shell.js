@@ -69,21 +69,30 @@ export const Shell = {
     });
   },
 
-  buildProfileMenu(config, role, onLock) {
+  buildProfileMenu(config, role, onLock, onLogout) {
     const menu = Utils.el('profileMenu');
     if (!menu) return;
     const name = config.nama_ks || config.nama_pengawas || '—';
     const sub = config.nama_sekolah || config.wilayah || '—';
+    
     menu.innerHTML = `
       <div style="padding:.75rem;border-bottom:1px solid var(--slate-100);margin-bottom:.25rem">
         <div style="font-weight:600;font-size:.875rem;color:var(--slate-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${Utils.esc(name)}</div>
         <div style="font-size:.75rem;color:var(--slate-500);margin-top:.125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${Utils.esc(sub)}</div>
         <div style="font-size:.75rem;color:var(--slate-400);margin-top:.125rem">${role === 'KS' ? 'Kepala Sekolah' : 'Pengawas'}</div>
       </div>
-      <button id="btnLock" class="nav-item" style="width:100%;border:none;background:transparent;color:var(--danger);text-align:left">
+      <button id="btnLock" class="nav-item" style="width:100%;border:none;background:transparent;color:var(--slate-700);text-align:left">
         ${Icons.svg('lock', 18)} <span>Kunci Aplikasi</span>
+      </button>
+      <button id="btnLogout" class="nav-item" style="width:100%;border:none;background:transparent;color:var(--danger);text-align:left">
+        ${Icons.svg('log-out', 18)} <span>Keluar</span>
       </button>`;
+      
     Utils.el('btnLock').onclick = onLock;
+    Utils.el('btnLogout').onclick = () => { 
+      Shell.closeProfileMenu(); 
+      onLogout?.(); 
+    };
   },
 
   toggleProfileMenu() {
