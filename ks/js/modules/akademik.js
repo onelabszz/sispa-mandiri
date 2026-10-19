@@ -5,20 +5,23 @@ import { Router } from '../../../shared/js/router.js';
 import { emptyState, guruLabel, updateDupWarn } from '../helpers.js';
 import { INSTRUMEN_AKADEMIK } from '../../../shared/js/constants.js';
 
-let _detail = {};       // { A1: 3, A2: 4, ... }
-let _catatan = {};      // { A1: 'text', ... }
+let _detail = {};
+let _catatan = {};
 
 export const Akademik = {
   async render() {
     const guru = Store.get('guru');
     if (guru.length === 0) {
       return `<div class="card"><div class="card-body">
-        ${emptyState('users', 'Belum ada guru', 'Tambahkan guru dulu di menu Data Guru.')}
+        ${emptyState('users', 'Belum ada guru', 'Tambahkan guru dulu di menu Data Guru sebelum memulai observasi akademik.',
+          `<button class="btn btn-primary" id="btnGoGuruAkad">${Icons.svg('plus', 16)} Tambah Guru Pertama</button>`)}
       </div></div>`;
     }
-    _detail = {}; _catatan = {};
+    _detail = {};
+    _catatan = {};
 
-    let rows = '', sec = '';
+    let rows = '';
+    let sec = '';
     INSTRUMEN_AKADEMIK.forEach(i => {
       if (i.sec !== sec) {
         sec = i.sec;
@@ -76,6 +79,15 @@ export const Akademik = {
   },
 
   async bind() {
+    // Guard: empty state — belum ada guru, form tidak ter-render
+    if (!Utils.el('btnSaveAkad')) {
+      Utils.el('btnGoGuruAkad')?.addEventListener('click', async () => {
+        const { Router } = await import('../../../shared/js/router.js');
+        Router.navigate('guru');
+      });
+      return;
+    }
+
     window.__updateDupWarn = updateDupWarn;
     updateDupWarn('aguru', 'aguruWarn', 'akademik');
 
