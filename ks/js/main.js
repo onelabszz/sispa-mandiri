@@ -35,22 +35,118 @@ const App = {
 
   showSetup() {
     const screen = Utils.el('setupScreen');
+    screen.className = 'auth-split';
+    screen.style.display = 'grid';
     screen.innerHTML = `
-      <div class="setup-card">
-        <div style="text-align:center;margin-bottom:1.5rem">
-          <div style="width:56px;height:56px;margin:0 auto .75rem;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:var(--shadow-md)">${Icons.svg('graduation-cap', 28)}</div>
-          <h2 style="margin:0;font-size:1.25rem">Selamat Datang di SISPA</h2>
-          <p style="margin:.35rem 0 0;color:var(--slate-500);font-size:.875rem">Isi identitas sekolah & KS untuk memulai</p>
+      <aside class="auth-brand">
+        <div class="auth-brand-shape" style="width:260px;height:260px;top:-80px;right:-80px"></div>
+        <div class="auth-brand-shape" style="width:130px;height:130px;bottom:15%;right:10%"></div>
+        <div class="auth-brand-shape" style="width:80px;height:80px;top:45%;left:-30px"></div>
+
+        <div style="display:flex;flex-direction:column;justify-content:space-between;height:100%;position:relative;z-index:2;gap:1.5rem">
+          <div class="auth-brand-header">
+            <div class="logo-badge">${Icons.svg('graduation-cap', 24)}</div>
+            <div>
+              <div class="brand-name">SISPA Mandiri</div>
+              <div class="brand-tagline">Sistem Supervisi Pendidikan Akademik</div>
+            </div>
+          </div>
+
+          <div>
+            <h1 class="auth-hero-title">
+              Supervisi akademik yang<br>
+              <span class="accent">memuliakan & bermakna.</span>
+            </h1>
+            <p class="auth-hero-sub">
+              Aplikasi semi-online untuk Kepala Sekolah dalam membina guru melalui
+              <strong style="color:#e0e7ff">observasi pembelajaran mendalam</strong> dan
+              <strong style="color:#e0e7ff">percakapan coaching-mentoring</strong>.
+            </p>
+
+            <div class="auth-feature-list">
+              <div class="auth-feature-item">
+                <div class="auth-fi-icon">${Icons.svg('git-branch', 15)}</div>
+                <div>
+                  <strong>Supervisi 3 Tahap</strong>
+                  <span>Pra-observasi · Observasi · Pasca-observasi</span>
+                </div>
+              </div>
+              <div class="auth-feature-item">
+                <div class="auth-fi-icon">${Icons.svg('target', 15)}</div>
+                <div>
+                  <strong>Pendekatan Adaptif</strong>
+                  <span>Directive · Collaborative · Non-Directive</span>
+                </div>
+              </div>
+              <div class="auth-feature-item">
+                <div class="auth-fi-icon">${Icons.svg('bar-chart-3', 15)}</div>
+                <div>
+                  <strong>Analitik PM & KKA</strong>
+                  <span>Prinsip · Pengalaman · 8 DPL · Koding/AI</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="auth-quote-card">
+              "Supervisi akademik intinya bukan menilai kinerja guru, tetapi membantu guru untuk meningkatkan profesionalismenya."
+              <span class="qa-author">— Modul 5, Supervisi Akademik (2026)</span>
+            </div>
+          </div>
+
+          <div class="auth-brand-footer">
+            <span>© ${new Date().getFullYear()} SISPA Mandiri · 100% Gratis</span>
+            <span class="version-pill">v2.0.0</span>
+          </div>
         </div>
-        <div class="form-group"><label class="label">Nama Sekolah *</label><input type="text" id="setupSekolah" class="input" placeholder="Contoh: SDN 1 Sukamaju"></div>
-        <div class="row">
-          <div class="form-group"><label class="label">NPSN</label><input type="text" id="setupNpsn" class="input" placeholder="8 digit" maxlength="8"></div>
-          <div class="form-group"><label class="label">NIP KS</label><input type="text" id="setupNip" class="input" placeholder="NIP"></div>
+      </aside>
+
+      <main class="auth-form-side">
+        <div class="auth-form-card">
+          <div class="auth-mobile-brand">
+            <div class="mb-logo">${Icons.svg('graduation-cap', 20)}</div>
+            <div>
+              <div style="font-weight:800;color:#0f172a;font-size:.95rem">SISPA Mandiri</div>
+              <div style="font-size:.7rem;color:#64748b">Setup Awal</div>
+            </div>
+          </div>
+
+          <div class="auth-step-pill">Setup Awal</div>
+          <h1 class="auth-heading">Selamat datang 👋</h1>
+          <p class="auth-sub">Isi identitas sekolah & Kepala Sekolah. Data akan tersimpan di device ini saja — tidak ada server cloud.</p>
+
+          <div class="form-group">
+            <label class="label">Nama Sekolah *</label>
+            <input type="text" id="setupSekolah" class="input" placeholder="Contoh: SDN 1 Sukamaju">
+          </div>
+
+          <div class="row">
+            <div class="form-group">
+              <label class="label">NPSN</label>
+              <input type="text" id="setupNpsn" class="input" placeholder="8 digit" maxlength="8">
+            </div>
+            <div class="form-group">
+              <label class="label">NIP KS</label>
+              <input type="text" id="setupNip" class="input" placeholder="NIP">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Nama Kepala Sekolah *</label>
+            <input type="text" id="setupKs" class="input" placeholder="Dra. Siti Aminah, M.Pd">
+          </div>
+
+          <button class="btn btn-primary btn-lg" style="margin-top:.75rem" id="btnSetup">
+            ${Icons.svg('chevron-right', 18)}
+            Simpan & Mulai
+          </button>
+
+          <div class="auth-footer-note">
+            <span style="flex-shrink:0;color:#4f46e5">${Icons.svg('info', 16)}</span>
+            <span>Anda bisa mengatur PIN setelah setup di menu <strong>Pengaturan</strong>.</span>
+          </div>
         </div>
-        <div class="form-group"><label class="label">Nama Kepala Sekolah *</label><input type="text" id="setupKs" class="input" placeholder="Dra. Siti Aminah, M.Pd"></div>
-        <button class="btn btn-primary" style="width:100%;padding:.75rem;margin-top:.5rem" id="btnSetup">Simpan & Mulai</button>
-      </div>`;
-    screen.style.display = 'flex';
+      </main>
+    `;
     Utils.el('btnSetup').onclick = () => this.saveSetup();
   },
 
