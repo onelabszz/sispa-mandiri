@@ -32,21 +32,112 @@ const App = {
 
   showSetup() {
     const screen = Utils.el('setupScreen');
+    screen.className = 'auth-split';
+    screen.style.display = 'grid';
     screen.innerHTML = `
-      <div class="setup-card">
-        <div style="text-align:center;margin-bottom:1.5rem">
-          <div style="width:56px;height:56px;margin:0 auto .75rem;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:var(--shadow-md)">${Icons.svg('user', 28)}</div>
-          <h2 style="margin:0;font-size:1.25rem">Selamat Datang, Pengawas</h2>
-          <p style="margin:.35rem 0 0;color:var(--slate-500);font-size:.875rem">Isi identitas untuk memulai</p>
+      <aside class="auth-brand">
+        <div class="auth-brand-shape" style="width:260px;height:260px;top:-80px;right:-80px"></div>
+        <div class="auth-brand-shape" style="width:130px;height:130px;bottom:15%;right:10%"></div>
+        <div class="auth-brand-shape" style="width:80px;height:80px;top:45%;left:-30px"></div>
+
+        <div style="display:flex;flex-direction:column;justify-content:space-between;height:100%;position:relative;z-index:2;gap:1.5rem">
+          <div class="auth-brand-header">
+            <div class="logo-badge">${Icons.svg('user', 24)}</div>
+            <div>
+              <div class="brand-name">SISPA Pengawas</div>
+              <div class="brand-tagline">Dashboard multi-sekolah binaan</div>
+            </div>
+          </div>
+
+          <div>
+            <h1 class="auth-hero-title">
+              Kelola banyak sekolah<br>
+              <span class="accent">dalam satu dashboard.</span>
+            </h1>
+            <p class="auth-hero-sub">
+              Terima data dari banyak KS, analisis kinerja, evaluasi kepala sekolah, dan cetak rekap untuk
+              <strong style="color:#e0e7ff">Dinas Pendidikan</strong>.
+            </p>
+
+            <div class="auth-feature-list">
+              <div class="auth-feature-item">
+                <div class="auth-fi-icon">${Icons.svg('upload', 15)}</div>
+                <div>
+                  <strong>Import JSON dari KS</strong>
+                  <span>Merge otomatis · Deteksi duplikat</span>
+                </div>
+              </div>
+              <div class="auth-feature-item">
+                <div class="auth-fi-icon">${Icons.svg('bar-chart-3', 15)}</div>
+                <div>
+                  <strong>Analitik lintas sekolah</strong>
+                  <span>Coverage · Benchmark · KKA agregat</span>
+                </div>
+              </div>
+              <div class="auth-feature-item">
+                <div class="auth-fi-icon">${Icons.svg('award', 15)}</div>
+                <div>
+                  <strong>Evaluasi Kinerja KS</strong>
+                  <span>Ranking · Rekomendasi otomatis</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="auth-quote-card">
+              "Data teragregasi memungkinkan keputusan berbasis bukti — bukan asumsi."
+              <span class="qa-author">— Prinsip Supervisi Berkelanjutan</span>
+            </div>
+          </div>
+
+          <div class="auth-brand-footer">
+            <span>© ${new Date().getFullYear()} SISPA Pengawas · 100% Gratis</span>
+            <span class="version-pill">v2.0.0</span>
+          </div>
         </div>
-        <div class="form-group"><label class="label">Nama Pengawas *</label><input type="text" id="setupNama" class="input" placeholder="Dr. Ahmad Suryadi, M.Pd"></div>
-        <div class="row">
-          <div class="form-group"><label class="label">NIP Pengawas</label><input type="text" id="setupNip" class="input" placeholder="NIP"></div>
-          <div class="form-group"><label class="label">Wilayah Binaan</label><input type="text" id="setupWilayah" class="input" placeholder="Kec. Sukamaju"></div>
+      </aside>
+
+      <main class="auth-form-side">
+        <div class="auth-form-card">
+          <div class="auth-mobile-brand">
+            <div class="mb-logo">${Icons.svg('user', 20)}</div>
+            <div>
+              <div style="font-weight:800;color:#0f172a;font-size:.95rem">SISPA Pengawas</div>
+              <div style="font-size:.7rem;color:#64748b">Setup Awal</div>
+            </div>
+          </div>
+
+          <div class="auth-step-pill">Setup Awal</div>
+          <h1 class="auth-heading">Selamat datang, Pengawas 👋</h1>
+          <p class="auth-sub">Isi identitas Anda. Data akan tersimpan di device ini saja — tidak ada server cloud.</p>
+
+          <div class="form-group">
+            <label class="label">Nama Pengawas *</label>
+            <input type="text" id="setupNama" class="input" placeholder="Dr. Ahmad Suryadi, M.Pd">
+          </div>
+
+          <div class="row">
+            <div class="form-group">
+              <label class="label">NIP Pengawas</label>
+              <input type="text" id="setupNip" class="input" placeholder="NIP">
+            </div>
+            <div class="form-group">
+              <label class="label">Wilayah Binaan</label>
+              <input type="text" id="setupWilayah" class="input" placeholder="Kec. Sukamaju">
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-lg" style="margin-top:.75rem" id="btnSetup">
+            ${Icons.svg('chevron-right', 18)}
+            Simpan & Mulai
+          </button>
+
+          <div class="auth-footer-note">
+            <span style="flex-shrink:0;color:#4f46e5">${Icons.svg('info', 16)}</span>
+            <span>Anda akan menerima file JSON dari KS via WhatsApp. Import di menu <strong>Sekolah Binaan</strong>.</span>
+          </div>
         </div>
-        <button class="btn btn-primary" style="width:100%;padding:.75rem;margin-top:.5rem" id="btnSetup">${Icons.svg('chevron-right', 16)} Simpan & Mulai</button>
-      </div>`;
-    screen.style.display = 'flex';
+      </main>
+    `;
     Utils.el('btnSetup').onclick = () => this.saveSetup();
   },
 
