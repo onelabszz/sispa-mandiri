@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Panel — SISPA Mandiri</title>
+<link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; margin: 0; background: #f8fafc; color: #0f172a; }
+  .btn { padding: .5rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: .85rem; transition: all .15s; }
+  .btn-primary { background: #4f46e5; color: #fff; }
+  .btn-primary:hover { background: #4338ca; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-secondary { background: #e2e8f0; color: #334155; }
+  .btn-sm { padding: .3rem .6rem; font-size: .75rem; }
+  .input { width: 100%; padding: .6rem .8rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .9rem; outline: none; }
+  .input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,.15); }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  th, td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: .875rem; }
+  th { background: #f8fafc; color: #64748b; font-size: .75rem; text-transform: uppercase; }
+  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+  .modal.show { display: flex; }
+  .modal-content { background: #fff; padding: 1.5rem; border-radius: 12px; width: 100%; max-width: 400px; }
+  .tabs { display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
+  .tab { padding: .75rem 1rem; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 2px solid transparent; }
+  .tab.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+</style>
+</head>
+<body>
+
+<!-- HALAMAN LOGIN ADMIN -->
+<div id="loginScreen" style="display:flex;height:100vh;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 10px 25px -5px rgba(0,0,0,.1);width:100%;max-width:380px;text-align:center">
+    <h2 style="margin:0 0 .5rem">Admin Panel</h2>
+    <p style="color:#64748b;font-size:.85rem;margin-bottom:1.5rem">SISPA Mandiri — Kabupaten Wonogiri</p>
+    <input type="password" id="adminKey" class="input" placeholder="Masukkan Kunci Admin" style="margin-bottom:1rem;text-align:center">
+    <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Masuk</button>
+  </div>
+</div>
+
+<!-- DASHBOARD ADMIN -->
+<div id="mainScreen" style="display:none; max-width:1000px; margin:2rem auto; padding:0 1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <div>
+      <h2 style="margin:0">Manajemen Akun</h2>
+      <p style="color:#64748b;margin:.25rem 0 0;font-size:.85rem">Kelola data Sekolah (KS) dan Pengawas (PS)</p>
+    </div>
+    <button class="btn btn-secondary" onclick="logoutAdmin()">Keluar</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('sekolah')" id="tabSekolah">Data Sekolah</div>
+    <div class="tab" onclick="switchTab('pengawas')" id="tabPengawas">Data Pengawas</div>
+  </div>
+
+  <!-- TAB SEKOLAH -->
+  <div id="viewSekolah">
+    <div style="margin-bottom:1rem; text-align:right">
+      <button class="btn btn-primary" onclick="openModal('sekolah')">+ Tambah Sekolah</button>
+    </div>
+    <table>
+      <thead><tr><th>NPSN</th><th>Nama Sekolah</th><th style="width:120px; text-align:right">Aksi</th></tr></thead>
+      <tbody id="listSekolah"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB PENGAWAS -->
+  <div id="viewPengawas" style="display:none">
+    <div style="margin-bottom:1rem; text-align:right">
+      <button class="btn btn-primary" onclick="openModal('pengawas')">+ Tambah Pengawas</button>
+    </div>
+    <table>
+      <thead><tr><th>NIP</th><th>Nama Pengawas</th><th>Wilayah</th><th style="width:120px; text-align:right">Aksi</th></tr></thead>
+      <tbody id="listPengawas"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL FORM -->
+<div class="modal" id="formModal">
+  <div class="modal-content">
+    <h3 id="modalTitle" style="margin:0 0 1rem">Tambah Data</h3>
+    <div id="modalFields"></div>
+    <div style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:1.5rem">
+      <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveData()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+  import { SUPABASE_CONFIG } from '../shared/js/config.js';
+  import { Supabase } from '../shared/js/supabase.js';
+  
+  const ADMIN_KEY = 'admin123'; // <-- GANTI DENGAN KUNCI RAHASIA ANDA
+  let currentType = 'sekolah'; // 'sekolah' atau 'pengawas'
+  let editMode = false;
+  let editId = null;
+  let dataSekolah = [];
+  let dataPengawas = [];
+
+  // Expose ke window agar tombol HTML bisa akses
+  window.loginAdmin = () => {
+    const key = document.getElementById('adminKey').value;
+    if (key === ADMIN_KEY) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainScreen').style.display = 'block';
+      loadData();
+    } else {
+      alert('Kunci Admin salah!');
+    }
+  };
+
+  window.logoutAdmin = () => location.reload();
+
+  window.switchTab = (type) => {
+    currentType = type;
+    document.getElementById('tabSekolah').classList.toggle('active', type === 'sekolah');
+    document.getElementById('tabPengawas').classList.toggle('active', type === 'pengawas');
+    document.getElementById('viewSekolah').style.display = type === 'sekolah' ? 'block' : 'none';
+    document.getElementById('viewPengawas').style.display = type === 'pengawas' ? 'block' : 'none';
+  };
+
+  window.openModal = (type, id = null) => {
+    currentType = type;
+    editMode = !!id;
+    editId = id;
+    document.getElementById('modalTitle').textContent = editMode ? 'Edit Data' : 'Tambah Data';
+    
+    const fields = document.getElementById('modalFields');
+    if (type === 'sekolah') {
+      const s = editMode ? dataSekolah.find(x => x.npsn === id) : { npsn: '', nama_sekolah: '' };
+      fields.innerHTML = `
+        <label style="font-size:.8rem;font-weight:600">NPSN (8 Digit)</label>
+        <input type="text" id="inpNpsn" class="input" style="margin:.25rem 0 1rem" value="${s.npsn}" ${editMode ? 'disabled' : ''}>
+        <label style="font-size:.8rem;font-weight:600">Nama Sekolah</label>
+        <input type="text" id="inpNama" class="input" style="margin:.25rem 0" value="${s.nama_sekolah}">
+      `;
+    } else {
+      const p = editMode ? dataPengawas.find(x => x.nip === id) : { nip: '', nama_pengawas: '', wilayah: '' };
+      fields.innerHTML = `
+        <label style="font-size:.8rem;font-weight:600">NIP</label>
+        <input type="text" id="inpNip" class="input" style="margin:.25rem 0 1rem" value="${p.nip}" ${editMode ? 'disabled' : ''}>
+        <label style="font-size:.8rem;font-weight:600">Nama Pengawas</label>
+        <input type="text" id="inpNama" class="input" style="margin:.25rem 0 1rem" value="${p.nama_pengawas}">
+        <label style="font-size:.8rem;font-weight:600">Wilayah</label>
+        <input type="text" id="inpWilayah" class="input" style="margin:.25rem 0" value="${p.wilayah || ''}">
+      `;
+    }
+    document.getElementById('formModal').classList.add('show');
+  };
+
+  window.closeModal = () => document.getElementById('formModal').classList.remove('show');
+
+  window.saveData = async () => {
+    try {
+      if (currentType === 'sekolah') {
+        const npsn = document.getElementById('inpNpsn').value.trim();
+        const nama = document.getElementById('inpNama').value.trim();
+        if (!npsn || !nama) return alert('Harap isi semua kolom');
+        if (editMode) {
+          await Supabase.updateSekolah(editId, { nama_sekolah: nama });
+        } else {
+          await Supabase.addSekolah({ npsn, nama_sekolah: nama });
+        }
+      } else {
+        const nip = document.getElementById('inpNip').value.trim();
+        const nama = document.getElementById('inpNama').value.trim();
+        const wilayah = document.getElementById('inpWilayah').value.trim();
+        if (!nip || !nama) return alert('Harap isi kolom NIP dan Nama');
+        if (editMode) {
+          await Supabase.updatePengawas(editId, { nama_pengawas: nama, wilayah });
+        } else {
+          await Supabase.addPengawas({ nip, nama_pengawas: nama, wilayah });
+        }
+      }
+      closeModal();
+      loadData(); // Refresh tabel
+    } catch (err) {
+      alert('Gagal menyimpan: ' + err.message);
+    }
+  };
+
+  window.deleteData = async (type, id) => {
+    if (!confirm('Yakin ingin menghapus data ini?')) return;
+    try {
+      if (type === 'sekolah') await Supabase.deleteSekolah(id);
+      else await Supabase.deletePengawas(id);
+      loadData();
+    } catch (err) {
+      alert('Gagal menghapus: ' + err.message);
+    }
+  };
+
+  async function loadData() {
+    try {
+      dataSekolah = await Supabase.getAllSekolah();
+      dataPengawas = await Supabase.getAllPengawas();
+      
+      document.getElementById('listSekolah').innerHTML = dataSekolah.map(s => `
+        <tr>
+          <td style="font-family:monospace">${s.npsn}</td>
+          <td style="font-weight:600">${s.nama_sekolah}</td>
+          <td style="text-align:right">
+            <button class="btn btn-secondary btn-sm" onclick="openModal('sekolah', '${s.npsn}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteData('sekolah', '${s.npsn}')">Hapus</button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('listPengawas').innerHTML = dataPengawas.map(p => `
+        <tr>
+          <td style="font-family:monospace">${p.nip}</td>
+          <td style="font-weight:600">${p.nama_pengawas}</td>
+          <td>${p.wilayah || '-'}</td>
+          <td style="text-align:right">
+            <button class="btn btn-secondary btn-sm" onclick="openModal('pengawas', '${p.nip}')">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteData('pengawas', '${p.nip}')">Hapus</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      alert('Gagal memuat data: ' + err.message);
+    }
+  }
+</script>
+</body>
+</html>
