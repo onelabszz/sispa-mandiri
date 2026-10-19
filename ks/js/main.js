@@ -34,6 +34,10 @@ const App = {
   },
 
   showSetup() {
+    Utils.el('app').style.display = 'none';
+    Utils.el('profileMenu')?.classList.remove('show');
+    Utils.el('overlay')?.classList.remove('show');
+    Utils.el('modalBack')?.classList.remove('show');
     const screen = Utils.el('setupScreen');
     screen.className = 'auth-split';
     screen.style.display = 'grid';
