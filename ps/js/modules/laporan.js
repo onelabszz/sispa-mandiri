@@ -171,4 +171,49 @@ export const Laporan = {
         <th style="text-align:center">3T</th>
         <th style="text-align:center">Akademik</th>
         <th style="text-align:center">Coaching</th>
-      </tr></thead><tbody>${g
+      </tr></thead><tbody>${guruRows || '<tr><td colspan="7" style="text-align:center">—</td></tr>'}</tbody></table>
+      <div class="ttd-grid">
+        <div class="ttd-box"><div>Kepala Sekolah</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(sk.ks_nama || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(sk.ks_nip || '...')}</div></div>
+        <div class="ttd-box"><div>Pengawas</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(c.nama_pengawas || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(c.nip_pengawas || '...')}</div></div>
+      </div>`;
+    setTimeout(() => window.print(), 200);
+  },
+
+  _csvGuru() {
+    const list = allGuru();
+    const rows = [['Sekolah', 'NPSN', 'Nama', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Tipe', 'Pendekatan', '3T', 'Akademik', 'Coaching']];
+    list.sort((a, b) => a._skNama.localeCompare(b._skNama) || a.nama.localeCompare(b.nama)).forEach(g => {
+      const sk = Store.get('sekolah').find(x => x.id === g._skId);
+      const n3 = (sk?.supervisi || []).filter(s => s.gid === g.id).length;
+      const nA = (sk?.akademik || []).filter(s => s.gid === g.id).length;
+      const nC = (sk?.coaching || []).filter(s => s.gid === g.id).length;
+      rows.push([g._skNama, g._skNpsn || '', g.nama, g.nip || '', g.mapel || '', g.kelas || '', g.peg || '', g.tipe || '', g.pendekatan || '', n3, nA, nC]);
+    });
+    Utils.downloadCSV(rows, `SISPA_Guru_${new Date().toISOString().slice(0, 10)}.csv`);
+    Utils.toast(`${list.length} guru diekspor`, 'success');
+  },
+
+  _csvSup() {
+    const list = allSesi();
+    const rows = [['Sekolah', 'Guru', 'Jenis', 'Tanggal', 'Status', 'Skor', 'Max']];
+    list.forEach(s => {
+      const g = guruBySekolah(s._skId, s.gid);
+      const max = s._jenis === 'Akademik' ? 76 : s._jenis === 'Coaching' ? 32 : '';
+      const status = s._jenis === '3 Tahap' ? (s.status || 'draft') : 'selesai';
+      rows.push([s._skNama, g?.nama || '?', s._jenis, s.tgl || '', status, s.skor ?? '', max]);
+    });
+    Utils.downloadCSV(rows, `SISPA_Supervisi_${new Date().toISOString().slice(0, 10)}.csv`);
+    Utils.toast(`${list.length} sesi diekspor`, 'success');
+  },
+
+  _csvRekap() {
+    const sekolah = Store.get('sekolah');
+    const rows = [['Sekolah', 'NPSN', 'KS', 'Guru', 'Sesi', 'Coverage', 'Avg Akademik', 'Avg Coaching', 'Kelengkapan RTL', 'Skor', 'Kategori']];
+    sekolah.forEach(sk => {
+      const m = metricsSekolah(sk);
+      rows.push([sk.nama_sekolah, sk.npsn || '', sk.ks_nama || '', m.totalGuru, m.totalSesi, m.coverage, m.avgAk ?? '', m.avgCo ?? '', m.kelengkapan, m.score, m.kategori]);
+    });
+    Utils.downloadCSV(rows, `SISPA_Rekap_${new Date().toISOString().slice(0, 10)}.csv`);
+    Utils.toast(`${sekolah.length} sekolah diekspor`, 'success');
+  }
+};
