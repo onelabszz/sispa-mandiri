@@ -45,6 +45,14 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const req = e.request;
+    // --- TAMBAHKAN 3 BARIS INI ---
+  if (!req.url.startsWith(self.location.origin)) {
+    return; // Biarkan browser yang mengurus request ke luar (Supabase)
+  }
+  // -----------------------------
+
+  if (req.method !== 'GET') return;
+  // ... (sisa kode di bawahnya biarkan sama)
   if (req.method !== 'GET') return;
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).catch(() => caches.match('./index.html')));
