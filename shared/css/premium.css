@@ -545,3 +545,14 @@ tbody tr { transition: background var(--t-fast); }
   z-index: 10000;
   overflow-y: auto;
 }
+#setupScreen.auth-split {
+  display: grid !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  overflow-y: auto;
+  background: #f8fafc;
+}
