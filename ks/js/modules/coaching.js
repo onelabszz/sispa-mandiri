@@ -14,10 +14,12 @@ export const Coaching = {
     const guru = Store.get('guru');
     if (guru.length === 0) {
       return `<div class="card"><div class="card-body">
-        ${emptyState('users', 'Belum ada guru', 'Tambahkan guru dulu di menu Data Guru.')}
+        ${emptyState('users', 'Belum ada guru', 'Tambahkan guru dulu di menu Data Guru sebelum memulai observasi coaching.',
+          `<button class="btn btn-primary" id="btnGoGuruCoach">${Icons.svg('plus', 16)} Tambah Guru Pertama</button>`)}
       </div></div>`;
     }
-    _detail = {}; _catatan = {};
+    _detail = {};
+    _catatan = {};
     _rtl = [{ aksi: '', waktu: '', dukungan: '', indikator: '' }];
 
     let rows = '';
@@ -72,6 +74,15 @@ export const Coaching = {
   },
 
   async bind() {
+    // Guard: empty state — belum ada guru, form tidak ter-render
+    if (!Utils.el('btnSaveCoach')) {
+      Utils.el('btnGoGuruCoach')?.addEventListener('click', async () => {
+        const { Router } = await import('../../../shared/js/router.js');
+        Router.navigate('guru');
+      });
+      return;
+    }
+
     window.__updateDupWarn = updateDupWarn;
     updateDupWarn('cguru', 'cguruWarn', 'coaching');
 
