@@ -90,9 +90,15 @@ const App = {
           </div>
 
           <div class="auth-brand-footer">
-            <span>© ${new Date().getFullYear()} SISPA Pengawas · 100% Gratis</span>
-            <span class="version-pill">v2.0.0</span>
-          </div>
+  <div style="display:flex;align-items:center;gap:.6rem">
+    <img src="../shared/icons/wonogiri.svg" alt="Lambang Kabupaten Wonogiri" style="width:32px;height:32px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.25))">
+    <div>
+      <div style="font-size:.72rem;color:#e0e7ff;font-weight:600;line-height:1.2">Kabupaten Wonogiri</div>
+      <div style="font-size:.62rem;color:#a5b4fc;line-height:1.2">© ${new Date().getFullYear()} SISPA Pengawas</div>
+    </div>
+  </div>
+  <span class="version-pill">v2.0.0</span>
+</div>
         </div>
       </aside>
 
@@ -101,14 +107,14 @@ const App = {
           <div class="auth-mobile-brand">
             <div class="mb-logo">${Icons.svg('user', 20)}</div>
             <div>
-              <div style="font-weight:800;color:#0f172a;font-size:.95rem">SISPA Pengawas</div>
-              <div style="font-size:.7rem;color:#64748b">Setup Awal</div>
+                <div style="font-weight:800;color:#0f172a;font-size:.95rem">SISPA Pengawas</div>
+                <div style="font-size:.7rem;color:#64748b">Kabupaten Wonogiri</div>
             </div>
           </div>
 
           <div class="auth-step-pill">Setup Awal</div>
           <h1 class="auth-heading">Selamat datang, Pengawas 👋</h1>
-          <p class="auth-sub">Isi identitas Anda. Data akan tersimpan di device ini saja — tidak ada server cloud.</p>
+          <p class="auth-sub">Isi identitas Anda. Data akan tersimpan di device ini saja.</p>
 
           <div class="form-group">
             <label class="label">Nama Pengawas *</label>
