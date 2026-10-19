@@ -537,3 +537,11 @@ tbody tr { transition: background var(--t-fast); }
   .auth-heading, .auth-sub { text-align: center; }
   .auth-link-btn { display: flex; margin-left: auto; margin-right: auto; }
 }
+/* Fix setup screen agar menutupi layar penuh (overlay) */
+#setupScreen.auth-split {
+  display: grid !important;
+  position: fixed !important;
+  inset: 0;
+  z-index: 10000;
+  overflow-y: auto;
+}
