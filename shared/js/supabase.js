@@ -16,11 +16,11 @@ export const Supabase = {
     const client = ensureClient();
     const { data, error } = await client
       .from('sekolah')
-      .select('id, npsn, nama_sekolah, ks_nama, ks_nip')
+      .select('npsn, nama_sekolah') // Hanya 2 kolom ini
       .eq('npsn', String(npsn).trim())
-      .eq('is_active', true)
       .maybeSingle();
-    if (error) throw new Error('Koneksi database gagal: ' + error.message);
+      
+    if (error) throw new Error('Koneksi gagal: ' + error.message);
     return data;
   },
 
@@ -28,11 +28,11 @@ export const Supabase = {
     const client = ensureClient();
     const { data, error } = await client
       .from('pengawas')
-      .select('id, nip, nama_pengawas, wilayah')
+      .select('nip, nama_pengawas, wilayah') // Hanya 3 kolom ini
       .eq('nip', String(nip).trim())
-      .eq('is_active', true)
       .maybeSingle();
-    if (error) throw new Error('Koneksi database gagal: ' + error.message);
+      
+    if (error) throw new Error('Koneksi gagal: ' + error.message);
     return data;
   },
 
