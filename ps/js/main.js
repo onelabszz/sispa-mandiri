@@ -161,6 +161,10 @@ const App = {
   },
 
   boot() {
+    // Pastikan setup screen & PIN hidden saat masuk app
+    Utils.el('setupScreen').style.display = 'none';
+    Utils.el('pinScreen').classList.remove('show');
+    
     Utils.el('app').style.display = 'block';
     const cfg = Store.config();
     Shell.buildSidebar(NAV_PS, Router.current || 'dashboard', cfg, 'PS');
