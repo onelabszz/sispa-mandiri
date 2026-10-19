@@ -198,3 +198,43 @@ tbody tr:last-child td { border-bottom: none; }
   border-radius: 4px;
 }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* ============ CHECKBOX LABEL ============ */
+.cbx {
+  display: block; padding: .6rem;
+  border: 1.5px solid var(--slate-200); border-radius: 8px;
+  cursor: pointer; text-align: center; background: #fff;
+  transition: all var(--t-fast);
+}
+.cbx:hover { border-color: var(--slate-400); }
+.cbx:has(input:checked) { border-color: var(--brand-500); background: var(--brand-50); }
+.cbx input { display: none; }
+.cbx-sm { padding: .5rem; font-size: .75rem; border-radius: 6px; text-align: center; }
+
+/* ============ STEPPER ============ */
+.step-tab {
+  padding: .5rem .9rem; background: var(--slate-100); color: var(--slate-600);
+  border-radius: var(--radius-md); font-size: .8rem; font-weight: 600;
+  border: none; cursor: pointer; margin-right: .35rem;
+  transition: all var(--t-fast);
+}
+.step-tab:hover { background: var(--slate-200); }
+.step-tab.active { background: var(--brand-600); color: #fff; }
+.step-tab.done { background: var(--success); color: #fff; }
+
+/* ============ CHART (bar) ============ */
+.chart-wrap {
+  width: 100%; height: 220px; display: flex; align-items: flex-end;
+  justify-content: space-around; padding: 20px 10px 0;
+}
+.chart-col {
+  display: flex; flex-direction: column; align-items: center;
+  width: 20%; height: 100%; justify-content: flex-end;
+}
+.chart-bar {
+  width: 100%; background: var(--brand-500);
+  border-radius: 4px 4px 0 0; transition: height .5s; min-height: 4px;
+}
+.chart-label {
+  font-size: 10px; color: var(--slate-500);
+  margin-top: 6px; text-align: center;
+}
