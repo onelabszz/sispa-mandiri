@@ -57,9 +57,12 @@ export const PinLock = {
           </div>
 
           <div class="auth-brand-footer">
-            <span>© ${year} SISPA</span>
-            <span class="version-pill">v2.0.0</span>
-          </div>
+  <div style="display:flex;align-items:center;gap:.55rem">
+    <img src="../shared/icons/wonogiri.svg" alt="Lambang Kabupaten Wonogiri" style="width:26px;height:26px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))">
+    <span style="font-size:.68rem;color:#c7d2fe">Kabupaten Wonogiri · © ${year}</span>
+  </div>
+  <span class="version-pill">v2.0.0</span>
+</div>
         </aside>
 
         <main class="auth-form-side">
@@ -68,8 +71,8 @@ export const PinLock = {
               <div class="mb-logo">${Icons.svg('graduation-cap', 20)}</div>
               <div>
                 <div style="font-weight:800;color:#0f172a;font-size:.95rem">SISPA Mandiri</div>
-                <div style="font-size:.7rem;color:#64748b">${roleLabel}</div>
-              </div>
+                <div style="font-size:.7rem;color:#64748b">Kabupaten Wonogiri</div>
+                </div>
             </div>
 
             <div class="pin-avatar">${Utils.esc(initial)}</div>
