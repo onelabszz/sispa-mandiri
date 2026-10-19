@@ -7,10 +7,10 @@ import { PinLock } from '../../shared/js/pin.js';
 import { NAV_KS } from '../../shared/js/constants.js';
 
 import { Dashboard } from './modules/dashboard.js';
-// Modul lain akan di-import di batch berikutnya:
-// import { Guru } from './modules/guru.js';
-// import { Profil } from './modules/profil.js';
-// import { Program } from './modules/program.js';
+import { Guru } from './modules/guru.js';
+import { Profil } from './modules/profil.js';
+import { Program } from './modules/program.js';
+// Modul berikut menyusul di batch 3:
 // import { Supervisi } from './modules/supervisi.js';
 // import { Akademik } from './modules/akademik.js';
 // import { Coaching } from './modules/coaching.js';
