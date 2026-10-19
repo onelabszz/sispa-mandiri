@@ -75,7 +75,9 @@ const App = {
     Shell.buildProfileMenu(cfg, 'KS', () => this.lock());
     this.wireShell();
     Router.register('dashboard', Dashboard);
-    // Register modul lain menyusul di batch berikutnya
+    Router.register('guru', Guru);
+    Router.register('profil', Profil);
+    Router.register('program', Program);
     Router.navigate('dashboard');
   },
 
