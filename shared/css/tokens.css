@@ -1,0 +1,27 @@
+:root {
+  /* Brand */
+  --brand-50: #eef2ff; --brand-100: #e0e7ff; --brand-500: #6366f1;
+  --brand-600: #4f46e5; --brand-700: #4338ca;
+  /* Slate */
+  --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b;
+  --slate-600: #475569; --slate-700: #334155; --slate-900: #0f172a;
+  /* Semantic */
+  --success: #16a34a; --warning: #f59e0b; --danger: #dc2626; --info: #0ea5e9;
+  /* Layout */
+  --sidebar-w: 260px; --header-h: 64px;
+  /* Radius */
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 20px;
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / .05);
+  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / .08), 0 2px 4px -2px rgb(15 23 42 / .05);
+  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / .08), 0 4px 6px -4px rgb(15 23 42 / .05);
+  /* Spacing */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px;
+  --space-4: 16px; --space-6: 24px; --space-8: 32px;
+  /* Typography */
+  --text-xs: .75rem; --text-sm: .875rem; --text-base: 1rem;
+  --text-lg: 1.125rem; --text-xl: 1.25rem; --text-2xl: 1.5rem; --text-3xl: 2rem;
+  /* Transition */
+  --t-fast: .12s ease; --t-base: .18s ease; --t-slow: .3s ease;
+}
