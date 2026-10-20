@@ -5,108 +5,169 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Admin Panel — SISPA Mandiri</title>
 <link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
   :root {
-    --brand-500: #6366f1; --brand-600: #4f46e5; --brand-700: #4338ca;
+    --brand-50: #eef2ff; --brand-100: #e0e7ff; --brand-500: #6366f1;
+    --brand-600: #4f46e5; --brand-700: #4338ca;
     --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
-    --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
+    --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b;
+    --slate-700: #334155; --slate-900: #0f172a;
     --success: #16a34a; --danger: #dc2626; --warning: #f59e0b;
   }
-  * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+  * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
   body { margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; height: 100vh; overflow: hidden; }
-  
-  /* SIDEBAR */
-  .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--slate-200); display: flex; flex-direction: column; }
+  svg { display: inline-block; vertical-align: middle; }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--slate-200); display: flex; flex-direction: column; z-index: 10; }
   .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; gap: .75rem; }
-  .sidebar-logo { width: 36px; height: 36px; background: var(--brand-600); color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-  .nav-item { padding: 1rem 1.5rem; display: flex; align-items: center; gap: .75rem; cursor: pointer; color: var(--slate-700); font-weight: 500; transition: .15s; }
-  .nav-item:hover { background: var(--slate-50); color: var(--brand-600); }
-  .nav-item.active { background: var(--brand-50); color: var(--brand-700); border-right: 3px solid var(--brand-600); }
-
-  /* MAIN CONTENT */
-  .main-content { flex: 1; overflow-y: auto; padding: 2rem; }
+  .sidebar-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--brand-500), var(--brand-700)); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(79,70,229,.3); }
+  .nav-item { padding: .85rem 1.5rem; display: flex; align-items: center; gap: .75rem; cursor: pointer; color: var(--slate-500); font-weight: 500; font-size: .9rem; transition: all .15s; border-left: 3px solid transparent; text-decoration: none; }
+  .nav-item:hover { background: var(--slate-50); color: var(--slate-900); }
+  .nav-item.active { background: var(--brand-50); color: var(--brand-700); border-left-color: var(--brand-600); font-weight: 600; }
+  
+  /* ============ MAIN CONTENT ============ */
+  .main-content { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; position: relative; }
   .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-  .header h1 { margin: 0; font-size: 1.5rem; }
+  .header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--slate-900); }
+  .header p { margin: .25rem 0 0; color: var(--slate-500); font-size: .9rem; }
   
-  /* STAT CARDS */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-  .stat-card { background: #fff; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--slate-200); box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  /* ============ STAT CARDS ============ */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+  .stat-card { background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid var(--slate-200); box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: center; gap: 1.25rem; }
+  .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .stat-title { font-size: .8rem; color: var(--slate-500); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
-  .stat-value { font-size: 2rem; font-weight: 800; margin-top: .5rem; color: var(--slate-900); }
+  .stat-value { font-size: 1.8rem; font-weight: 800; margin-top: .25rem; color: var(--slate-900); line-height: 1; }
 
-  /* TABLE */
-  .card { background: #fff; border-radius: 12px; border: 1px solid var(--slate-200); box-shadow: 0 1px 3px rgba(0,0,0,.05); overflow: hidden; }
-  .card-header { padding: 1.25rem; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; }
+  /* ============ TABLE ============ */
+  .card { background: #fff; border-radius: 16px; border: 1px solid var(--slate-200); box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; margin-bottom: 2rem; }
+  .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; background: #fff; }
+  .card-header h3 { margin: 0; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; }
   table { width: 100%; border-collapse: collapse; text-align: left; }
-  th { background: var(--slate-50); padding: .75rem 1.25rem; font-size: .75rem; color: var(--slate-500); text-transform: uppercase; letter-spacing: .05em; }
-  td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--slate-100); font-size: .875rem; }
-  tr:last-child td { border-bottom: none; }
+  th { background: var(--slate-50); padding: .85rem 1.5rem; font-size: .75rem; color: var(--slate-500); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; border-bottom: 1px solid var(--slate-200); }
+  td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-100); font-size: .875rem; color: var(--slate-700); vertical-align: middle; }
+  tbody tr:hover { background: var(--slate-50); }
+  tbody tr:last-child td { border-bottom: none; }
   
-  /* BUTTONS & BADGES */
-  .btn { padding: .5rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: .8rem; transition: .15s; display: inline-flex; align-items: center; gap: .35rem; }
-  .btn-primary { background: var(--brand-600); color: #fff; }
+  /* ============ BUTTONS & BADGES ============ */
+  .btn { padding: .5rem .9rem; border-radius: 8px; border: 1px solid transparent; cursor: pointer; font-weight: 600; font-size: .8rem; transition: all .15s; display: inline-flex; align-items: center; gap: .4rem; font-family: inherit; }
+  .btn-primary { background: var(--brand-600); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
   .btn-primary:hover { background: var(--brand-700); }
-  .btn-danger { background: var(--danger); color: #fff; }
-  .btn-secondary { background: var(--slate-200); color: var(--slate-700); }
-  .btn-sm { padding: .3rem .6rem; font-size: .7rem; }
-  .badge { padding: .25rem .5rem; border-radius: 999px; font-size: .7rem; font-weight: 600; }
+  .btn-danger { background: #fff; color: var(--danger); border-color: #fecaca; }
+  .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
+  .btn-secondary { background: #fff; color: var(--slate-700); border-color: var(--slate-300); }
+  .btn-secondary:hover { background: var(--slate-50); }
+  .btn-sm { padding: .35rem .6rem; font-size: .75rem; }
+  .btn-icon { padding: .4rem; border-radius: 6px; }
+  
+  .badge { padding: .25rem .6rem; border-radius: 999px; font-size: .7rem; font-weight: 700; display: inline-flex; align-items: center; gap: .25rem; }
   .badge-active { background: #dcfce7; color: var(--success); }
   .badge-suspend { background: #fee2e2; color: var(--danger); }
 
-  /* MODAL */
-  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); }
-  .modal.show { display: flex; }
-  .modal-content { background: #fff; padding: 1.5rem; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 20px 40px -10px rgba(0,0,0,.2); }
-  .input { width: 100%; padding: .6rem .8rem; border: 1px solid var(--slate-300); border-radius: 8px; font-size: .9rem; outline: none; margin-bottom: 1rem; }
+  /* ============ MODAL & TOAST ============ */
+  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.4); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); }
+  .modal.show { display: flex; animation: fadeIn .2s; }
+  .modal-content { background: #fff; padding: 1.75rem; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 20px 40px -10px rgba(0,0,0,.15); animation: slideUp .2s; }
+  .input { width: 100%; padding: .65rem .85rem; border: 1px solid var(--slate-300); border-radius: 8px; font-size: .9rem; outline: none; margin-bottom: 1rem; transition: border .15s; }
   .input:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
-  .label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: .35rem; color: var(--slate-700); }
+  .label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: .4rem; color: var(--slate-700); }
+  
+  #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--slate-900); color: #fff; padding: .75rem 1rem; border-radius: 8px; font-size: .85rem; display: flex; align-items: center; gap: .5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,.3); z-index: 999; opacity: 0; transform: translateY(10px); transition: all .2s; pointer-events: none; }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.error { background: var(--danger); }
+  #toast.success { background: var(--success); }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* Loading State */
+  .loading-overlay { position: absolute; inset: 0; background: rgba(248,250,252,.8); backdrop-filter: blur(2px); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .loading-overlay.show { display: flex; }
+  .spinner { animation: spin 1s linear infinite; color: var(--brand-600); }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
 <!-- LOGIN ADMIN -->
 <div id="loginScreen" style="position:fixed;inset:0;background:var(--slate-50);display:flex;align-items:center;justify-content:center;z-index:999;">
-  <div style="background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 10px 25px -5px rgba(0,0,0,.1);width:100%;max-width:380px;text-align:center">
-    <h2 style="margin:0 0 .5rem">Admin Panel</h2>
+  <div style="background:#fff;padding:2.5rem;border-radius:20px;box-shadow:0 20px 40px -10px rgba(0,0,0,.1);width:100%;max-width:380px;text-align:center">
+    <div style="width:60px;height:60px;background:var(--brand-50);color:var(--brand-600);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+      <i data-lucide="shield-check" style="width:32px;height:32px;"></i>
+    </div>
+    <h2 style="margin:0 0 .5rem;font-size:1.4rem;">Admin Panel</h2>
     <p style="color:var(--slate-500);font-size:.85rem;margin-bottom:1.5rem">SISPA Mandiri — Kabupaten Wonogiri</p>
     <input type="password" id="adminKey" class="input" placeholder="Masukkan Kunci Admin" style="text-align:center">
-    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="loginAdmin()">Masuk</button>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem" onclick="loginAdmin()">Masuk ke Panel</button>
   </div>
 </div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="sidebar-logo">S</div>
+    <div class="sidebar-logo"><i data-lucide="graduation-cap" style="width:22px;height:22px;"></i></div>
     <div>
-      <div style="font-weight:800;font-size:.9rem;">Admin SISPA</div>
-      <div style="font-size:.7rem;color:var(--slate-500)">Kab. Wonogiri</div>
+      <div style="font-weight:800;font-size:.9rem;color:var(--slate-900);">Admin SISPA</div>
+      <div style="font-size:.7rem;color:var(--slate-500);">Kab. Wonogiri</div>
     </div>
   </div>
-  <div class="nav-item active" onclick="switchTab('dashboard')" id="navDash">📊 Dashboard</div>
-  <div class="nav-item" onclick="switchTab('sekolah')" id="navSek">🏫 Data Sekolah (KS)</div>
-  <div class="nav-item" onclick="switchTab('pengawas')" id="navPen">👨‍🏫 Data Pengawas (PS)</div>
-  <div style="margin-top:auto; padding:1.5rem;">
-    <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="logoutAdmin()">Keluar</button>
+  <div style="flex:1; padding-top:1rem;">
+    <a class="nav-item active" onclick="switchTab('dashboard')" id="navDash"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i> Dashboard</a>
+    <a class="nav-item" onclick="switchTab('sekolah')" id="navSek"><i data-lucide="school" style="width:18px;height:18px;"></i> Data Sekolah</a>
+    <a class="nav-item" onclick="switchTab('pengawas')" id="navPen"><i data-lucide="users" style="width:18px;height:18px;"></i> Data Pengawas</a>
+  </div>
+  <div style="padding:1.5rem;border-top:1px solid var(--slate-200);">
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;color:var(--danger);border-color:#fecaca;" onclick="logoutAdmin()">
+      <i data-lucide="log-out" style="width:16px;height:16px;"></i> Keluar
+    </button>
   </div>
 </aside>
 
 <!-- MAIN CONTENT -->
 <main class="main-content">
+  <div class="loading-overlay" id="loadingOverlay">
+    <i data-lucide="loader-2" class="spinner" style="width:32px;height:32px;"></i>
+  </div>
+
   <div class="header">
-    <h1 id="pageTitle">Dashboard Admin</h1>
+    <div>
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageSub">Ringkasan data akun SISPA Mandiri</p>
+    </div>
     <div id="headerAction"></div>
   </div>
 
   <!-- VIEW: DASHBOARD -->
   <div id="viewDashboard">
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-title">Total Sekolah</div><div class="stat-value" id="statSekolah">0</div></div>
-      <div class="stat-card"><div class="stat-title">Total Pengawas</div><div class="stat-value" id="statPengawas">0</div></div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#e0e7ff;color:#4338ca"><i data-lucide="school" style="width:24px;height:24px;"></i></div>
+        <div>
+          <div class="stat-title">Total Sekolah</div>
+          <div class="stat-value" id="statSekolah">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7;color:#166534"><i data-lucide="users" style="width:24px;height:24px;"></i></div>
+        <div>
+          <div class="stat-title">Total Pengawas</div>
+          <div class="stat-value" id="statPengawas">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7;color:#92400e"><i data-lucide="activity" style="width:24px;height:24px;"></i></div>
+        <div>
+          <div class="stat-title">Akun Aktif</div>
+          <div class="stat-value" id="statAktif">0</div>
+        </div>
+      </div>
     </div>
-    <div class="card" style="padding:2rem;text-align:center;color:var(--slate-500)">
-      <h3>Selamat Datang di Panel Admin</h3>
-      <p>Gunakan menu di sebelah kiri untuk mengelola data akun Kepala Sekolah dan Pengawas.</p>
+    <div class="card" style="padding:3rem 2rem;text-align:center;color:var(--slate-500)">
+      <i data-lucide="layout-dashboard" style="width:48px;height:48px;color:var(--slate-300);margin-bottom:1rem;"></i>
+      <h3 style="margin:0 0 .5rem;color:var(--slate-700)">Selamat Datang di Panel Admin</h3>
+      <p style="margin:0;font-size:.9rem;">Gunakan menu di sebelah kiri untuk mengelola data Sekolah (KS) dan Pengawas (PS).</p>
     </div>
   </div>
 
@@ -114,11 +175,11 @@
   <div id="viewSekolah" style="display:none">
     <div class="card">
       <div class="card-header">
-        <h3 style="margin:0;font-size:1.1rem">Daftar Sekolah</h3>
+        <h3><i data-lucide="school" style="width:18px;height:18px;color:var(--brand-600)"></i> Daftar Sekolah</h3>
         <div style="display:flex;gap:.5rem">
           <input type="file" id="csvFileSek" accept=".csv" style="display:none" onchange="handleCSVSekolah(event)">
-          <button class="btn btn-secondary" onclick="document.getElementById('csvFileSek').click()">📥 Import CSV</button>
-          <button class="btn btn-primary" onclick="openModalSekolah()">+ Tambah Sekolah</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('csvFileSek').click()"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
+          <button class="btn btn-primary" onclick="openModalSekolah()"><i data-lucide="plus" style="width:16px;height:16px;"></i> Tambah Sekolah</button>
         </div>
       </div>
       <table>
@@ -132,11 +193,11 @@
   <div id="viewPengawas" style="display:none">
     <div class="card">
       <div class="card-header">
-        <h3 style="margin:0;font-size:1.1rem">Daftar Pengawas</h3>
+        <h3><i data-lucide="users" style="width:18px;height:18px;color:var(--brand-600)"></i> Daftar Pengawas</h3>
         <div style="display:flex;gap:.5rem">
           <input type="file" id="csvFilePen" accept=".csv" style="display:none" onchange="handleCSVPengawas(event)">
-          <button class="btn btn-secondary" onclick="document.getElementById('csvFilePen').click()">📥 Import CSV</button>
-          <button class="btn btn-primary" onclick="openModalPengawas()">+ Tambah Pengawas</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('csvFilePen').click()"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
+          <button class="btn btn-primary" onclick="openModalPengawas()"><i data-lucide="plus" style="width:16px;height:16px;"></i> Tambah Pengawas</button>
         </div>
       </div>
       <table>
@@ -150,7 +211,7 @@
 <!-- MODAL FORM -->
 <div class="modal" id="formModal">
   <div class="modal-content">
-    <h3 id="modalTitle" style="margin:0 0 1.5rem">Form Data</h3>
+    <h3 id="modalTitle" style="margin:0 0 1.5rem;display:flex;align-items:center;gap:.5rem;">Form Data</h3>
     <div id="modalFields"></div>
     <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem">
       <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
@@ -158,6 +219,9 @@
     </div>
   </div>
 </div>
+
+<!-- TOAST -->
+<div id="toast"><span id="toastMsg"></span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
@@ -170,11 +234,24 @@
   let dataSekolah = [];
   let dataPengawas = [];
 
+  // Inisialisasi Lucide Icons
+  lucide.createIcons();
+
+  // Helper Toast
+  window.showToast = (msg, type = '') => {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.className = `show ${type}`;
+    setTimeout(() => { t.className = ''; }, 3000);
+  };
+
   window.loginAdmin = () => {
     if (document.getElementById('adminKey').value === ADMIN_KEY) {
       document.getElementById('loginScreen').style.display = 'none';
       loadData();
-    } else alert('Kunci Admin salah!');
+    } else {
+      showToast('Kunci Admin salah!', 'error');
+    }
   };
 
   window.logoutAdmin = () => location.reload();
@@ -183,7 +260,14 @@
     currentTab = tab;
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById('nav' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-    document.getElementById('pageTitle').textContent = tab === 'dashboard' ? 'Dashboard Admin' : (tab === 'sekolah' ? 'Manajemen Sekolah' : 'Manajemen Pengawas');
+    
+    const titles = {
+      dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun SISPA Mandiri' },
+      sekolah: { title: 'Manajemen Sekolah', sub: 'Kelola akun Kepala Sekolah (KS)' },
+      pengawas: { title: 'Manajemen Pengawas', sub: 'Kelola akun Pengawas Sekolah (PS)' }
+    };
+    document.getElementById('pageTitle').textContent = titles[tab].title;
+    document.getElementById('pageSub').textContent = titles[tab].sub;
     
     document.getElementById('viewDashboard').style.display = tab === 'dashboard' ? 'block' : 'none';
     document.getElementById('viewSekolah').style.display = tab === 'sekolah' ? 'block' : 'none';
@@ -191,40 +275,74 @@
   };
 
   async function loadData() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('show');
     try {
       dataSekolah = await Supabase.getAllSekolah();
       dataPengawas = await Supabase.getAllPengawas();
       
+      // Update Stats
+      const totalAktif = dataSekolah.filter(s => s.is_active).length + dataPengawas.filter(p => p.is_active).length;
       document.getElementById('statSekolah').textContent = dataSekolah.length;
       document.getElementById('statPengawas').textContent = dataPengawas.length;
+      document.getElementById('statAktif').textContent = totalAktif;
 
-      document.getElementById('tbodySekolah').innerHTML = dataSekolah.map(s => `
-        <tr>
-          <td style="font-family:monospace">${s.npsn}</td>
-          <td style="font-weight:600">${s.nama_sekolah}</td>
-          <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-suspend'}">${s.is_active ? 'Aktif' : 'Suspend'}</span></td>
-          <td style="text-align:right">
-            <button class="btn btn-secondary btn-sm" onclick="toggleStatus('sekolah','${s.npsn}',${s.is_active})">${s.is_active ? 'Suspend' : 'Aktifkan'}</button>
-            <button class="btn btn-secondary btn-sm" onclick="openModalSekolah('${s.npsn}')">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteData('sekolah','${s.npsn}')">Hapus</button>
-          </td>
-        </tr>
-      `).join('');
+      // Render Tabel Sekolah
+      const tbodySek = document.getElementById('tbodySekolah');
+      if (dataSekolah.length === 0) {
+        tbodySek.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--slate-400)">Belum ada data sekolah.</td></tr>`;
+      } else {
+        tbodySek.innerHTML = dataSekolah.map(s => `
+          <tr>
+            <td style="font-family:monospace;font-weight:600;">${s.npsn}</td>
+            <td style="font-weight:600;color:var(--slate-900)">${s.nama_sekolah}</td>
+            <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-suspend'}">
+              <i data-lucide="${s.is_active ? 'check-circle' : 'x-circle'}" style="width:12px;height:12px;"></i>
+              ${s.is_active ? 'Aktif' : 'Suspend'}
+            </span></td>
+            <td style="text-align:right;white-space:nowrap;">
+              <button class="btn btn-secondary btn-sm" onclick="toggleStatus('sekolah','${s.npsn}',${s.is_active})" title="${s.is_active ? 'Suspend' : 'Aktifkan'}">
+                <i data-lucide="power" style="width:14px;height:14px;color:${s.is_active ? 'var(--danger)' : 'var(--success)'}"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="openModalSekolah('${s.npsn}')" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
+              <button class="btn btn-danger btn-sm" onclick="deleteData('sekolah','${s.npsn}')" title="Hapus"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      }
 
-      document.getElementById('tbodyPengawas').innerHTML = dataPengawas.map(p => `
-        <tr>
-          <td style="font-family:monospace">${p.nip}</td>
-          <td style="font-weight:600">${p.nama_pengawas}</td>
-          <td>${p.wilayah || '-'}</td>
-          <td><span class="badge ${p.is_active ? 'badge-active' : 'badge-suspend'}">${p.is_active ? 'Aktif' : 'Suspend'}</span></td>
-          <td style="text-align:right">
-            <button class="btn btn-secondary btn-sm" onclick="toggleStatus('pengawas','${p.nip}',${p.is_active})">${p.is_active ? 'Suspend' : 'Aktifkan'}</button>
-            <button class="btn btn-secondary btn-sm" onclick="openModalPengawas('${p.nip}')">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteData('pengawas','${p.nip}')">Hapus</button>
-          </td>
-        </tr>
-      `).join('');
-    } catch (err) { alert('Gagal load data: ' + err.message); }
+      // Render Tabel Pengawas
+      const tbodyPen = document.getElementById('tbodyPengawas');
+      if (dataPengawas.length === 0) {
+        tbodyPen.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--slate-400)">Belum ada data pengawas.</td></tr>`;
+      } else {
+        tbodyPen.innerHTML = dataPengawas.map(p => `
+          <tr>
+            <td style="font-family:monospace;font-weight:600;">${p.nip}</td>
+            <td style="font-weight:600;color:var(--slate-900)">${p.nama_pengawas}</td>
+            <td>${p.wilayah || '-'}</td>
+            <td><span class="badge ${p.is_active ? 'badge-active' : 'badge-suspend'}">
+              <i data-lucide="${p.is_active ? 'check-circle' : 'x-circle'}" style="width:12px;height:12px;"></i>
+              ${p.is_active ? 'Aktif' : 'Suspend'}
+            </span></td>
+            <td style="text-align:right;white-space:nowrap;">
+              <button class="btn btn-secondary btn-sm" onclick="toggleStatus('pengawas','${p.nip}',${p.is_active})" title="${p.is_active ? 'Suspend' : 'Aktifkan'}">
+                <i data-lucide="power" style="width:14px;height:14px;color:${p.is_active ? 'var(--danger)' : 'var(--success)'}"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="openModalPengawas('${p.nip}')" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
+              <button class="btn btn-danger btn-sm" onclick="deleteData('pengawas','${p.nip}')" title="Hapus"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      }
+      
+      lucide.createIcons(); // Re-render ikon setelah innerHTML diubah
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal memuat data: ' + err.message, 'error');
+    } finally {
+      overlay.classList.remove('show');
+    }
   }
 
   window.toggleStatus = async (type, id, currentStatus) => {
@@ -232,38 +350,41 @@
     try {
       if (type === 'sekolah') await Supabase.toggleSekolah(id, !currentStatus);
       else await Supabase.togglePengawas(id, !currentStatus);
+      showToast('Status berhasil diubah', 'success');
       loadData();
-    } catch(err) { alert(err.message); }
+    } catch(err) { showToast(err.message, 'error'); }
   };
 
   window.openModalSekolah = (npsn = null) => {
     currentFormType = 'sekolah';
     editMode = !!npsn;
     const s = editMode ? dataSekolah.find(x => x.npsn === npsn) : { npsn: '', nama_sekolah: '' };
-    document.getElementById('modalTitle').textContent = editMode ? 'Edit Sekolah' : 'Tambah Sekolah';
+    document.getElementById('modalTitle').innerHTML = `<i data-lucide="${editMode ? 'edit-3' : 'plus-circle'}" style="width:20px;height:20px;color:var(--brand-600)"></i> ${editMode ? 'Edit Sekolah' : 'Tambah Sekolah'}`;
     document.getElementById('modalFields').innerHTML = `
       <label class="label">NPSN (8 Digit)</label>
-      <input type="text" id="fNpsn" class="input" value="${s.npsn}" ${editMode ? 'disabled' : ''}>
+      <input type="text" id="fNpsn" class="input" value="${s.npsn}" ${editMode ? 'disabled style="background:var(--slate-100);"' : ''}>
       <label class="label">Nama Sekolah</label>
       <input type="text" id="fNama" class="input" value="${s.nama_sekolah}">
     `;
     document.getElementById('formModal').classList.add('show');
+    lucide.createIcons();
   };
 
   window.openModalPengawas = (nip = null) => {
     currentFormType = 'pengawas';
     editMode = !!nip;
     const p = editMode ? dataPengawas.find(x => x.nip === nip) : { nip: '', nama_pengawas: '', wilayah: '' };
-    document.getElementById('modalTitle').textContent = editMode ? 'Edit Pengawas' : 'Tambah Pengawas';
+    document.getElementById('modalTitle').innerHTML = `<i data-lucide="${editMode ? 'edit-3' : 'plus-circle'}" style="width:20px;height:20px;color:var(--brand-600)"></i> ${editMode ? 'Edit Pengawas' : 'Tambah Pengawas'}`;
     document.getElementById('modalFields').innerHTML = `
       <label class="label">NIP</label>
-      <input type="text" id="fNip" class="input" value="${p.nip}" ${editMode ? 'disabled' : ''}>
+      <input type="text" id="fNip" class="input" value="${p.nip}" ${editMode ? 'disabled style="background:var(--slate-100);"' : ''}>
       <label class="label">Nama Pengawas</label>
       <input type="text" id="fNama" class="input" value="${p.nama_pengawas}">
-      <label class="label">Wilayah</label>
+      <label class="label">Wilayah Binaan</label>
       <input type="text" id="fWilayah" class="input" value="${p.wilayah || ''}">
     `;
     document.getElementById('formModal').classList.add('show');
+    lucide.createIcons();
   };
 
   window.closeModal = () => document.getElementById('formModal').classList.remove('show');
@@ -272,16 +393,17 @@
     try {
       if (currentFormType === 'sekolah') {
         const payload = { npsn: document.getElementById('fNpsn').value.trim(), nama_sekolah: document.getElementById('fNama').value.trim() };
-        if(!payload.npsn || !payload.nama_sekolah) return alert('Isi semua kolom!');
+        if(!payload.npsn || !payload.nama_sekolah) return showToast('Isi semua kolom!', 'error');
         await Supabase.saveSekolah(payload);
       } else {
         const payload = { nip: document.getElementById('fNip').value.trim(), nama_pengawas: document.getElementById('fNama').value.trim(), wilayah: document.getElementById('fWilayah').value.trim() };
-        if(!payload.nip || !payload.nama_pengawas) return alert('Isi NIP dan Nama!');
+        if(!payload.nip || !payload.nama_pengawas) return showToast('Isi NIP dan Nama!', 'error');
         await Supabase.savePengawas(payload);
       }
       closeModal();
+      showToast('Data berhasil disimpan', 'success');
       loadData();
-    } catch (err) { alert('Gagal simpan: ' + err.message); }
+    } catch (err) { showToast('Gagal simpan: ' + err.message, 'error'); }
   };
 
   window.deleteData = async (type, id) => {
@@ -289,8 +411,9 @@
     try {
       if (type === 'sekolah') await Supabase.deleteSekolah(id);
       else await Supabase.deletePengawas(id);
+      showToast('Data berhasil dihapus', 'success');
       loadData();
-    } catch (err) { alert(err.message); }
+    } catch (err) { showToast(err.message, 'error'); }
   };
 
   // ==========================================
@@ -302,9 +425,8 @@
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const rows = ev.target.result.split(/\r?\n/).filter(r => r.trim());
-      if (rows.length < 2) return alert('File CSV kosong / tidak valid');
+      if (rows.length < 2) return showToast('File CSV kosong / tidak valid', 'error');
       
-      // Deteksi separator (; atau ,)
       const sep = rows[0].includes(';') ? ';' : ',';
       const payloads = [];
       
@@ -313,18 +435,18 @@
         if (cols[0] && cols[1]) payloads.push({ npsn: cols[0], nama_sekolah: cols[1] });
       }
       
-      if (payloads.length === 0) return alert('Tidak ada data valid.');
+      if (payloads.length === 0) return showToast('Tidak ada data valid.', 'error');
       if (!confirm(`Ditemukan ${payloads.length} data sekolah. Lanjutkan import?`)) return;
       
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.add('show');
       try {
-        // Loop untuk upsert per batch (atau bisa pakai bulk upsert jika SDK mendukung)
-        for (const p of payloads) {
-          await Supabase.saveSekolah(p);
-        }
-        alert(`Berhasil mengimpor ${payloads.length} sekolah.`);
+        for (const p of payloads) await Supabase.saveSekolah(p);
+        showToast(`Berhasil mengimpor ${payloads.length} sekolah.`, 'success');
         loadData();
-      } catch (err) { alert('Gagal import: ' + err.message); }
-      e.target.value = ''; // reset input
+      } catch (err) { showToast('Gagal import: ' + err.message, 'error'); }
+      finally { overlay.classList.remove('show'); }
+      e.target.value = '';
     };
     reader.readAsText(file);
   };
@@ -335,7 +457,7 @@
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const rows = ev.target.result.split(/\r?\n/).filter(r => r.trim());
-      if (rows.length < 2) return alert('File CSV kosong / tidak valid');
+      if (rows.length < 2) return showToast('File CSV kosong / tidak valid', 'error');
       
       const sep = rows[0].includes(';') ? ';' : ',';
       const payloads = [];
@@ -345,16 +467,17 @@
         if (cols[0] && cols[1]) payloads.push({ nip: cols[0], nama_pengawas: cols[1], wilayah: cols[2] || '' });
       }
       
-      if (payloads.length === 0) return alert('Tidak ada data valid.');
+      if (payloads.length === 0) return showToast('Tidak ada data valid.', 'error');
       if (!confirm(`Ditemukan ${payloads.length} data pengawas. Lanjutkan import?`)) return;
       
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.add('show');
       try {
-        for (const p of payloads) {
-          await Supabase.savePengawas(p);
-        }
-        alert(`Berhasil mengimpor ${payloads.length} pengawas.`);
+        for (const p of payloads) await Supabase.savePengawas(p);
+        showToast(`Berhasil mengimpor ${payloads.length} pengawas.`, 'success');
         loadData();
-      } catch (err) { alert('Gagal import: ' + err.message); }
+      } catch (err) { showToast('Gagal import: ' + err.message, 'error'); }
+      finally { overlay.classList.remove('show'); }
       e.target.value = '';
     };
     reader.readAsText(file);
