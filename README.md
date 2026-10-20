@@ -586,16 +586,3 @@ Project ini dikembangkan secara mandiri untuk mendukung digitalisasi supervisi a
 **Dibuat dengan ❤️ untuk pendidikan Indonesia.**
 
 **SISPA Mandiri v2.0.0 — Kabupaten Wonogiri, 2026**
-```
-
----
-
-## 🚀 Deploy
-
-```bash
-git add README.md
-git commit -m "README: add developer Ekwan Nugroho + hide admin URL"
-git push origin main
-```
-
----
