@@ -155,6 +155,14 @@ const App = {
           btn.innerHTML = originalHtml;
           return Utils.toast('NIP tidak terdaftar. Hubungi Dinas Pendidikan.', 'error');
         }
+
+        // --- TAMBAHAN: Cek Status Suspend ---
+        if (data.is_active === false) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          return Utils.toast('Akun pengawas ini dinonaktifkan (Suspend). Hubungi Admin.', 'error');
+        }
+        // -----------------------------------
         
         // Simpan session
         Auth.saveSession({
