@@ -32,6 +32,76 @@ const backupBanner = () => {
   </div>`;
 };
 
+const pengawasWidget = () => {
+  const cfg = Store.config();
+  const lastCheck = cfg.pengawas_last_check;
+
+  // State A: Belum pernah cek
+  if (!lastCheck) {
+    return `<div class="card" style="margin-bottom:1rem">
+      <div class="card-body">
+        <div style="display:flex;gap:.75rem;align-items:center">
+          <div style="width:52px;height:52px;border-radius:12px;background:var(--slate-100);color:var(--slate-500);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${Icons.svg('user-plus', 26)}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:.9rem">Cek Pengawas Pembina</div>
+            <div style="font-size:.8rem;color:var(--slate-500);margin-top:.15rem">Klik untuk memeriksa apakah pengawas sudah mengklaim sekolah Anda.</div>
+          </div>
+          <button class="btn btn-primary" id="btnCekPengawas">
+            ${Icons.svg('refresh-cw', 16)} Cek
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // State B: Sudah cek, pengawas confirmed
+  if (cfg.pengawas_status === 'confirmed' && cfg.pengawas_nip) {
+    return `<div class="card" style="margin-bottom:1rem;border-left:3px solid var(--success)">
+      <div class="card-body">
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <div style="width:52px;height:52px;border-radius:12px;background:#dcfce7;color:#166534;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${Icons.svg('user-check', 26)}
+          </div>
+          <div style="flex:1;min-width:150px">
+            <div style="font-size:.7rem;color:var(--success);font-weight:600;text-transform:uppercase;letter-spacing:.03em">✓ Pengawas Terkonfirmasi</div>
+            <div style="font-weight:700;font-size:1rem;margin-top:.15rem">${Utils.esc(cfg.pengawas_nama || '—')}</div>
+            <div style="font-size:.75rem;color:var(--slate-500);margin-top:.15rem">${Utils.esc(cfg.pengawas_wilayah || '')} · NIP ${Utils.esc(cfg.pengawas_nip)}</div>
+          </div>
+          <button class="btn btn-secondary" id="btnCekPengawas" title="Periksa apakah pengawas berubah">
+            ${Icons.svg('refresh-cw', 14)} Cek Ulang
+          </button>
+        </div>
+        <div style="font-size:.7rem;color:var(--slate-400);margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--slate-100)">
+          Terakhir dicek: ${Utils.relTime(lastCheck)}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // State C: Sudah cek, belum ada pengawas
+  return `<div class="card" style="margin-bottom:1rem">
+    <div class="card-body">
+      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+        <div style="width:52px;height:52px;border-radius:12px;background:var(--slate-100);color:var(--slate-500);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          ${Icons.svg('user-x', 26)}
+        </div>
+        <div style="flex:1;min-width:150px">
+          <div style="font-weight:600;font-size:.9rem">Belum Ada Pengawas Pembina</div>
+          <div style="font-size:.8rem;color:var(--slate-500);margin-top:.15rem">Pengawas belum mengklaim sekolah Anda. Hubungi Dinas atau klik cek lagi nanti.</div>
+        </div>
+        <button class="btn btn-primary" id="btnCekPengawas">
+          ${Icons.svg('refresh-cw', 16)} Cek Ulang
+        </button>
+      </div>
+      <div style="font-size:.7rem;color:var(--slate-400);margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--slate-100)">
+        Terakhir dicek: ${Utils.relTime(lastCheck)}
+      </div>
+    </div>
+  </div>`;
+};
+
 export const Dashboard = {
   async render() {
     const guru = Store.get('guru');
@@ -39,12 +109,9 @@ export const Dashboard = {
     const akad = Store.get('akademik');
     const coach = Store.get('coaching');
     const cfg = Store.config();
-    
     const totalSesi = sup.length + akad.length + coach.length;
     const sudahDinilai = guru.filter(g => g.tipe).length;
     const belumDinilai = guru.length - sudahDinilai;
-    
-    // Deteksi supervisi yang belum selesai (draft)
     const supBerjalan = sup.filter(s => s.status !== 'selesai').length;
 
     const tipeDist = { Dropout: 0, Unfocused: 0, Analytical: 0, Professional: 0 };
@@ -56,7 +123,6 @@ export const Dashboard = {
       .sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''))
       .slice(0, 5);
 
-    // Hitung Perlu Perhatian
     const perhatian = [];
     if (guru.length === 0) {
       perhatian.push({ icon: 'users', text: 'Belum ada data guru. Tambahkan guru terlebih dahulu.', href: 'guru', color: 'var(--brand-600)' });
@@ -69,8 +135,7 @@ export const Dashboard = {
 
     return `
       ${backupBanner()}
-      
-      <!-- Kartu Profil KS -->
+
       <div class="card" style="margin-bottom:1.5rem; overflow:hidden">
         <div style="background:linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); padding:1.5rem; color:white">
           <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap">
@@ -98,6 +163,8 @@ export const Dashboard = {
           </div>
         </div>
       </div>
+
+      ${pengawasWidget()}
 
       <div class="grid-auto" style="margin-bottom:1.5rem">
         <div class="stat-card">
@@ -184,6 +251,10 @@ export const Dashboard = {
     Utils.el('btnAddGuru')?.addEventListener('click', async () => {
       const { Router } = await import('../../../shared/js/router.js');
       Router.navigate('guru');
+    });
+
+    Utils.el('btnCekPengawas')?.addEventListener('click', () => {
+      if (window.App?.cekpengawas) window.App.cekpengawas();
     });
   }
 };
