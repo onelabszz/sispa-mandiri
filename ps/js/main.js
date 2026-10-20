@@ -177,19 +177,21 @@ const App = {
           logged_in_at: new Date().toISOString()
         });
         
-        // Update config lokal
+        // Update config lokal LANGSUNG dari data Supabase
         const cfg = Store.config();
-        Store.setConfig({ ...cfg, nip_pengawas: data.nip, wilayah: data.wilayah || '' });
+        Store.setConfig({ 
+          ...cfg, 
+          nip_pengawas: data.nip, 
+          nama_pengawas: data.nama_pengawas, 
+          wilayah: data.wilayah || '' 
+        });
         
-        // Cek: Apakah profil PS (nama_pengawas) sudah ada di lokal?
-        if (!Store.config().nama_pengawas) {
-          this.showProfileSetup();
-        } else {
-          Utils.toast('Berhasil masuk!', 'success');
-          const screen = Utils.el('setupScreen');
-          screen.classList.remove('auth-split');
-          screen.style.display = 'none';
-          setTimeout(() => this.boot(), 300);
+        // LANGSUNG MASUK DASHBOARD
+        Utils.toast('Berhasil masuk!', 'success');
+        const screen = Utils.el('setupScreen');
+        screen.classList.remove('auth-split');
+        screen.style.display = 'none';
+        setTimeout(() => this.boot(), 300);
         }
       } catch (err) {
         btn.disabled = false;
