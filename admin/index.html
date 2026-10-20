@@ -288,8 +288,10 @@
     <div class="login-icon"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div>
     <h2>Admin Panel</h2>
     <p>SISPA Mandiri — Kabupaten Wonogiri</p>
-    <input type="password" id="adminKey" placeholder="Masukkan Kunci Admin" autofocus>
-    <button id="btnLogin">Masuk ke Panel</button>
+    <form id="loginForm">
+      <input type="password" id="adminKey" placeholder="Masukkan Kunci Admin" autofocus autocomplete="current-password">
+      <button type="submit" id="btnLogin">Masuk ke Panel</button>
+    </form>
   </div>
 </div>
 
@@ -550,15 +552,17 @@ window.closeModal = closeModal;
 // ============================================
 // INIT
 // ============================================
-el('btnLogin').onclick = () => {
+el('loginForm').onsubmit = (e) => {
+  e.preventDefault();
   if (el('adminKey').value === ADMIN_KEY) {
     el('loginScreen').style.display = 'none';
     loadData();
   } else {
     toast('Kunci Admin salah!', 'error');
+    el('adminKey').value = '';
+    el('adminKey').focus();
   }
 };
-el('adminKey').addEventListener('keydown', e => { if (e.key === 'Enter') el('btnLogin').click(); });
 
 el('btnLogout').onclick = () => location.reload();
 
@@ -567,20 +571,33 @@ document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
 });
 
 function switchTab(tab) {
+  // Reset active class di semua nav
   document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-  el('nav' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  
+  // Set active berdasarkan data-tab attribute (bukan ID)
+  const navItem = document.querySelector(`.nav-item[data-tab="${tab}"]`);
+  if (navItem) navItem.classList.add('active');
   
   const titles = {
     dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun & klaim SISPA Mandiri' },
     sekolah: { title: 'Data Sekolah', sub: `${State.sekolah.length} sekolah terdaftar` },
     pengawas: { title: 'Data Pengawas', sub: `${State.pengawas.length} pengawas terdaftar` }
   };
-  el('pageTitle').textContent = titles[tab].title;
-  el('pageSub').textContent = titles[tab].sub;
   
-  el('viewDashboard').style.display = tab === 'dashboard' ? 'block' : 'none';
-  el('viewSekolah').style.display = tab === 'sekolah' ? 'block' : 'none';
-  el('viewPengawas').style.display = tab === 'pengawas' ? 'block' : 'none';
+  if (titles[tab]) {
+    el('pageTitle').textContent = titles[tab].title;
+    el('pageSub').textContent = titles[tab].sub;
+  }
+  
+  // Hide semua view
+  el('viewDashboard').style.display = 'none';
+  el('viewSekolah').style.display = 'none';
+  el('viewPengawas').style.display = 'none';
+  
+  // Show view yang aktif
+  if (tab === 'dashboard') el('viewDashboard').style.display = 'block';
+  else if (tab === 'sekolah') el('viewSekolah').style.display = 'block';
+  else if (tab === 'pengawas') el('viewPengawas').style.display = 'block';
 }
 
 // ============================================
