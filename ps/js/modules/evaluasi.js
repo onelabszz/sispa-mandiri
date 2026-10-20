@@ -347,15 +347,15 @@ export const Evaluasi = {
   _save(status) {
     const f = this._formData;
     
-    // 1. BACA NILAI DARI FORM TERLEBIH DAHULU
+    // 1. BACA NILAI DARI FORM
     if (Utils.el('fSek')) f.npsn_sekolah = Utils.el('fSek').value;
     if (Utils.el('fKs')) f.ks_nama = Utils.el('fKs').value.trim();
     
-    // 2. BARU LAKUKAN VALIDASI
+    // 2. VALIDASI
     if (!f.npsn_sekolah) return Utils.toast('Sekolah wajib dipilih', 'error');
     if (!f.ks_nama) return Utils.toast('Nama KS wajib diisi', 'error');
 
-    // 3. SIMPAN SISA INPUTAN
+    // 3. SIMPAN INPUTAN LAINNYA
     f.periode = Utils.el('fPeriode')?.value.trim() || f.periode;
     f.tanggal = Utils.el('fTanggal')?.value || f.tanggal;
     f.sumber_data = {
@@ -387,9 +387,12 @@ export const Evaluasi = {
     const list = Store.get('evaluasi') || [];
     const now = new Date().toISOString();
 
+    // 4. TENTUKAN ID (KUNCI PERBAIKANNYA DI SINI)
+    const currentId = this._editId || Utils.uid(); 
+    
     const record = {
       ...f,
-      id: this._editId || Utils.uid(),
+      id: currentId, // Gunakan ID yang sudah ada, atau buat baru jika memang baru
       nama_sekolah: sekolah ? sekolah.nama_sekolah : '-',
       status: status,
       skor_rencana: sR, skor_pelaksanaan: sP, skor_asesmen: sA,
@@ -398,13 +401,17 @@ export const Evaluasi = {
       created_at: this._editId ? (list.find(x => x.id === this._editId)?.created_at || now) : now
     };
 
-    if (this._editId) {
-      const idx = list.findIndex(x => x.id === this._editId);
-      if (idx !== -1) list[idx] = record;
+    // 5. SIMPAN KE DATABASE (Cek berdasarkan ID yang sama)
+    const idx = list.findIndex(x => x.id === currentId);
+    if (idx !== -1) {
+      list[idx] = record; // Update data yang sudah ada
     } else {
-      list.push(record);
+      list.push(record); // Buat baru
     }
     Store.set('evaluasi', list);
+
+    // 6. KUNCI PERBAIKAN: Set _editId agar klik berikutnya mengupdate, bukan menduplikasi
+    this._editId = currentId;
 
     Utils.toast(status === 'final' ? 'Evaluasi difinalisasi' : 'Draft tersimpan', 'success');
 
