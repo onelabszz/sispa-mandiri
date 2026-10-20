@@ -58,6 +58,14 @@ export const Pengaturan = {
       data.version = '2.0.0';
       data.app = 'sispa-standalone';
       data.exported_at = new Date().toISOString();
+      
+      // Tambahkan metadata pengawas untuk validasi di PS
+      if (data.config) {
+        data.config.pengawas_nip = data.config.pengawas_nip || null;
+        data.config.pengawas_nama = data.config.pengawas_nama || null;
+        data.config.pengawas_status = data.config.pengawas_status || null;
+      }
+      
       Utils.downloadJSON(data, `SISPA_Backup_${new Date().toISOString().slice(0, 10)}.json`);
       localStorage.setItem('sispa_last_export', new Date().toISOString());
       Utils.toast('Data diekspor', 'success');
