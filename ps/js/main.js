@@ -118,7 +118,7 @@ const App = {
 
           <div class="auth-step-pill">Login Pengawas</div>
           <h1 class="auth-heading">Selamat datang 👋</h1>
-          <p class="auth-sub">Masukkan NIP Anda untuk masuk ke aplikasi. Data profil akan diisi setelahnya.</p>
+          <p class="auth-sub">Masukkan NIP Anda untuk masuk ke aplikasi. Identitas akan diambil dari database.</p>
 
           <div class="form-group">
             <label class="label">NIP Pengawas</label>
@@ -144,7 +144,7 @@ const App = {
     const doLogin = async () => {
       const nip = input.value.trim();
       if (!nip) return Utils.toast('NIP wajib diisi', 'error');
-      if (nip.length < 8) return Utils.toast('NIP tidak valid', 'error'); // Standar NIP minimal 8 digit (bisa 18)
+      if (nip.length < 8) return Utils.toast('NIP tidak valid', 'error');
       
       if (!Supabase.isReady()) return Utils.toast('Butuh internet untuk verifikasi', 'error');
       
@@ -160,13 +160,12 @@ const App = {
           return Utils.toast('NIP tidak terdaftar. Hubungi Dinas Pendidikan.', 'error');
         }
 
-        // --- TAMBAHAN: Cek Status Suspend ---
+        // --- Cek Status Suspend ---
         if (data.is_active === false) {
           btn.disabled = false;
           btn.innerHTML = originalHtml;
           return Utils.toast('Akun pengawas ini dinonaktifkan (Suspend). Hubungi Admin.', 'error');
         }
-        // -----------------------------------
         
         // Simpan session
         Auth.saveSession({
@@ -192,7 +191,7 @@ const App = {
         screen.classList.remove('auth-split');
         screen.style.display = 'none';
         setTimeout(() => this.boot(), 300);
-        }
+        
       } catch (err) {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
@@ -203,80 +202,6 @@ const App = {
     btn.onclick = doLogin;
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
     setTimeout(() => input.focus(), 100);
-  },
-
-  showProfileSetup() {
-    const screen = Utils.el('setupScreen');
-    screen.innerHTML = `
-      <aside class="auth-brand">
-        <div class="auth-brand-shape" style="width:260px;height:260px;top:-80px;right:-80px"></div>
-        <div class="auth-brand-shape" style="width:130px;height:130px;bottom:15%;right:10%"></div>
-        <div class="auth-brand-shape" style="width:80px;height:80px;top:45%;left:-30px"></div>
-        <div style="display:flex;flex-direction:column;justify-content:space-between;height:100%;position:relative;z-index:2;gap:1.5rem">
-          <div class="auth-brand-header">
-            <div class="logo-badge">${Icons.svg('user', 24)}</div>
-            <div>
-              <div class="brand-name">SISPA Pengawas</div>
-              <div class="brand-tagline">Dashboard multi-sekolah binaan</div>
-            </div>
-          </div>
-          <div>
-            <h1 class="auth-hero-title">Satu langkah lagi<br><span class="accent">lengkapi profil Anda.</span></h1>
-            <p class="auth-hero-sub">Data ini digunakan untuk tampilan header dan tanda tangan laporan cetak.</p>
-            <div class="auth-quote-card" style="margin-top:2rem">
-              "NIP: ${Store.config().nip_pengawas || '-'}"
-            </div>
-          </div>
-          <div class="auth-brand-footer">
-            <div style="display:flex;align-items:center;gap:.6rem">
-              <img src="../shared/icons/wonogiri.svg" alt="Lambang Wonogiri" style="width:32px;height:32px">
-              <div><div style="font-size:.72rem;color:#e0e7ff;font-weight:600;line-height:1.2">Kabupaten Wonogiri</div></div>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <main class="auth-form-side">
-        <div class="auth-form-card">
-          <div class="auth-mobile-brand">
-            <div class="mb-logo">${Icons.svg('user', 20)}</div>
-            <div>
-              <div style="font-weight:800;color:#0f172a;font-size:.95rem">SISPA Pengawas</div>
-              <div style="font-size:.7rem;color:#64748b">Lengkapi Profil</div>
-            </div>
-          </div>
-          <div class="auth-step-pill">Profil Pengawas</div>
-          <h1 class="auth-heading">Lengkapi Profil</h1>
-          <p class="auth-sub">Halo! Sepertinya Anda baru pertama kali masuk di perangkat ini.</p>
-
-          <div class="form-group">
-            <label class="label">Nama Lengkap & Gelar *</label>
-            <input type="text" id="setupPsNama" class="input" placeholder="Dr. Ahmad Suryadi, M.Pd">
-          </div>
-          <div class="form-group">
-            <label class="label">Wilayah Binaan</label>
-            <input type="text" id="setupPsWilayah" class="input" placeholder="Kecamatan Pule">
-          </div>
-
-          <button class="btn btn-primary btn-lg" style="margin-top:.75rem" id="btnSaveProfile">
-            ${Icons.svg('check', 18)}
-            Simpan & Masuk
-          </button>
-        </div>
-      </main>
-    `;
-
-    Utils.el('btnSaveProfile').onclick = () => {
-      const nama = Utils.el('setupPsNama').value.trim();
-      if (!nama) return Utils.toast('Nama lengkap wajib diisi', 'error');
-      const cfg = Store.config();
-      Store.setConfig({ ...cfg, nama_pengawas: nama, wilayah: Utils.el('setupPsWilayah').value.trim() });
-      Utils.toast('Profil tersimpan!', 'success');
-      const s = Utils.el('setupScreen');
-      s.classList.remove('auth-split');
-      s.style.display = 'none';
-      setTimeout(() => this.boot(), 300);
-    };
   },
 
   boot() {
