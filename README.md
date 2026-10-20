@@ -1,6 +1,3 @@
-# 📄 Full README.md — SISPA Mandiri
-
-```markdown
 # 🎓 SISPA Mandiri
 
 **Sistem Supervisi Pendidikan Akademik** — Aplikasi semi-online untuk Kepala Sekolah & Pengawas di Kabupaten Wonogiri.
