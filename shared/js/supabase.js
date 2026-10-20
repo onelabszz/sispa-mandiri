@@ -84,6 +84,13 @@ export const Supabase = {
     const { error } = await ensureClient().from('pengawas').update({ is_active: status }).eq('nip', nip);
     if (error) throw error;
   },
-
+  async claimSekolah(npsn, nip) {
+    const { error } = await ensureClient().from('sekolah').update({ pengawas_nip: nip }).eq('npsn', npsn);
+    if (error) throw error;
+  },
+  async unclaimSekolah(npsn) {
+    const { error } = await ensureClient().from('sekolah').update({ pengawas_nip: null }).eq('npsn', npsn);
+    if (error) throw error;
+  },
   isReady() { return !!window.supabase; }
 };
