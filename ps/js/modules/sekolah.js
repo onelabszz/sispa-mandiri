@@ -2,6 +2,7 @@ import { Store } from '../../storage.js';
 import { Utils } from '../../../shared/js/utils.js';
 import { Icons } from '../../../shared/js/icons.js';
 import { Router } from '../../../shared/js/router.js';
+import { Supabase } from '../../../shared/js/supabase.js';
 import { emptyState, infoBanner } from '../helpers.js';
 
 export const Sekolah = {
@@ -11,14 +12,22 @@ export const Sekolah = {
       <div class="page-head">
         <div>
           <h2>Sekolah Binaan</h2>
-          <div class="page-sub">${list.length} sekolah terdaftar</div>
+          <div class="page-sub">${list.length} sekolah terdaftar di perangkat ini</div>
         </div>
-        <button class="btn btn-primary" id="btnImport">${Icons.svg('upload', 16)} Import JSON dari KS</button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <input type="file" id="csvFileSek" accept=".csv" style="display:none">
+          <button class="btn btn-secondary" id="btnImportCSV">${Icons.svg('upload', 16)} Impor CSV</button>
+          <button class="btn btn-secondary" id="btnPickDB">${Icons.svg('database', 16)} Pilih dari DB</button>
+          <button class="btn btn-primary" id="btnImportJSON">${Icons.svg('file-json', 16)} Import JSON KS</button>
+        </div>
       </div>
 
       ${list.length === 0 ? `<div class="card"><div class="card-body">
-        ${emptyState('school', 'Belum ada sekolah', 'Import file JSON dari KS untuk menambahkan sekolah binaan.',
-          `<button class="btn btn-primary" id="btnEmptyImport">${Icons.svg('upload', 16)} Import Sekarang</button>`)}
+        ${emptyState('school', 'Belum ada sekolah', 'Tambahkan sekolah binaan dengan mengambil dari database, impor CSV, atau impor file JSON dari KS.',
+          `<div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem">
+             <button class="btn btn-secondary" id="btnEmptyPickDB">${Icons.svg('database', 16)} Pilih dari DB</button>
+             <button class="btn btn-primary" id="btnEmptyImportJSON">${Icons.svg('file-json', 16)} Import JSON</button>
+           </div>`)}
       </div></div>` : `
         <div class="card"><table>
           <thead><tr>
@@ -44,7 +53,6 @@ export const Sekolah = {
               <td><span class="badge ${stale ? 'badge-warning' : 'badge-success'}">${Utils.relTime(sk.updated_at)}</span></td>
               <td style="text-align:right;white-space:nowrap">
                 <button class="btn btn-secondary btn-sm" data-view="${sk.id}">${Icons.svg('eye', 14)} Detail</button>
-                <button class="btn btn-secondary btn-sm" data-edit="${sk.id}">${Icons.svg('pencil', 14)}</button>
                 <button class="btn btn-danger btn-sm" data-del="${sk.id}">${Icons.svg('trash-2', 14)}</button>
               </td>
             </tr>`;
@@ -55,14 +63,155 @@ export const Sekolah = {
   },
 
   async bind() {
-    Utils.el('btnImport')?.addEventListener('click', () => this.startImport());
-    Utils.el('btnEmptyImport')?.addEventListener('click', () => this.startImport());
+    // Tombol Top Bar
+    Utils.el('btnImportJSON')?.addEventListener('click', () => this.startImportJSON());
+    Utils.el('btnEmptyImportJSON')?.addEventListener('click', () => this.startImportJSON());
+    
+    Utils.el('btnPickDB')?.addEventListener('click', () => this.pickFromDB());
+    Utils.el('btnEmptyPickDB')?.addEventListener('click', () => this.pickFromDB());
+    
+    Utils.el('btnImportCSV')?.addEventListener('click', () => Utils.el('csvFileSek').click());
+    Utils.el('csvFileSek')?.addEventListener('change', (e) => this.handleCSV(e));
+
+    // Tombol Tabel
     document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => this.detail(b.dataset.view));
-    document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => this.edit(b.dataset.edit));
     document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => this.hapus(b.dataset.del));
   },
 
-  startImport() {
+  // ==========================================
+  // 1. PILIH DARI DATABASE (SUPABASE)
+  // ==========================================
+  async pickFromDB() {
+    Utils.modal('Pilih Sekolah dari Database', `
+      <div style="text-align:center;padding:2rem;color:var(--slate-500)">
+        <div class="skeleton" style="width:40px;height:40px;border-radius:50%;margin:0 auto 1rem"></div>
+        Memuat data dari Supabase...
+      </div>
+    `, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>', true);
+
+    try {
+      const allSchools = await Supabase.getAllSekolah();
+      const localSchools = Store.get('sekolah');
+      const localNpsns = new Set(localSchools.map(s => s.npsn));
+      
+      // Filter hanya sekolah yang belum ada di lokal
+      const available = allSchools.filter(s => !localNpsns.has(s.npsn));
+
+      if (available.length === 0) {
+        Utils.closeModal();
+        return Utils.toast('Semua sekolah di database sudah ada di daftar binaan Anda.', 'info');
+      }
+
+      const listHtml = available.map((s, i) => `
+        <label style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border-bottom:1px solid var(--slate-100);cursor:pointer">
+          <input type="checkbox" class="db-checkbox" value="${s.npsn}" data-nama="${Utils.esc(s.nama_sekolah)}" style="width:18px;height:18px;accent-color:var(--brand-600)">
+          <div>
+            <div style="font-weight:600;font-size:.9rem">${Utils.esc(s.nama_sekolah)}</div>
+            <div style="font-size:.75rem;color:var(--slate-500);font-family:monospace">NPSN: ${s.npsn}</div>
+          </div>
+        </label>
+      `).join('');
+
+      Utils.modal('Pilih Sekolah dari Database', `
+        <div style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center">
+          <span style="font-size:.85rem;color:var(--slate-500)">Ditemukan ${available.length} sekolah baru.</span>
+          <button class="btn btn-secondary btn-sm" id="btnSelectAll">Pilih Semua</button>
+        </div>
+        <div style="max-height:50vh;overflow-y:auto;border:1px solid var(--slate-200);border-radius:8px">
+          ${listHtml}
+        </div>
+      `, `
+        <button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button>
+        <button class="btn btn-primary" id="btnSavePick">Tambahkan ke Binaan</button>
+      `, true);
+
+      Utils.el('btnSelectAll').onclick = () => {
+        const checks = document.querySelectorAll('.db-checkbox');
+        const allChecked = Array.from(checks).every(c => c.checked);
+        checks.forEach(c => c.checked = !allChecked);
+        Utils.el('btnSelectAll').textContent = allChecked ? 'Pilih Semua' : 'Batal Pilih';
+      };
+
+      Utils.el('btnSavePick').onclick = async () => {
+        const checked = Array.from(document.querySelectorAll('.db-checkbox:checked'));
+        if (checked.length === 0) return Utils.toast('Pilih minimal satu sekolah', 'warning');
+
+        const newSekolah = checked.map(cb => ({
+          id: Utils.uid(),
+          npsn: cb.value,
+          nama_sekolah: cb.dataset.nama,
+          ks_nama: '', ks_nip: '',
+          imported_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          guru: [], program: [], supervisi: [], akademik: [], coaching: []
+        }));
+
+        const updatedList = [...localSchools, ...newSekolah];
+        await Store.set('sekolah', updatedList);
+        
+        Utils.closeModal();
+        Utils.toast(`${checked.length} sekolah ditambahkan ke binaan.`, 'success');
+        Router.navigate('sekolah');
+      };
+
+    } catch (err) {
+      Utils.closeModal();
+      Utils.toast(err.message, 'error');
+    }
+  },
+
+  // ==========================================
+  // 2. IMPOR CSV LOKAL
+  // ==========================================
+  handleCSV(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const rows = ev.target.result.split(/\r?\n/).filter(r => r.trim());
+      if (rows.length < 2) return Utils.toast('File CSV kosong / tidak valid', 'error');
+      
+      const sep = rows[0].includes(';') ? ';' : ',';
+      const localSchools = Store.get('sekolah');
+      const localNpsns = new Set(localSchools.map(s => s.npsn));
+      
+      let added = 0;
+      const newSekolah = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const cols = rows[i].split(sep).map(c => c.trim());
+        if (cols[0] && cols[1] && !localNpsns.has(cols[0])) {
+          newSekolah.push({
+            id: Utils.uid(),
+            npsn: cols[0],
+            nama_sekolah: cols[1],
+            ks_nama: '', ks_nip: '',
+            imported_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            guru: [], program: [], supervisi: [], akademik: [], coaching: []
+          });
+          localNpsns.add(cols[0]);
+          added++;
+        }
+      }
+      
+      if (added === 0) {
+        e.target.value = '';
+        return Utils.toast('Tidak ada data baru yang valid (atau semua duplikat).', 'warning');
+      }
+      
+      await Store.set('sekolah', [...localSchools, ...newSekolah]);
+      Utils.toast(`Berhasil menambahkan ${added} sekolah dari CSV.`, 'success');
+      e.target.value = ''; // Reset
+      Router.navigate('sekolah');
+    };
+    reader.readAsText(file);
+  },
+
+  // ==========================================
+  // 3. IMPORT JSON DARI KS (Sama seperti sebelumnya)
+  // ==========================================
+  startImportJSON() {
     Utils.modal('Import JSON dari KS', `
       ${infoBanner('info', 'info', 'Pilih file JSON hasil ekspor dari SISPA-Offline (KS). Sistem akan mendeteksi sekolah dari NPSN dan menampilkan perubahan sebelum konfirmasi.')}
       <div style="margin-top:1rem">
@@ -125,7 +274,7 @@ export const Sekolah = {
   showPreview({ data, cfg, npsn, existing, isNew, diff }) {
     const fileExportTime = data.exported_at ? Utils.date(data.exported_at) : 'Tidak ada info';
     const diffRow = (label, d) => `
-      <div class="diff-item" style="display:flex;justify-content:space-between;padding:.55rem .75rem;border-bottom:1px solid var(--slate-100);font-size:.85rem">
+      <div style="display:flex;justify-content:space-between;padding:.55rem .75rem;border-bottom:1px solid var(--slate-100);font-size:.85rem">
         <span>${label}</span>
         <span>
           ${d.baru > 0 ? `<span style="color:var(--success);font-weight:600">${d.baru} baru</span> · ` : ''}
@@ -243,31 +392,6 @@ export const Sekolah = {
             </div>`).join('')}
       </div>
     `, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>', true);
-  },
-
-  edit(id) {
-    const sk = Store.get('sekolah').find(x => x.id === id);
-    if (!sk) return;
-    Utils.modal('Edit Sekolah', `
-      <div class="form-group"><label class="label">Nama Sekolah</label><input class="input" id="eskNama" value="${Utils.esc(sk.nama_sekolah)}"></div>
-      <div class="row">
-        <div class="form-group"><label class="label">NPSN</label><input class="input" id="eskNpsn" value="${Utils.esc(sk.npsn || '')}"></div>
-        <div class="form-group"><label class="label">Nama KS</label><input class="input" id="eskKs" value="${Utils.esc(sk.ks_nama || '')}"></div>
-      </div>
-      <div class="form-group"><label class="label">NIP KS</label><input class="input" id="eskKsNip" value="${Utils.esc(sk.ks_nip || '')}"></div>
-    `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button><button class="btn btn-primary" id="btnSaveSk">${Icons.svg('save', 16)} Simpan</button>`);
-    Utils.el('btnSaveSk').onclick = async () => {
-      const n = Utils.el('eskNama').value.trim();
-      if (!n) return Utils.toast('Nama wajib diisi', 'error');
-      sk.nama_sekolah = n;
-      sk.npsn = Utils.el('eskNpsn').value.trim();
-      sk.ks_nama = Utils.el('eskKs').value.trim();
-      sk.ks_nip = Utils.el('eskKsNip').value.trim();
-      await Store.set('sekolah', Store.get('sekolah'));
-      Utils.closeModal();
-      Utils.toast('Tersimpan', 'success');
-      Router.navigate('sekolah');
-    };
   },
 
   hapus(id) {
