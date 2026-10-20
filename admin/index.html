@@ -179,8 +179,7 @@
       <div class="card-header">
         <h3><i data-lucide="school" style="width:18px;height:18px;color:var(--brand-600)"></i> Daftar Sekolah</h3>
         <div style="display:flex;gap:.5rem">
-          <input type="file" id="csvFileSek" accept=".csv" style="display:none" onchange="handleCSVSekolah(event)">
-          <button class="btn btn-secondary" onclick="document.getElementById('csvFileSek').click()"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
+          <button class="btn btn-secondary" onclick="openImportModal('sekolah')"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
           <button class="btn btn-primary" onclick="openModalSekolah()"><i data-lucide="plus" style="width:16px;height:16px;"></i> Tambah Sekolah</button>
         </div>
       </div>
@@ -197,8 +196,7 @@
       <div class="card-header">
         <h3><i data-lucide="users" style="width:18px;height:18px;color:var(--brand-600)"></i> Daftar Pengawas</h3>
         <div style="display:flex;gap:.5rem">
-          <input type="file" id="csvFilePen" accept=".csv" style="display:none" onchange="handleCSVPengawas(event)">
-          <button class="btn btn-secondary" onclick="document.getElementById('csvFilePen').click()"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
+          <button class="btn btn-secondary" onclick="openImportModal('pengawas')"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
           <button class="btn btn-primary" onclick="openModalPengawas()"><i data-lucide="plus" style="width:16px;height:16px;"></i> Tambah Pengawas</button>
         </div>
       </div>
