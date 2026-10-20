@@ -28,9 +28,13 @@ const App = {
     const session = Auth.getSessionFor('PS');
     if (session) {
       const cfg = Store.config();
-      if (cfg.wilayah !== session.wilayah) {
-        Store.setConfig({ ...cfg, wilayah: session.wilayah, nip_pengawas: session.nip });
-      }
+      // Selalu sinkronkan identitas dari session ke config lokal
+      Store.setConfig({ 
+        ...cfg, 
+        nip_pengawas: session.nip, 
+        nama_pengawas: session.nama_pengawas, 
+        wilayah: session.wilayah 
+      });
       
       if (cfg.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
         PinLock.show(cfg, 'PS', () => this.boot());
