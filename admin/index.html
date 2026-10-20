@@ -99,8 +99,10 @@
     </div>
     <h2 style="margin:0 0 .5rem;font-size:1.4rem;">Admin Panel</h2>
     <p style="color:var(--slate-500);font-size:.85rem;margin-bottom:1.5rem">SISPA Mandiri — Kabupaten Wonogiri</p>
-    <input type="password" id="adminKey" class="input" placeholder="Masukkan Kunci Admin" style="text-align:center">
-    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem" onclick="loginAdmin()">Masuk ke Panel</button>
+    <form id="loginForm" onsubmit="event.preventDefault(); loginAdmin();">
+      <input type="password" id="adminKey" class="input" placeholder="Masukkan Kunci Admin" style="text-align:center" autofocus>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem">Masuk ke Panel</button>
+    </form>
   </div>
 </div>
 
@@ -259,7 +261,9 @@
   window.switchTab = (tab) => {
     currentTab = tab;
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    document.getElementById('nav' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    // Perbaikan mapping ID yang benar
+    const navMap = { dashboard: 'navDash', sekolah: 'navSek', pengawas: 'navPen' };
+    document.getElementById(navMap[tab]).classList.add('active');
     
     const titles = {
       dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun SISPA Mandiri' },
