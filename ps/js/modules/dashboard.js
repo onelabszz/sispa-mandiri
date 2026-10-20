@@ -2,9 +2,12 @@ import { Store } from '../../storage.js';
 import { Utils } from '../../../shared/js/utils.js';
 import { Icons } from '../../../shared/js/icons.js';
 import { Router } from '../../../shared/js/router.js';
+import { Supabase } from '../../../shared/js/supabase.js';
 import { allGuru, allSesi, guruBySekolah, emptyState, infoBanner } from '../helpers.js';
 
 export const Dashboard = {
+  _pendingKlaimData: null,
+
   async render() {
     const sekolah = Store.get('sekolah');
     const guru = allGuru();
@@ -56,6 +59,8 @@ export const Dashboard = {
           <div><div style="font-size:.75rem;color:var(--slate-500)">Total Sesi</div><div style="font-size:1.5rem;font-weight:700">${totalSesi}</div></div>
         </div>
       </div>
+
+      ${this._pendingKlaimHtml()}
 
       ${stale.length > 0 ? `
         <div class="card" style="border-left:3px solid var(--warning)">
@@ -137,6 +142,38 @@ export const Dashboard = {
     `;
   },
 
+  _pendingKlaimHtml() {
+    if (!this._pendingKlaimData || this._pendingKlaimData.length === 0) return '';
+    const count = this._pendingKlaimData.length;
+    return `<div class="card" style="border-left:3px solid var(--warning);margin-bottom:1rem">
+      <div class="card-body" style="padding:1rem 1.25rem">
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <span style="color:var(--warning)">${Icons.svg('clock', 28)}</span>
+          <div style="flex:1;min-width:200px">
+            <div style="font-weight:600;font-size:.9rem">${count} Sekolah Menunggu Konfirmasi KS</div>
+            <div style="font-size:.8rem;color:var(--slate-600);margin-top:.15rem">Sekolah ini sudah Anda klaim, tapi KS belum konfirmasi.</div>
+          </div>
+          <button class="btn btn-primary" id="btnLihatPending">Lihat Daftar →</button>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  async _loadPendingKlaim() {
+    try {
+      const myNip = Store.config().nip_pengawas;
+      if (!myNip) return;
+      if (!Supabase.isReady()) return;
+      const data = await Supabase.getPendingKlaimByNip(myNip);
+      if (data && data.length > 0) {
+        this._pendingKlaimData = data;
+        Router.navigate('dashboard');
+      }
+    } catch (err) {
+      console.error('Gagal cek pending klaim:', err);
+    }
+  },
+
   async bind() {
     const goImport = async () => {
       const { Sekolah } = await import('./sekolah.js');
@@ -144,5 +181,10 @@ export const Dashboard = {
     };
     Utils.el('btnImport')?.addEventListener('click', goImport);
     Utils.el('btnEmptyImport')?.addEventListener('click', goImport);
+
+    Utils.el('btnLihatPending')?.addEventListener('click', () => Router.navigate('sekolah'));
+
+    // Load pending klaim otomatis (background, tidak block)
+    this._loadPendingKlaim();
   }
 };
