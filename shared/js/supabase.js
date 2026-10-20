@@ -4,111 +4,86 @@ let _client = null;
 
 const ensureClient = () => {
   if (_client) return _client;
-  if (!window.supabase) {
-    throw new Error('Supabase SDK tidak ter-load. Periksa koneksi internet Anda.');
-  }
+  if (!window.supabase) throw new Error('Supabase SDK tidak ter-load.');
   _client = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
   return _client;
 };
 
 export const Supabase = {
   // ============================================
-  // FUNGSI UNTUK LOGIN (KS & PS)
+  // LOGIN
   // ============================================
   async findSekolah(npsn) {
     try {
-      const client = ensureClient();
-      const { data, error } = await client
+      const { data, error } = await ensureClient()
         .from('sekolah')
-        .select('npsn, nama_sekolah')
+        .select('npsn, nama_sekolah, is_active')
         .eq('npsn', String(npsn).trim())
         .maybeSingle();
-        
       if (error) throw new Error(error.message);
       return data;
     } catch (err) {
-      console.error("Detail Error Supabase:", err);
-      throw new Error('Gagal terhubung ke server. Periksa internet atau hubungi admin.');
+      console.error(err);
+      throw new Error('Gagal terhubung ke server.');
     }
   },
 
   async findPengawas(nip) {
     try {
-      const client = ensureClient();
-      const { data, error } = await client
+      const { data, error } = await ensureClient()
         .from('pengawas')
-        .select('nip, nama_pengawas, wilayah')
+        .select('nip, nama_pengawas, wilayah, is_active')
         .eq('nip', String(nip).trim())
         .maybeSingle();
-        
       if (error) throw new Error(error.message);
       return data;
     } catch (err) {
-      console.error("Detail Error Supabase:", err);
-      throw new Error('Gagal terhubung ke server. Periksa internet atau hubungi admin.');
+      console.error(err);
+      throw new Error('Gagal terhubung ke server.');
     }
   },
 
   // ============================================
-  // FUNGSI CRUD UNTUK ADMIN PANEL (SEKOLAH)
+  // CRUD ADMIN: SEKOLAH
   // ============================================
   async getAllSekolah() {
-    const client = ensureClient();
-    const { data, error } = await client.from('sekolah').select('*').order('nama_sekolah');
+    const { data, error } = await ensureClient().from('sekolah').select('*').order('nama_sekolah');
     if (error) throw error;
     return data;
   },
-
-  async addSekolah(payload) {
-    const client = ensureClient();
-    const { error } = await client.from('sekolah').insert(payload);
+  async saveSekolah(payload) {
+    const { error } = await ensureClient().from('sekolah').upsert(payload, { onConflict: 'npsn' });
     if (error) throw error;
   },
-
-  async updateSekolah(npsn, payload) {
-    const client = ensureClient();
-    const { error } = await client.from('sekolah').update(payload).eq('npsn', npsn);
-    if (error) throw error;
-  },
-
   async deleteSekolah(npsn) {
-    const client = ensureClient();
-    const { error } = await client.from('sekolah').delete().eq('npsn', npsn);
+    const { error } = await ensureClient().from('sekolah').delete().eq('npsn', npsn);
+    if (error) throw error;
+  },
+  async toggleSekolah(npsn, status) {
+    const { error } = await ensureClient().from('sekolah').update({ is_active: status }).eq('npsn', npsn);
     if (error) throw error;
   },
 
   // ============================================
-  // FUNGSI CRUD UNTUK ADMIN PANEL (PENGAWAS)
+  // CRUD ADMIN: PENGAWAS
   // ============================================
   async getAllPengawas() {
-    const client = ensureClient();
-    const { data, error } = await client.from('pengawas').select('*').order('nama_pengawas');
+    const { data, error } = await ensureClient().from('pengawas').select('*').order('nama_pengawas');
     if (error) throw error;
     return data;
   },
-
-  async addPengawas(payload) {
-    const client = ensureClient();
-    const { error } = await client.from('pengawas').insert(payload);
+  async savePengawas(payload) {
+    const { error } = await ensureClient().from('pengawas').upsert(payload, { onConflict: 'nip' });
     if (error) throw error;
   },
-
-  async updatePengawas(nip, payload) {
-    const client = ensureClient();
-    const { error } = await client.from('pengawas').update(payload).eq('nip', nip);
-    if (error) throw error;
-  },
-
   async deletePengawas(nip) {
-    const client = ensureClient();
-    const { error } = await client.from('pengawas').delete().eq('nip', nip);
+    const { error } = await ensureClient().from('pengawas').delete().eq('nip', nip);
+    if (error) throw error;
+  },
+  async togglePengawas(nip, status) {
+    const { error } = await ensureClient().from('pengawas').update({ is_active: status }).eq('nip', nip);
     if (error) throw error;
   },
 
-  // ============================================
-  // HELPER
-  // ============================================
-  isReady() {
-    return !!window.supabase;
-  }
+  isReady() { return !!window.supabase; }
 };
