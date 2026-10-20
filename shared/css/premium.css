@@ -568,3 +568,29 @@ tbody tr { transition: background var(--t-fast); }
   overflow-y: auto;
   background: #f8fafc;
 }
+/* Tab Navigation (untuk halaman detail) */
+.tab-nav {
+  display: flex;
+  gap: .25rem;
+  border-bottom: 1px solid var(--slate-200);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+.tab-nav .tab-btn {
+  padding: .75rem 1.25rem;
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--slate-500);
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.tab-nav .tab-btn:hover { color: var(--slate-900); }
+.tab-nav .tab-btn.active {
+  color: var(--brand-600);
+  border-bottom-color: var(--brand-600);
+}
