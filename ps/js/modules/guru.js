@@ -17,11 +17,10 @@ export const Guru = {
       </div>
 
       ${guru.length === 0 ? `<div class="card"><div class="card-body">
-        ${emptyState('users', 'Belum ada data guru', 'Tambahkan data supervisi dengan mengimpor file JSON dari KS terlebih dahulu.', 
-          `<button class="btn btn-primary" id="btnGoSekolah" style="margin-top:1rem">${Icons.svg('upload', 16)} Ke Menu Sekolah Binaan</button>`)}
+        ${emptyState('users', 'Belum ada data guru', 'Import file JSON dari KS untuk menampilkan data guru.')}
       </div></div>` : `
         <div class="card"><div class="card-body" style="padding:.75rem">
-          <div style="display:grid;grid-template-columns:2fr 1.5fr 2fr 1fr;gap:.5rem">
+          <div style="display:grid;grid-template-columns:2fr 1.5fr 1.5fr 2fr auto;gap:.5rem;align-items:end">
             <div><label class="label">Sekolah</label><select class="select" id="fSk">
               <option value="">Semua Sekolah</option>
               ${sekolah.map(sk => `<option value="${sk.id}">${Utils.esc(sk.nama_sekolah)}</option>`).join('')}
@@ -34,8 +33,14 @@ export const Guru = {
               <option value="Professional">Professional</option>
               <option value="__none">Belum Dinilai</option>
             </select></div>
+            <div><label class="label">Coverage</label><select class="select" id="fCoverage">
+              <option value="">Semua</option>
+              <option value="none">Belum Disupervisi</option>
+              <option value="partial">Sudah (belum lengkap)</option>
+              <option value="full">Lengkap (3 Jenis)</option>
+            </select></div>
             <div><label class="label">Cari</label><input class="input" id="fQ" placeholder="Nama / mapel / NIP..."></div>
-            <div style="display:flex;align-items:flex-end"><button class="btn btn-secondary" style="width:100%" id="btnReset">${Icons.svg('x', 14)} Reset</button></div>
+            <div><button class="btn btn-ghost" id="btnReset">${Icons.svg('x', 14)}</button></div>
           </div>
         </div></div>
         <div class="card"><div id="guruList"></div></div>
@@ -44,22 +49,16 @@ export const Guru = {
   },
 
   async bind() {
-    // Jika empty state, pasang event untuk tombol navigasi
-    if (!Utils.el('fSk')) {
-      Utils.el('btnGoSekolah')?.addEventListener('click', async () => {
-        const { Router } = await import('../../../shared/js/router.js');
-        Router.navigate('sekolah');
-      });
-      return;
-    }
-
+    if (Store.get('sekolah').length === 0) return;
     const redraw = () => this._draw();
     Utils.el('fSk').onchange = redraw;
     Utils.el('fTipe').onchange = redraw;
+    Utils.el('fCoverage').onchange = redraw;
     Utils.el('fQ').oninput = Utils.debounce(redraw, 150);
     Utils.el('btnReset').onclick = () => {
       Utils.el('fSk').value = '';
       Utils.el('fTipe').value = '';
+      Utils.el('fCoverage').value = '';
       Utils.el('fQ').value = '';
       redraw();
     };
@@ -71,6 +70,7 @@ export const Guru = {
     if (!box) return;
     const skF = Utils.el('fSk').value;
     const tF = Utils.el('fTipe').value;
+    const covF = Utils.el('fCoverage').value;
     const q = Utils.el('fQ').value.toLowerCase().trim();
     let list = allGuru();
     if (skF) list = list.filter(g => g._skId === skF);
@@ -81,34 +81,69 @@ export const Guru = {
       (g.mapel || '').toLowerCase().includes(q) ||
       (g.nip || '').includes(q)
     );
+
+    // Coverage filter
+    if (covF) {
+      list = list.filter(g => {
+        const sk = Store.get('sekolah').find(x => x.id === g._skId);
+        const n3 = (sk?.supervisi || []).some(s => s.gid === g.id);
+        const nA = (sk?.akademik || []).some(s => s.gid === g.id);
+        const nC = (sk?.coaching || []).some(s => s.gid === g.id);
+        const typesCovered = [n3, nA, nC].filter(Boolean).length;
+        if (covF === 'none') return typesCovered === 0;
+        if (covF === 'partial') return typesCovered > 0 && typesCovered < 3;
+        if (covF === 'full') return typesCovered === 3;
+        return true;
+      });
+    }
+
     if (list.length === 0) {
       box.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--slate-400);font-size:.85rem">Tidak ada guru yang cocok</div>';
       return;
     }
     list.sort((a, b) => a._skNama.localeCompare(b._skNama) || a.nama.localeCompare(b.nama));
+
     box.innerHTML = `<table><thead><tr>
       <th>Sekolah</th><th>Nama / NIP</th><th>Mapel</th>
       <th style="text-align:center">Tipe</th>
-      <th style="text-align:center">Supervisi</th>
+      <th style="text-align:center">Coverage</th>
       <th style="text-align:right">Aksi</th>
     </tr></thead><tbody>${list.map(g => {
       const sk = Store.get('sekolah').find(x => x.id === g._skId);
       const n3 = (sk?.supervisi || []).filter(s => s.gid === g.id).length;
       const nA = (sk?.akademik || []).filter(s => s.gid === g.id).length;
       const nC = (sk?.coaching || []).filter(s => s.gid === g.id).length;
-      const badge = [];
-      if (n3 > 0) badge.push(`3T:${n3}`);
-      if (nA > 0) badge.push(`Ak:${nA}`);
-      if (nC > 0) badge.push(`Co:${nC}`);
+      const has3 = n3 > 0, hasAk = nA > 0, hasCo = nC > 0;
+      const typesCovered = [has3, hasAk, hasCo].filter(Boolean).length;
+      const covColor = typesCovered === 3 ? 'success' : typesCovered > 0 ? 'warning' : 'danger';
+      const covLabel = typesCovered === 3 ? 'Lengkap' : typesCovered > 0 ? 'Partial' : 'Belum';
+
+      // Render mini icons untuk 3 jenis
+      const icon3T = has3
+        ? `<span title="Supervisi 3T: ${n3}x" style="color:var(--success)">${Icons.svg('check-circle', 16)}</span>`
+        : `<span title="Belum 3T" style="color:var(--slate-300)">${Icons.svg('circle', 16)}</span>`;
+      const iconAkad = hasAk
+        ? `<span title="Akademik: ${nA}x" style="color:var(--info)">${Icons.svg('check-circle', 16)}</span>`
+        : `<span title="Belum Akademik" style="color:var(--slate-300)">${Icons.svg('circle', 16)}</span>`;
+      const iconCoach = hasCo
+        ? `<span title="Coaching: ${nC}x" style="color:var(--warning)">${Icons.svg('check-circle', 16)}</span>`
+        : `<span title="Belum Coaching" style="color:var(--slate-300)">${Icons.svg('circle', 16)}</span>`;
+
       return `<tr>
         <td style="font-size:.8rem;color:var(--slate-600)">${Utils.esc(g._skNama)}</td>
         <td><div style="font-weight:600">${Utils.esc(g.nama)}</div><div style="font-size:.7rem;color:var(--slate-500);font-family:monospace">${Utils.esc(g.nip || '-')}</div></td>
         <td style="font-size:.85rem">${Utils.esc(g.mapel || '-')}${g.kelas ? ' · Kls ' + Utils.esc(g.kelas) : ''}</td>
         <td style="text-align:center">${g.tipe ? `<span class="badge badge-info">${g.tipe}</span>` : '<span style="color:var(--slate-400);font-size:.75rem">—</span>'}</td>
-        <td style="text-align:center;font-size:.75rem">${badge.length ? badge.join(', ') : '<span style="color:var(--slate-400)">—</span>'}</td>
+        <td style="text-align:center">
+          <div style="display:flex;gap:.35rem;justify-content:center;align-items:center;margin-bottom:.25rem">
+            ${icon3T}${iconAkad}${iconCoach}
+          </div>
+          <span class="badge badge-${covColor}" style="font-size:.65rem">${covLabel}</span>
+        </td>
         <td style="text-align:right"><button class="btn btn-secondary btn-sm" data-detail="${g._skId}:${g.id}">${Icons.svg('eye', 14)} Detail</button></td>
       </tr>`;
     }).join('')}</tbody></table>`;
+
     box.querySelectorAll('[data-detail]').forEach(b => {
       b.onclick = () => {
         const [skId, gid] = b.dataset.detail.split(':');
