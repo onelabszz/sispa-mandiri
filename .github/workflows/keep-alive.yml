@@ -12,10 +12,9 @@ jobs:
     steps:
       - name: Ping Database Supabase
         env:
-          # Ganti URL di bawah ini dengan URL Supabase Anda (tanpa garis miring di akhir)
-          SUPABASE_URL: "https://oaasilmxpvxcsnfiqbbx.supabase.co"
-          # Ganti dengan Anon Key / Publishable Key Anda
-          SUPABASE_KEY: "sb_publishable_Yqd8cJ7uh08s4rstg_rJ3w_ETz1JkT2"
+          # Memanggil rahasia yang sudah Anda buat di menu Settings
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
           echo "Mengirim ping ke Supabase agar tidak di-pause..."
           
