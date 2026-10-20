@@ -242,10 +242,20 @@ const App = {
       if (m && b && !m.contains(e.target) && !b.contains(e.target)) Shell.closeProfileMenu();
     });
     Utils.el('modalCloseBtn')?.addEventListener('click', () => Utils.closeModal());
+    
+    // --- PERUBAHAN ADA DI SINI ---
     Utils.el('sidebar')?.addEventListener('click', e => {
       const btn = e.target.closest('.nav-item[data-tab]');
-      if (btn) Router.navigate(btn.dataset.tab);
+      if (btn) {
+        // Reset detail state saat pindah menu
+        if (btn.dataset.tab === 'sekolah') {
+          import('./modules/sekolah.js').then(({ Sekolah }) => { Sekolah._detailId = null; });
+        }
+        Router.navigate(btn.dataset.tab);
+      }
     });
+    // -----------------------------
+
     window.addEventListener('resize', () => {
       const btn = Utils.el('sidebarClose');
       if (btn) btn.style.display = window.innerWidth < 1024 ? 'inline-flex' : 'none';
