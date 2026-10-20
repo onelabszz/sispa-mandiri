@@ -49,6 +49,18 @@ export const Analisis = {
 
   _renderOverview(sekolah) {
     const allSup3 = sekolah.flatMap(sk => sk.supervisi || []);
+    const allAkad = sekolah.flatMap(sk => sk.akademik || []);
+    const allCoach = sekolah.flatMap(sk => sk.coaching || []);
+    const allSesi = [...allSup3, ...allAkad, ...allCoach];
+    const totalSesi = allSesi.length;
+
+    // KPI
+    const denganKKA = allSup3.filter(s => s.kka && String(s.kka).trim()).length;
+    const pctKKA = allSup3.length > 0 ? Math.round(denganKKA / allSup3.length * 100) : 0;
+    const avgAkad = allAkad.length > 0 ? (allAkad.reduce((s, x) => s + (x.skor || 0), 0) / allAkad.length).toFixed(1) : '—';
+    const avgCoach = allCoach.length > 0 ? (allCoach.reduce((s, x) => s + (x.skor || 0), 0) / allCoach.length).toFixed(1) : '—';
+
+    // Prinsip & Pengalaman
     const pC = { berkesadaran: 0, bermakna: 0, menggembirakan: 0 };
     allSup3.forEach(s => { if (s.prinsip_pm) Object.keys(pC).forEach(k => { if (s.prinsip_pm[k]) pC[k]++; }); });
     const gC = { memahami: 0, mengaplikasi: 0, merefleksi: 0 };
@@ -58,12 +70,109 @@ export const Analisis = {
     const maxP = Math.max(...Object.values(pC), 1);
     const maxG = Math.max(...Object.values(gC), 1);
     const maxD = Math.max(...dC, 1);
-    const withKKA = allSup3.filter(s => s.kka && String(s.kka).trim()).length;
-    const pctKKA = allSup3.length > 0 ? Math.round(withKKA / allSup3.length * 100) : 0;
+
+    // Trend per bulan (12 bulan terakhir)
+    const bulanLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+    const currentYear = new Date().getFullYear();
+    const trendData = Array(12).fill(0);
+    allSesi.forEach(s => {
+      if (!s.tgl) return;
+      const d = new Date(s.tgl);
+      if (d.getFullYear() === currentYear) trendData[d.getMonth()]++;
+    });
+    const maxTrend = Math.max(...trendData, 1);
+    const svgPoints = trendData.map((val, i) => {
+      const x = (i / 11) * 300;
+      const y = 100 - (val / maxTrend) * 100;
+      return `${x},${y}`;
+    }).join(' ');
+
+    // Insight otomatis
+    const insights = [];
+    if (allSup3.length > 0) {
+      const prinsipMax = Object.keys(pC).reduce((a, b) => pC[a] > pC[b] ? a : b);
+      const prinsipMin = Object.keys(pC).reduce((a, b) => pC[a] < pC[b] ? a : b);
+      const pctMax = Math.round((pC[prinsipMax] / allSup3.length) * 100);
+      const pctMin = Math.round((pC[prinsipMin] / allSup3.length) * 100);
+      if (pctMax >= 70) insights.push({ type: 'success', text: `Prinsip <strong>${prinsipMax}</strong> konsisten diterapkan dalam <strong>${pctMax}%</strong> sesi 3T.` });
+      if (pctMin < 40) insights.push({ type: 'warning', text: `Prinsip <strong>${prinsipMin}</strong> jarang diterapkan (<strong>${pctMin}%</strong>). Perlu jadi fokus pembinaan.` });
+      if (pctKKA < 30) insights.push({ type: 'info', text: `Integrasi KKA baru <strong>${pctKKA}%</strong>. Target ideal >50% sesuai Modul 5.` });
+      else if (pctKKA >= 50) insights.push({ type: 'success', text: `Integrasi KKA baik: <strong>${pctKKA}%</strong> sesi 3T menyertakan Koding/AI.` });
+    }
+    // Insight sekolah dengan coverage terendah
+    const skMetrics = sekolah.map(sk => ({ sk, m: metricsSekolah(sk) }));
+    const lowestCoverage = skMetrics.reduce((min, x) => x.m.coverage < min.m.coverage ? x : min, skMetrics[0]);
+    if (lowestCoverage && lowestCoverage.m.coverage < 50) {
+      insights.push({ type: 'warning', text: `Sekolah <strong>${Utils.esc(lowestCoverage.sk.nama_sekolah)}</strong> memiliki coverage terendah (<strong>${lowestCoverage.m.coverage}%</strong>). Prioritaskan pembinaan.` });
+    }
 
     return `
+      <!-- KPI Cards -->
+      <div class="grid-auto" style="margin-bottom:1.5rem">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e0e7ff;color:#4338ca">${Icons.svg('clipboard-list', 22)}</div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Total Sesi</div><div style="font-size:1.5rem;font-weight:700">${totalSesi}</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dcfce7;color:#166534">${Icons.svg('laptop', 22)}</div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Avg Akademik</div><div style="font-size:1.5rem;font-weight:700">${avgAkad}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/76</span></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fef3c7;color:#92400e">${Icons.svg('message-circle', 22)}</div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Avg Coaching</div><div style="font-size:1.5rem;font-weight:700">${avgCoach}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/32</span></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dbeafe;color:#1e40af">${Icons.svg('code', 22)}</div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Integrasi KKA</div><div style="font-size:1.5rem;font-weight:700">${pctKKA}%</div></div>
+        </div>
+      </div>
+
+      <!-- Trend Chart -->
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="card-header">${Icons.svg('trending-up', 18)} Tren Supervisi ${currentYear}</div>
+        <div class="card-body">
+          <div style="position:relative; height:150px; width:100%">
+            <svg viewBox="0 0 300 100" preserveAspectRatio="none" style="width:100%; height:100%; overflow:visible">
+              <line x1="0" y1="0" x2="300" y2="0" stroke="var(--slate-200)" stroke-width="0.5" stroke-dasharray="2,2"/>
+              <line x1="0" y1="50" x2="300" y2="50" stroke="var(--slate-200)" stroke-width="0.5" stroke-dasharray="2,2"/>
+              <line x1="0" y1="100" x2="300" y2="100" stroke="var(--slate-200)" stroke-width="0.5" stroke-dasharray="2,2"/>
+              <polygon points="0,100 ${svgPoints} 300,100" fill="rgba(99,102,241,0.1)" />
+              <polyline points="${svgPoints}" fill="none" stroke="var(--brand-500)" stroke-width="2.5" stroke-linejoin="round" />
+              ${trendData.map((val, i) => {
+                const x = (i / 11) * 300;
+                const y = 100 - (val / maxTrend) * 100;
+                return `<circle cx="${x}" cy="${y}" r="2.5" fill="white" stroke="var(--brand-600)" stroke-width="1.5" />`;
+              }).join('')}
+            </svg>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:.5rem; font-size:.65rem; color:var(--slate-500)">
+            ${bulanLabels.map(b => `<span>${b}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Insight -->
+      ${insights.length > 0 ? `
+        <div class="card" style="margin-bottom:1.5rem">
+          <div class="card-header">${Icons.svg('info', 18)} Insight & Rekomendasi</div>
+          <div class="card-body" style="display:flex; flex-direction:column; gap:.75rem">
+            ${insights.map(i => {
+              const c = i.type === 'success' ? { bg: '#dcfce7', border: '#86efac', color: '#166534', icon: 'trending-up' }
+                      : i.type === 'warning' ? { bg: '#fef3c7', border: '#fde68a', color: '#92400e', icon: 'alert-triangle' }
+                      : { bg: '#dbeafe', border: '#93c5fd', color: '#1e40af', icon: 'info' };
+              return `<div style="display:flex; gap:.75rem; padding:.85rem; background:${c.bg}; border:1px solid ${c.border}; border-radius:8px; align-items:flex-start">
+                <div style="width:32px; height:32px; border-radius:8px; background:white; color:${c.color}; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+                  ${Icons.svg(c.icon, 18)}
+                </div>
+                <div style="flex:1; font-size:.85rem; color:${c.color}; line-height:1.5">${i.text}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+
       <div class="card">
-        <div class="card-header">${Icons.svg('percent', 18)} Coverage Supervisi per Sekolah</div>
+        <div class="card-header">${Icons.svg('percent', 18)} Coverage per Sekolah</div>
         <div class="card-body">
           ${sekolah.map(sk => {
             const m = metricsSekolah(sk);
@@ -76,6 +185,7 @@ export const Analisis = {
           }).join('')}
         </div>
       </div>
+
       <div class="row">
         <div class="card">
           <div class="card-header">${Icons.svg('target', 18)} Prinsip PM</div>
@@ -98,6 +208,7 @@ export const Analisis = {
           </div>
         </div>
       </div>
+
       <div class="card">
         <div class="card-header">${Icons.svg('layers', 18)} 8 Dimensi Profil Lulusan</div>
         <div class="card-body">
@@ -110,18 +221,6 @@ export const Analisis = {
           `).join('')}
         </div>
       </div>
-      <div class="card">
-        <div class="card-header">${Icons.svg('laptop', 18)} Integrasi KKA</div>
-        <div class="card-body" style="display:flex;align-items:center;justify-content:center;gap:1.5rem;padding:1.5rem;flex-wrap:wrap">
-          <svg width="140" height="140" viewBox="0 0 36 36">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="4"/>
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#16a34a" stroke-width="4" stroke-dasharray="${pctKKA}, 100" stroke-linecap="round"/>
-            <text x="18" y="18" text-anchor="middle" style="font-size:6px;font-weight:700;fill:#0f172a">${pctKKA}%</text>
-            <text x="18" y="22.5" text-anchor="middle" style="font-size:2.5px;fill:#64748b">KKA</text>
-          </svg>
-          <div style="font-size:.85rem;color:var(--slate-600)"><strong>${withKKA}</strong> dari <strong>${allSup3.length}</strong> sesi 3T menyertakan KKA</div>
-        </div>
-      </div>
     `;
   },
 
@@ -131,20 +230,16 @@ export const Analisis = {
       return `<div class="card"><div class="card-body">${emptyState('laptop', 'Belum ada data', 'Belum ada observasi akademik yang diimpor dari KS.')}</div></div>`;
     }
 
-    // Hitung distribusi skor per indikator (1-4)
     const perInd = INSTRUMEN_AKADEMIK.map(ind => {
-      const counts = [0, 0, 0, 0]; // skor 1-4
       let total = 0, n = 0;
       allAkad.forEach(a => {
         const skor = (a.detail || {})[ind.kode];
-        if (skor >= 1 && skor <= 4) { counts[skor - 1]++; total += skor; n++; }
+        if (skor >= 1 && skor <= 4) { total += skor; n++; }
       });
-      return { ...ind, counts, avg: n > 0 ? total / n : 0, totalN: n };
+      return { ...ind, avg: n > 0 ? total / n : 0, totalN: n };
     });
 
-    // Statistik global
     const avgTotal = allAkad.length > 0 ? (allAkad.reduce((s, x) => s + (x.skor || 0), 0) / allAkad.length).toFixed(1) : 0;
-    const maxAvg = Math.max(...perInd.map(x => x.avg), 1);
 
     return `
       <div class="grid-auto" style="margin-bottom:1.5rem">
