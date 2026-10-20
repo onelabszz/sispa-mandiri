@@ -17,7 +17,7 @@ export const Sekolah = {
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
           <input type="file" id="csvFileSek" accept=".csv" style="display:none">
           <button class="btn btn-secondary" id="btnImportCSV">${Icons.svg('upload', 16)} Impor CSV</button>
-          <button class="btn btn-secondary" id="btnPickDB">${Icons.svg('database', 16)} Pilih dari DB</button>
+          <button class="btn btn-secondary" id="btnPickDB">${Icons.svg('server', 16)} Pilih dari DB</button>
           <button class="btn btn-primary" id="btnImportJSON">${Icons.svg('file-json', 16)} Import JSON KS</button>
         </div>
       </div>
@@ -25,7 +25,7 @@ export const Sekolah = {
       ${list.length === 0 ? `<div class="card"><div class="card-body">
         ${emptyState('school', 'Belum ada sekolah', 'Tambahkan sekolah binaan dengan mengambil dari database, impor CSV, atau impor file JSON dari KS.',
           `<div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem">
-             <button class="btn btn-secondary" id="btnEmptyPickDB">${Icons.svg('database', 16)} Pilih dari DB</button>
+             <button class="btn btn-secondary" id="btnEmptyPickDB">${Icons.svg('server', 16)} Pilih dari DB</button>
              <button class="btn btn-primary" id="btnEmptyImportJSON">${Icons.svg('file-json', 16)} Import JSON</button>
            </div>`)}
       </div></div>` : `
@@ -63,7 +63,6 @@ export const Sekolah = {
   },
 
   async bind() {
-    // Tombol Top Bar
     Utils.el('btnImportJSON')?.addEventListener('click', () => this.startImportJSON());
     Utils.el('btnEmptyImportJSON')?.addEventListener('click', () => this.startImportJSON());
     
@@ -73,7 +72,6 @@ export const Sekolah = {
     Utils.el('btnImportCSV')?.addEventListener('click', () => Utils.el('csvFileSek').click());
     Utils.el('csvFileSek')?.addEventListener('change', (e) => this.handleCSV(e));
 
-    // Tombol Tabel
     document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => this.detail(b.dataset.view));
     document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => this.hapus(b.dataset.del));
   },
@@ -93,16 +91,22 @@ export const Sekolah = {
       const allSchools = await Supabase.getAllSekolah();
       const localSchools = Store.get('sekolah');
       const localNpsns = new Set(localSchools.map(s => s.npsn));
-      
-      // Filter hanya sekolah yang belum ada di lokal
-      const available = allSchools.filter(s => !localNpsns.has(s.npsn));
+      const myNip = Store.config().nip_pengawas;
+
+      // Filter: Hanya tampilkan yang belum diambil (pengawas_nip null/kosong)
+      // atau yang sudah diambil oleh diri sendiri (tapi belum ada di lokal, misal kasus re-sync)
+      const available = allSchools.filter(s => {
+        if (localNpsns.has(s.npsn)) return false;
+        if (s.pengawas_nip && s.pengawas_nip !== myNip) return false;
+        return true;
+      });
 
       if (available.length === 0) {
         Utils.closeModal();
-        return Utils.toast('Semua sekolah di database sudah ada di daftar binaan Anda.', 'info');
+        return Utils.toast('Tidak ada sekolah baru yang tersedia di database (atau semua sudah dibina PS lain).', 'info');
       }
 
-      const listHtml = available.map((s, i) => `
+      const listHtml = available.map(s => `
         <label style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border-bottom:1px solid var(--slate-100);cursor:pointer">
           <input type="checkbox" class="db-checkbox" value="${s.npsn}" data-nama="${Utils.esc(s.nama_sekolah)}" style="width:18px;height:18px;accent-color:var(--brand-600)">
           <div>
@@ -114,7 +118,7 @@ export const Sekolah = {
 
       Utils.modal('Pilih Sekolah dari Database', `
         <div style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center">
-          <span style="font-size:.85rem;color:var(--slate-500)">Ditemukan ${available.length} sekolah baru.</span>
+          <span style="font-size:.85rem;color:var(--slate-500)">Ditemukan ${available.length} sekolah tersedia.</span>
           <button class="btn btn-secondary btn-sm" id="btnSelectAll">Pilih Semua</button>
         </div>
         <div style="max-height:50vh;overflow-y:auto;border:1px solid var(--slate-200);border-radius:8px">
@@ -122,7 +126,7 @@ export const Sekolah = {
         </div>
       `, `
         <button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button>
-        <button class="btn btn-primary" id="btnSavePick">Tambahkan ke Binaan</button>
+        <button class="btn btn-primary" id="btnSavePick">Klaim & Tambahkan</button>
       `, true);
 
       Utils.el('btnSelectAll').onclick = () => {
@@ -136,24 +140,39 @@ export const Sekolah = {
         const checked = Array.from(document.querySelectorAll('.db-checkbox:checked'));
         if (checked.length === 0) return Utils.toast('Pilih minimal satu sekolah', 'warning');
 
-        const newSekolah = checked.map(cb => ({
-          id: Utils.uid(),
-          npsn: cb.value,
-          nama_sekolah: cb.dataset.nama,
-          ks_nama: '', ks_nip: '',
-          imported_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          guru: [], program: [], supervisi: [], akademik: [], coaching: []
-        }));
+        const btn = Utils.el('btnSavePick');
+        btn.disabled = true;
+        btn.innerHTML = 'Memproses...';
 
-        const updatedList = [...localSchools, ...newSekolah];
-        await Store.set('sekolah', updatedList);
-        
-        Utils.closeModal();
-        Utils.toast(`${checked.length} sekolah ditambahkan ke binaan.`, 'success');
-        Router.navigate('sekolah');
+        try {
+          const newSekolah = [];
+          for (const cb of checked) {
+            // Klaim di database Supabase
+            await Supabase.claimSekolah(cb.value, myNip);
+            
+            newSekolah.push({
+              id: Utils.uid(),
+              npsn: cb.value,
+              nama_sekolah: cb.dataset.nama,
+              ks_nama: '', ks_nip: '',
+              imported_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              guru: [], program: [], supervisi: [], akademik: [], coaching: []
+            });
+          }
+
+          const updatedList = [...localSchools, ...newSekolah];
+          await Store.set('sekolah', updatedList);
+          
+          Utils.closeModal();
+          Utils.toast(`${checked.length} sekolah berhasil diklaim dan ditambahkan.`, 'success');
+          Router.navigate('sekolah');
+        } catch (err) {
+          btn.disabled = false;
+          btn.innerHTML = 'Klaim & Tambahkan';
+          Utils.toast('Gagal klaim: ' + err.message, 'error');
+        }
       };
-
     } catch (err) {
       Utils.closeModal();
       Utils.toast(err.message, 'error');
@@ -174,25 +193,33 @@ export const Sekolah = {
       const sep = rows[0].includes(';') ? ';' : ',';
       const localSchools = Store.get('sekolah');
       const localNpsns = new Set(localSchools.map(s => s.npsn));
+      const myNip = Store.config().nip_pengawas;
       
       let added = 0;
       const newSekolah = [];
 
-      for (let i = 1; i < rows.length; i++) {
-        const cols = rows[i].split(sep).map(c => c.trim());
-        if (cols[0] && cols[1] && !localNpsns.has(cols[0])) {
-          newSekolah.push({
-            id: Utils.uid(),
-            npsn: cols[0],
-            nama_sekolah: cols[1],
-            ks_nama: '', ks_nip: '',
-            imported_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            guru: [], program: [], supervisi: [], akademik: [], coaching: []
-          });
-          localNpsns.add(cols[0]);
-          added++;
+      try {
+        for (let i = 1; i < rows.length; i++) {
+          const cols = rows[i].split(sep).map(c => c.trim());
+          if (cols[0] && cols[1] && !localNpsns.has(cols[0])) {
+            // Klaim di Supabase
+            await Supabase.claimSekolah(cols[0], myNip);
+            
+            newSekolah.push({
+              id: Utils.uid(),
+              npsn: cols[0],
+              nama_sekolah: cols[1],
+              ks_nama: '', ks_nip: '',
+              imported_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              guru: [], program: [], supervisi: [], akademik: [], coaching: []
+            });
+            localNpsns.add(cols[0]);
+            added++;
+          }
         }
+      } catch(err) {
+        return Utils.toast('Gagal klaim via CSV: ' + err.message, 'error');
       }
       
       if (added === 0) {
@@ -201,22 +228,19 @@ export const Sekolah = {
       }
       
       await Store.set('sekolah', [...localSchools, ...newSekolah]);
-      Utils.toast(`Berhasil menambahkan ${added} sekolah dari CSV.`, 'success');
-      e.target.value = ''; // Reset
+      Utils.toast(`Berhasil mengklaim & menambahkan ${added} sekolah dari CSV.`, 'success');
+      e.target.value = '';
       Router.navigate('sekolah');
     };
     reader.readAsText(file);
   },
 
   // ==========================================
-  // 3. IMPORT JSON DARI KS (Sama seperti sebelumnya)
+  // 3. IMPORT JSON DARI KS (DENGAN VALIDASI NPSN)
   // ==========================================
   startImportJSON() {
     Utils.modal('Import JSON dari KS', `
-      ${infoBanner('info', 'info', 'Pilih file JSON hasil ekspor dari SISPA-Offline (KS). Sistem akan mendeteksi sekolah dari NPSN dan menampilkan perubahan sebelum konfirmasi.')}
-      <div style="margin-top:1rem">
-        ${infoBanner('success', 'check-circle', '<strong>Mode default: Merge.</strong> Data lama dipertahankan, hanya item baru/diubah yang di-update. Cocok untuk sync berkala.')}
-      </div>
+      ${infoBanner('info', 'info', 'Pilih file JSON hasil ekspor dari SISPA-Offline (KS). Sistem akan memvalidasi apakah sekolah ini termasuk dalam binaan Anda.')}
       <div class="form-group" style="margin-top:1rem">
         <label class="label">File JSON</label>
         <input type="file" id="jsonFile" accept=".json,application/json" class="input" style="padding:.5rem">
@@ -231,7 +255,31 @@ export const Sekolah = {
       r.onload = (e) => {
         try {
           const data = JSON.parse(e.target.result);
+          const npsn = String(data.config?.npsn || '').trim();
+          
+          if (!npsn) {
+            return Utils.toast('File JSON tidak memiliki NPSN. Minta KS melengkapi profil sekolahnya.', 'error');
+          }
+
+          // --- VALIDASI BINAAN ---
+          const localSchools = Store.get('sekolah');
+          const isBinaan = localSchools.some(s => String(s.npsn).trim() === npsn);
+
+          if (!isBinaan) {
+            // Tampilkan konfirmasi penolakan
+            return Utils.modal('Akses Ditolak', `
+              ${infoBanner('danger', 'alert-triangle', `
+                <strong>Sekolah Ini Bukan Binaan Anda!</strong><br>
+                File JSON ini berasal dari <strong>${Utils.esc(data.config.nama_sekolah)}</strong> (NPSN: ${npsn}).<br><br>
+                Sekolah tersebut belum terdaftar sebagai binaan Anda di perangkat ini. <br>
+                Silakan tambahkan sekolah tersebut melalui menu <strong>"Pilih dari DB"</strong> terlebih dahulu.
+              `)}
+            `, `<button class="btn btn-primary" onclick="Utils.closeModal()">Tutup</button>`);
+          }
+
+          // Jika valid, lanjut ke proses preview
           this.processImport(data);
+          
         } catch {
           Utils.toast('File JSON tidak valid', 'error');
         }
@@ -246,7 +294,6 @@ export const Sekolah = {
     const cfg = data.config;
     if (!cfg.nama_sekolah) return Utils.toast('Config tidak punya nama_sekolah', 'error');
     const npsn = String(cfg.npsn || '').trim();
-    if (!npsn) return Utils.toast('Config tidak punya NPSN. Minta KS isi NPSN dulu.', 'error');
 
     const sekolah = Store.get('sekolah');
     const existing = sekolah.find(sk => String(sk.npsn || '').trim() === npsn);
@@ -284,24 +331,23 @@ export const Sekolah = {
         </span>
       </div>`;
 
-    const modeHtml = isNew ? infoBanner('success', 'check-circle', '<strong>Sekolah baru</strong> — akan ditambahkan sebagai sekolah binaan.')
-      : `
-        <div style="margin-bottom:1rem">
-          ${infoBanner('warn', 'refresh-cw', `<strong>Sekolah sudah terdaftar</strong> — terakhir sync ${Utils.relTime(existing.updated_at)}.`)}
-          <div style="margin-top:.75rem">
-            <div style="font-weight:600;font-size:.85rem;margin-bottom:.4rem">Mode Import</div>
-            <label style="display:flex;gap:.5rem;padding:.6rem;border:1.5px solid var(--brand-500);background:var(--brand-50);border-radius:8px;cursor:pointer;margin-bottom:.4rem">
-              <input type="radio" name="impMode" value="merge" checked style="margin-top:.15rem">
-              <div><strong style="font-size:.85rem">Merge (aman)</strong><div style="font-size:.75rem;color:var(--slate-600)">Data lama yang tidak ada di file tetap ada. Cocok untuk sync berkala.</div></div>
-            </label>
-            <label style="display:flex;gap:.5rem;padding:.6rem;border:1.5px solid var(--slate-200);border-radius:8px;cursor:pointer">
-              <input type="radio" name="impMode" value="replace" style="margin-top:.15rem">
-              <div><strong style="font-size:.85rem">Replace (reset)</strong><div style="font-size:.75rem;color:var(--slate-600)">Data lama diganti total dengan data dari file.</div></div>
-            </label>
-          </div>
-        </div>`;
+    const modeHtml = `
+      <div style="margin-bottom:1rem">
+        ${infoBanner('warn', 'refresh-cw', `<strong>Sekolah sudah terdaftar</strong> — terakhir sync ${Utils.relTime(existing.updated_at)}.`)}
+        <div style="margin-top:.75rem">
+          <div style="font-weight:600;font-size:.85rem;margin-bottom:.4rem">Mode Import</div>
+          <label style="display:flex;gap:.5rem;padding:.6rem;border:1.5px solid var(--brand-500);background:var(--brand-50);border-radius:8px;cursor:pointer;margin-bottom:.4rem">
+            <input type="radio" name="impMode" value="merge" checked style="margin-top:.15rem">
+            <div><strong style="font-size:.85rem">Merge (aman)</strong><div style="font-size:.75rem;color:var(--slate-600)">Data lama yang tidak ada di file tetap ada. Cocok untuk sync berkala.</div></div>
+          </label>
+          <label style="display:flex;gap:.5rem;padding:.6rem;border:1.5px solid var(--slate-200);border-radius:8px;cursor:pointer">
+            <input type="radio" name="impMode" value="replace" style="margin-top:.15rem">
+            <div><strong style="font-size:.85rem">Replace (reset)</strong><div style="font-size:.75rem;color:var(--slate-600)">Data lama diganti total dengan data dari file.</div></div>
+          </label>
+        </div>
+      </div>`;
 
-    Utils.modal(isNew ? 'Sekolah Baru' : 'Update Sekolah', `
+    Utils.modal('Update Sekolah', `
       <table style="font-size:.85rem;margin-bottom:1rem">
         <tr><td style="padding:.3rem .5rem;color:var(--slate-500);width:120px">Sekolah</td><td style="padding:.3rem .5rem"><strong>${Utils.esc(cfg.nama_sekolah)}</strong></td></tr>
         <tr><td style="padding:.3rem .5rem;color:var(--slate-500)">NPSN</td><td style="padding:.3rem .5rem;font-family:monospace">${Utils.esc(npsn)}</td></tr>
@@ -317,7 +363,7 @@ export const Sekolah = {
         ${diffRow('Akademik', diff.akademik)}
         ${diffRow('Coaching', diff.coaching)}
       </div>
-    `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button><button class="btn btn-primary" id="btnConfirmImport">${isNew ? 'Tambahkan Sekolah' : 'Import Sekarang'}</button>`, true);
+    `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button><button class="btn btn-primary" id="btnConfirmImport">Import Sekarang</button>`, true);
 
     Utils.el('btnConfirmImport').onclick = () => {
       const modeEl = document.querySelector('input[name="impMode"]:checked');
@@ -330,34 +376,24 @@ export const Sekolah = {
     const sekolah = Store.get('sekolah');
     const now = new Date().toISOString();
 
-    if (isNew) {
-      sekolah.push({
-        id: Utils.uid(), npsn,
-        nama_sekolah: cfg.nama_sekolah,
-        ks_nama: cfg.nama_ks || '', ks_nip: cfg.nip_ks || '',
-        imported_at: now, updated_at: now,
-        guru: data.guru || [], program: data.program || [],
-        supervisi: data.supervisi || [], akademik: data.akademik || [], coaching: data.coaching || []
-      });
-    } else {
-      existing.nama_sekolah = cfg.nama_sekolah;
-      existing.ks_nama = cfg.nama_ks || existing.ks_nama || '';
-      existing.ks_nip = cfg.nip_ks || existing.ks_nip || '';
-      existing.updated_at = now;
-      ['guru', 'program', 'supervisi', 'akademik', 'coaching'].forEach(k => {
-        if (mode === 'replace') {
-          existing[k] = data[k] || [];
-        } else {
-          const oldMap = new Map((existing[k] || []).map(x => [x.id, x]));
-          (data[k] || []).forEach(item => oldMap.set(item.id, item));
-          existing[k] = [...oldMap.values()];
-        }
-      });
-    }
+    // Karena kita sudah pastikan ini sekolah lama (validasi di awal), kita hanya update
+    existing.nama_sekolah = cfg.nama_sekolah;
+    existing.ks_nama = cfg.nama_ks || existing.ks_nama || '';
+    existing.ks_nip = cfg.nip_ks || existing.ks_nip || '';
+    existing.updated_at = now;
+    ['guru', 'program', 'supervisi', 'akademik', 'coaching'].forEach(k => {
+      if (mode === 'replace') {
+        existing[k] = data[k] || [];
+      } else {
+        const oldMap = new Map((existing[k] || []).map(x => [x.id, x]));
+        (data[k] || []).forEach(item => oldMap.set(item.id, item));
+        existing[k] = [...oldMap.values()];
+      }
+    });
 
     await Store.set('sekolah', sekolah);
     Utils.closeModal();
-    Utils.toast(isNew ? `${cfg.nama_sekolah} ditambahkan` : `Data ${cfg.nama_sekolah} diperbarui`, 'success');
+    Utils.toast(`Data ${cfg.nama_sekolah} diperbarui`, 'success');
     Router.navigate('sekolah');
   },
 
@@ -394,15 +430,21 @@ export const Sekolah = {
     `, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>', true);
   },
 
-  hapus(id) {
+  async hapus(id) {
     const sk = Store.get('sekolah').find(x => x.id === id);
     if (!sk) return;
     const total = (sk.guru || []).length + (sk.supervisi || []).length + (sk.akademik || []).length + (sk.coaching || []).length;
     Utils.confirm('Hapus Sekolah?',
-      `Semua data ${sk.nama_sekolah} (${total} record) akan dihapus dari aplikasi ini. File JSON asli dari KS tidak terpengaruh.`,
+      `Semua data ${sk.nama_sekolah} (${total} record) akan dihapus dari aplikasi ini. File JSON asli dari KS tidak terpengaruh. Sekolah ini akan dilepas dari binaan Anda.`,
       async () => {
-        await Store.set('sekolah', Store.get('sekolah').filter(x => x.id !== id));
-        Router.navigate('sekolah');
+        try {
+          // Lepas klaim dari database agar PS lain bisa mengambilnya
+          await Supabase.unclaimSekolah(sk.npsn);
+          await Store.set('sekolah', Store.get('sekolah').filter(x => x.id !== id));
+          Router.navigate('sekolah');
+        } catch (err) {
+          Utils.toast('Gagal melepas binaan: ' + err.message, 'error');
+        }
       });
   }
 };
