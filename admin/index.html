@@ -448,71 +448,109 @@
   };
 
   // ==========================================
-  // FUNGSI IMPORT CSV
+  // FUNGSI IMPORT CSV BARU
   // ==========================================
-  window.handleCSVSekolah = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  let currentImportType = '';
+
+  window.openImportModal = (type) => {
+    currentImportType = type;
+    document.getElementById('importTitle').innerHTML = `<i data-lucide="file-spreadsheet" style="width:20px;height:20px;color:var(--brand-600)"></i> Import Data ${type === 'sekolah' ? 'Sekolah' : 'Pengawas'}`;
+    document.getElementById('importFileInput').value = '';
+    document.getElementById('importModal').classList.add('show');
+    lucide.createIcons();
+  };
+
+  window.downloadTemplate = () => {
+    let content = '';
+    let filename = '';
+
+    if (currentImportType === 'sekolah') {
+      filename = 'Template_Import_Sekolah.csv';
+      content = '\uFEFFnpsn;nama_sekolah\n20311457;SD Negeri 1 Pule\n20311458;SD Negeri 2 Pule\n';
+    } else {
+      filename = 'Template_Import_Pengawas.csv';
+      content = '\uFEFFnip;nama_pengawas;wilayah\n197001012000031001;Dr. Ahmad Suryadi, M.Pd;Kecamatan Pule\n198001012005011001;Ekwan Nugroho, S.Pd.I;Kecamatan Pule\n';
+    }
+
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Template berhasil diunduh', 'success');
+  };
+
+  window.processImportData = () => {
+    const fileInput = document.getElementById('importFileInput');
+    const file = fileInput.files[0];
+    if (!file) return showToast('Pilih file CSV terlebih dahulu', 'error');
+
+    const btn = document.getElementById('btnProcessImport');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Memproses...';
+
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const rows = ev.target.result.split(/\r?\n/).filter(r => r.trim());
-      if (rows.length < 2) return showToast('File CSV kosong / tidak valid', 'error');
-      
+      if (rows.length < 2) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        return showToast('File CSV kosong / tidak valid', 'error');
+      }
+
       const sep = rows[0].includes(';') ? ';' : ',';
       const payloads = [];
-      
+
       for (let i = 1; i < rows.length; i++) {
         const cols = rows[i].split(sep).map(c => c.trim());
-        if (cols[0] && cols[1]) payloads.push({ npsn: cols[0], nama_sekolah: cols[1] });
+        if (currentImportType === 'sekolah' && cols[0] && cols[1]) {
+          payloads.push({ npsn: cols[0], nama_sekolah: cols[1] });
+        } else if (currentImportType === 'pengawas' && cols[0] && cols[1]) {
+          payloads.push({ nip: cols[0], nama_pengawas: cols[1], wilayah: cols[2] || '' });
+        }
       }
-      
-      if (payloads.length === 0) return showToast('Tidak ada data valid.', 'error');
-      if (!confirm(`Ditemukan ${payloads.length} data sekolah. Lanjutkan import?`)) return;
-      
+
+      if (payloads.length === 0) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        return showToast('Tidak ada data valid yang ditemukan dalam file', 'error');
+      }
+
+      if (!confirm(`Ditemukan ${payloads.length} baris data. Lanjutkan import?`)) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        return;
+      }
+
       const overlay = document.getElementById('loadingOverlay');
       overlay.classList.add('show');
+
       try {
-        for (const p of payloads) await Supabase.saveSekolah(p);
-        showToast(`Berhasil mengimpor ${payloads.length} sekolah.`, 'success');
+        for (const p of payloads) {
+          if (currentImportType === 'sekolah') {
+            await Supabase.saveSekolah(p);
+          } else {
+            await Supabase.savePengawas(p);
+          }
+        }
+        
+        document.getElementById('importModal').classList.remove('show');
+        showToast(`Berhasil mengimpor ${payloads.length} data.`, 'success');
         loadData();
-      } catch (err) { showToast('Gagal import: ' + err.message, 'error'); }
-      finally { overlay.classList.remove('show'); }
-      e.target.value = '';
+      } catch (err) {
+        showToast('Gagal import: ' + err.message, 'error');
+      } finally {
+        overlay.classList.remove('show');
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
     };
     reader.readAsText(file);
   };
 
-  window.handleCSVPengawas = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const rows = ev.target.result.split(/\r?\n/).filter(r => r.trim());
-      if (rows.length < 2) return showToast('File CSV kosong / tidak valid', 'error');
-      
-      const sep = rows[0].includes(';') ? ';' : ',';
-      const payloads = [];
-      
-      for (let i = 1; i < rows.length; i++) {
-        const cols = rows[i].split(sep).map(c => c.trim());
-        if (cols[0] && cols[1]) payloads.push({ nip: cols[0], nama_pengawas: cols[1], wilayah: cols[2] || '' });
-      }
-      
-      if (payloads.length === 0) return showToast('Tidak ada data valid.', 'error');
-      if (!confirm(`Ditemukan ${payloads.length} data pengawas. Lanjutkan import?`)) return;
-      
-      const overlay = document.getElementById('loadingOverlay');
-      overlay.classList.add('show');
-      try {
-        for (const p of payloads) await Supabase.savePengawas(p);
-        showToast(`Berhasil mengimpor ${payloads.length} pengawas.`, 'success');
-        loadData();
-      } catch (err) { showToast('Gagal import: ' + err.message, 'error'); }
-      finally { overlay.classList.remove('show'); }
-      e.target.value = '';
-    };
-    reader.readAsText(file);
-  };
+  document.getElementById('btnDownloadTemplate')?.addEventListener('click', downloadTemplate);
 </script>
 </body>
 </html>
