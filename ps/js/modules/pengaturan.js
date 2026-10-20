@@ -51,8 +51,21 @@ export const Pengaturan = {
       data.version = '2.0.0';
       data.app = 'sispa-pengawas';
       data.exported_at = new Date().toISOString();
-      Utils.downloadJSON(data, `SISPA_Pengawas_Backup_${new Date().toISOString().slice(0, 10)}.json`);
-      Utils.toast('Backup diekspor', 'success');
+      
+      // Nama file: [Nama_Pengawas]_[YYYY-MM-DD].json
+      const sanitize = (str) => String(str || '')
+        .replace(/[\\/:*?"<>|]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 60);
+      
+      const namaPg = sanitize(Store.config().nama_pengawas || 'Pengawas');
+      const tgl = new Date().toISOString().slice(0, 10);
+      const filename = `${namaPg}_${tgl}.json`;
+      
+      Utils.downloadJSON(data, filename);
+      Utils.toast(`Backup diekspor: ${filename}`, 'success');
     };
 
     Utils.el('btnImp').onclick = () => Utils.el('fileImp').click();
