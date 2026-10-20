@@ -75,15 +75,30 @@ export const Dashboard = {
       </div></div>` : `
         <div class="row">
           <div class="card">
-            <div class="card-header">${Icons.svg('layers', 18)} Distribusi Tipe Guru</div>
+            <div class="card-header">${Icons.svg('target', 18)} Peta Kuadran Glickman</div>
             <div class="card-body">
-              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;text-align:center">
-                ${Object.entries(tipeDist).map(([t, c]) => `
-                  <div style="padding:.75rem;background:var(--slate-50);border-radius:10px">
-                    <div style="font-size:1.4rem;font-weight:700">${c}</div>
-                    <div style="font-size:.7rem;color:var(--slate-500);margin-top:.25rem">${t}</div>
-                  </div>
-                `).join('')}
+              <svg viewBox="0 0 300 300" style="width:100%;max-width:280px;display:block;margin:0 auto">
+                <rect x="10" y="10" width="140" height="140" fill="#e0e7ff" rx="8"/>
+                <rect x="150" y="10" width="140" height="140" fill="#dcfce7" rx="8"/>
+                <rect x="10" y="150" width="140" height="140" fill="#fee2e2" rx="8"/>
+                <rect x="150" y="150" width="140" height="140" fill="#fef3c7" rx="8"/>
+                <text x="80" y="55" text-anchor="middle" font-size="11" font-weight="700" fill="#4338ca">Analytical</text>
+                <text x="80" y="80" text-anchor="middle" font-size="24" font-weight="800" fill="#4338ca">${tipeDist.Analytical}</text>
+                <text x="220" y="55" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">Professional</text>
+                <text x="220" y="80" text-anchor="middle" font-size="24" font-weight="800" fill="#166534">${tipeDist.Professional}</text>
+                <text x="80" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#991b1b">Dropout</text>
+                <text x="80" y="220" text-anchor="middle" font-size="24" font-weight="800" fill="#991b1b">${tipeDist.Dropout}</text>
+                <text x="220" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">Unfocused</text>
+                <text x="220" y="220" text-anchor="middle" font-size="24" font-weight="800" fill="#92400e">${tipeDist.Unfocused}</text>
+                <text x="80" y="245" text-anchor="middle" font-size="9" fill="#64748b">Komitmen R</text>
+                <text x="220" y="245" text-anchor="middle" font-size="9" fill="#64748b">Komitmen T</text>
+                <text x="80" y="125" text-anchor="middle" font-size="9" fill="#64748b">Abstraksi T</text>
+                <text x="80" y="265" text-anchor="middle" font-size="9" fill="#64748b">Abstraksi R</text>
+                <text x="220" y="125" text-anchor="middle" font-size="9" fill="#64748b">Abstraksi T</text>
+                <text x="220" y="265" text-anchor="middle" font-size="9" fill="#64748b">Abstraksi R</text>
+              </svg>
+              <div style="text-align:center;font-size:.75rem;color:var(--slate-500);margin-top:.75rem">
+                ${sudahDinilai} dari ${totalGuru} guru sudah dinilai
               </div>
             </div>
           </div>
@@ -91,10 +106,10 @@ export const Dashboard = {
             <div class="card-header">${Icons.svg('bar-chart-3', 18)} Sesi per Sekolah</div>
             <div class="card-body">
               ${perSekolah.slice(0, 6).map(x => `
-                <div class="metric-row">
-                  <div class="metric-label" style="width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(x.nama)}</div>
-                  <div class="metric-bar"><div class="metric-fill" style="width:${Math.round(x.sesi / maxSesi * 100)}%;background:var(--brand-500)"></div></div>
-                  <div class="metric-value">${x.sesi}</div>
+                <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.5rem;font-size:.85rem">
+                  <div style="width:120px;color:var(--slate-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(x.nama)}</div>
+                  <div style="flex:1;height:8px;background:var(--slate-100);border-radius:999px;overflow:hidden"><div style="height:100%;width:${Math.round(x.sesi / maxSesi * 100)}%;background:var(--brand-500);border-radius:999px"></div></div>
+                  <div style="width:26px;font-weight:600;text-align:right">${x.sesi}</div>
                 </div>
               `).join('')}
             </div>
@@ -125,7 +140,7 @@ export const Dashboard = {
   async bind() {
     const goImport = async () => {
       const { Sekolah } = await import('./sekolah.js');
-      Sekolah.startImport();
+      Sekolah.startImportJSON();
     };
     Utils.el('btnImport')?.addEventListener('click', goImport);
     Utils.el('btnEmptyImport')?.addEventListener('click', goImport);
