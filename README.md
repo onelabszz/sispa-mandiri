@@ -1,41 +1,51 @@
-# 🎓 SISPA Mandiri
-
-**Sistem Supervisi Pendidikan Akademik** — Aplikasi semi-online untuk Kepala Sekolah & Pengawas di Kabupaten Wonogiri.
-
-[![GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages-4f46e5?style=flat-square)](https://pages.github.com/)
-[![Supabase](https://img.shields.io/badge/Cloud-Supabase-3ECF8E?style=flat-square)](https://supabase.com/)
-[![Version](https://img.shields.io/badge/Version-v2.0.0-16a34a?style=flat-square)]()
 
 ---
 
-## 🌐 Akses Aplikasi
+## 📦 Fitur Utama
 
-| Role | URL | Login |
-|------|-----|-------|
-| 🎓 **KS (Kepala Sekolah)** | `https://onelabszz.github.io/sispa-mandiri/ks/` | NPSN 8 digit |
-| 👨‍🏫 **PS (Pengawas)** | `https://onelabszz.github.io/sispa-mandiri/ps/` | NIP 18 digit |
-| 🔐 **Admin Dinas** | `https://onelabszz.github.io/sispa-mandiri/admin/` | Kunci Admin |
+### 🎓 Aplikasi KS (Kepala Sekolah)
 
----
+| Modul | Fitur |
+|-------|-------|
+| **Login** | NPSN 8 digit + auto-fill profil |
+| **Dashboard** | Kartu profil, Papan Supervisi (progress bar), pengawas widget, kuadran Glickman, distribusi tipe, backup reminder |
+| **Data Guru** | CRUD + import CSV (file & paste) + validasi duplikat |
+| **Profil Tipe** | Kuadran interaktif + form dengan catatan observasi/abstraksi/komitmen + filter periode |
+| **Program** | Rencana supervisi per periode + auto-suggest tipe guru + filter periode |
+| **Supervisi 3T** | Wizard 3 tahap + Panduan Modul 5 + panduan adaptif per tipe guru + draft/complete |
+| **Obs. Akademik** | 19 indikator + list view + draft mode + catatan per indikator |
+| **Obs. Coaching** | 8 indikator STAR-GROW + RTL multi-baris + list view + draft mode |
+| **Analisis** | Chart Prinsip PM, DPL, KKA, Tren bulanan, Insight otomatis |
+| **Laporan** | List + filter (jenis/status/bulan/guru) + cetak individual + rekap semester |
+| **Pengaturan** | Identitas, PIN, klaim pengawas, ekspor/impor JSON |
+| **PWA** | Install ke desktop/HP, offline-capable |
 
-## 🎯 Tentang Proyek
+### 👨‍🏫 Aplikasi PS (Pengawas)
 
-SISPA Mandiri adalah aplikasi **offline-first** yang mengadopsi Modul 5 (Supervisi Akademik pada Pembelajaran Mendalam termasuk Koding & Kecerdasan Artifisial). Dibuat khusus untuk:
+| Modul | Fitur |
+|-------|-------|
+| **Login** | NIP 18 digit + auto-fill dari DB |
+| **Dashboard** | 4 stat cards + kuadran Glickman + chart per sekolah + warning stale + pending klaim |
+| **Sekolah Binaan** | Pilih dari DB (search + pagination) + import CSV + import JSON KS + status klaim + refresh status |
+| **Detail Sekolah** | 4 tabs: Profil Guru, Program, Supervisi, Progress Matrix + export CSV |
+| **Data Guru** | Lintas sekolah + coverage matrix (3T/Akad/Coach) + filter status |
+| **Semua Supervisi** | Lintas sekolah + filter + detail + cetak |
+| **Analisis** | Overview + Akademik (19 indikator) + Coaching (8 indikator) + tren + insight |
+| **Evaluasi KS** | Form manual 30 indikator (Rencana/Pelaksanaan/Asesmen) + draft/final + cetak PDF |
+| **Laporan** | Rekap pengawas + per sekolah + CSV export |
+| **Pengaturan** | Profil, backup IndexedDB, restore |
 
-- **Kepala Sekolah** — melakukan supervisi mandiri ke guru
-- **Pengawas** — mengelola data supervisi dari banyak sekolah binaan
-- **Admin Dinas** — mengelola akun & klaim pengawas
+### 🔐 Panel Admin
 
-### Prinsip Arsitektur
+| Fitur | Detail |
+|-------|--------|
+| **Login** | Kunci Admin (default `admin123`, **ganti sebelum deploy!**) |
+| **Dashboard** | 5 stat cards (Sekolah, Pengawas, Terkonfirmasi, Pending, Belum PS) + warning interaktif |
+| **Data Sekolah** | CRUD + kolom pengawas & status klaim + filter + pagination + assign pengawas + reset klaim |
+| **Data Pengawas** | CRUD + kolom binaan + filter belum punya binaan + sort |
+| **Assign Pengawas** | Paksa assign dengan auto-confirm (bypass KS) |
+| **Reset Klaim** | Konfirmasi ketik `RESET` untuk reset klaim deadlock |
+| **Import CSV** | Sekolah & Pengawas (bulk) |
+| **Suspend** | Toggle status aktif/suspend per akun |
 
-> **Data supervisi tetap di lokal. Cloud hanya untuk autentikasi & klaim.**
-
-- ✅ **Ringan** — Supabase hanya menyimpan akun (~100 KB untuk 800 sekolah)
-- ✅ **Offline-first** — Aplikasi jalan penuh tanpa internet setelah install PWA
-- ✅ **Aman** — Data supervisi tidak pernah menyentuh server
-- ✅ **Gratis selamanya** — Kuota free tier Supabase tidak akan habis
-- ✅ **Portabel** — Backup via file JSON, bisa dipindah device kapan saja
-
----
-
-## 🏗️ Arsitektur Sistem
+### 🔄 Fitur Klaim Pengawas (Dual Confirmation)
