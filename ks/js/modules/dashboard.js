@@ -36,7 +36,6 @@ const pengawasWidget = () => {
   const cfg = Store.config();
   const lastCheck = cfg.pengawas_last_check;
 
-  // State A: Belum pernah cek
   if (!lastCheck) {
     return `<div class="card" style="margin-bottom:1rem">
       <div class="card-body">
@@ -56,7 +55,6 @@ const pengawasWidget = () => {
     </div>`;
   }
 
-  // State B: Sudah cek, pengawas confirmed
   if (cfg.pengawas_status === 'confirmed' && cfg.pengawas_nip) {
     return `<div class="card" style="margin-bottom:1rem;border-left:3px solid var(--success)">
       <div class="card-body">
@@ -80,7 +78,6 @@ const pengawasWidget = () => {
     </div>`;
   }
 
-  // State C: Sudah cek, belum ada pengawas
   return `<div class="card" style="margin-bottom:1rem">
     <div class="card-body">
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
@@ -98,6 +95,65 @@ const pengawasWidget = () => {
       <div style="font-size:.7rem;color:var(--slate-400);margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--slate-100)">
         Terakhir dicek: ${Utils.relTime(lastCheck)}
       </div>
+    </div>
+  </div>`;
+};
+
+const papanSupervisi = () => {
+  const guru = Store.get('guru');
+  const sup = Store.get('supervisi');
+  const akad = Store.get('akademik');
+  const coach = Store.get('coaching');
+  const total = guru.length;
+
+  if (total === 0) return '';
+
+  const supGuru = new Set(sup.map(s => s.gid));
+  const akadGuru = new Set(akad.map(s => s.gid));
+  const coachGuru = new Set(coach.map(s => s.gid));
+  const combined = new Set([...supGuru, ...akadGuru, ...coachGuru]);
+  const belumSamaSekali = guru.filter(g => !combined.has(g.id)).length;
+
+  const pct = (n) => Math.round((n / total) * 100);
+  const color = (p) => p >= 80 ? 'var(--success)' : p >= 50 ? 'var(--warning)' : 'var(--danger)';
+
+  const row = (tab, label, count) => {
+    const p = pct(count);
+    const c = color(p);
+    return `<div class="papan-row" data-tab="${tab}" style="padding:.7rem;border-radius:8px;cursor:pointer;transition:background .15s;margin-bottom:.5rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.35rem;font-size:.85rem">
+        <span style="font-weight:600;color:var(--slate-800)">${label}</span>
+        <span style="color:${c};font-weight:600"><strong>${count}/${total}</strong> (${p}%)</span>
+      </div>
+      <div style="height:8px;background:var(--slate-100);border-radius:999px;overflow:hidden">
+        <div style="height:100%;width:${p}%;background:${c};border-radius:999px;transition:width .3s"></div>
+      </div>
+    </div>`;
+  };
+
+  return `<div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header">
+      <span>${Icons.svg('target', 18)} Papan Supervisi</span>
+      <button class="btn btn-secondary btn-sm" id="btnKelolaPapan">Kelola →</button>
+    </div>
+    <div class="card-body">
+      ${row('supervisi', 'Supervisi 3 Tahap', supGuru.size)}
+      ${row('akademik', 'Observasi Akademik', akadGuru.size)}
+      ${row('coaching', 'Observasi Coaching', coachGuru.size)}
+      ${belumSamaSekali > 0 ? `
+        <div style="margin-top:.75rem;padding:.75rem;background:#fef3c7;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:.5rem;color:#92400e;font-size:.85rem">
+            ${Icons.svg('alert-triangle', 18)}
+            <span><strong>${belumSamaSekali} guru</strong> belum pernah disupervisi</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btnLihatBelum">Lihat</button>
+        </div>
+      ` : `
+        <div style="margin-top:.75rem;padding:.75rem;background:#dcfce7;border-radius:8px;display:flex;align-items:center;gap:.5rem;color:#166534;font-size:.85rem">
+          ${Icons.svg('check-circle', 18)}
+          <span><strong>Semua guru</strong> sudah pernah disupervisi</span>
+        </div>
+      `}
     </div>
   </div>`;
 };
@@ -130,7 +186,7 @@ export const Dashboard = {
       perhatian.push({ icon: 'target', text: `${belumDinilai} guru belum dinilai tipe profilnya.`, href: 'profil', color: 'var(--warning)' });
     }
     if (supBerjalan > 0) {
-      perhatian.push({ icon: 'clipboard-list', text: `${supBerjalan} supervisi belum diselesaikan.`, href: 'supervisi', color: 'var(--brand-600)' });
+      perhatian.push({ icon: 'clipboard-list', text: `${supBerjalan} supervisi 3T belum diselesaikan.`, href: 'supervisi', color: 'var(--brand-600)' });
     }
 
     return `
@@ -181,6 +237,8 @@ export const Dashboard = {
         </div>
       </div>
 
+      ${papanSupervisi()}
+
       ${perhatian.length > 0 ? `
         <div class="card" style="margin-bottom:1.5rem">
           <div class="card-header" style="color:var(--warning)">${Icons.svg('alert-circle', 18)} Perlu Perhatian</div>
@@ -201,7 +259,7 @@ export const Dashboard = {
           `<button class="btn btn-primary" id="btnAddGuru">${Icons.svg('plus', 16)} Tambah Guru Pertama</button>`)}
       </div></div>` : ''}
 
-      <div class="card">
+      ${guru.length > 0 ? `<div class="card">
         <div class="card-header">${Icons.svg('target', 18)} Distribusi Tipe Guru</div>
         <div class="card-body">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.75rem;text-align:center">
@@ -212,7 +270,7 @@ export const Dashboard = {
               </div>`).join('')}
           </div>
         </div>
-      </div>
+      </div>` : ''}
 
       ${recent.length > 0 ? `
         <div class="card">
@@ -248,13 +306,37 @@ export const Dashboard = {
       };
     }
 
-    Utils.el('btnAddGuru')?.addEventListener('click', async () => {
-      const { Router } = await import('../../../shared/js/router.js');
-      Router.navigate('guru');
+    Utils.el('btnAddGuru')?.addEventListener('click', () => Router.navigate('guru'));
+    Utils.el('btnCekPengawas')?.addEventListener('click', () => { if (window.App?.cekpengawas) window.App.cekpengawas(); });
+    Utils.el('btnKelolaPapan')?.addEventListener('click', () => Router.navigate('supervisi'));
+
+    // Progress bar rows → navigate ke tab masing-masing
+    document.querySelectorAll('.papan-row').forEach(row => {
+      row.onclick = () => Router.navigate(row.dataset.tab);
+      row.addEventListener('mouseenter', () => { row.style.background = 'var(--slate-50)'; });
+      row.addEventListener('mouseleave', () => { row.style.background = 'transparent'; });
     });
 
-    Utils.el('btnCekPengawas')?.addEventListener('click', () => {
-      if (window.App?.cekpengawas) window.App.cekpengawas();
+    // Lihat guru belum disupervisi
+    Utils.el('btnLihatBelum')?.addEventListener('click', () => {
+      const guru = Store.get('guru');
+      const sup = Store.get('supervisi');
+      const akad = Store.get('akademik');
+      const coach = Store.get('coaching');
+      const combined = new Set([...sup.map(s => s.gid), ...akad.map(s => s.gid), ...coach.map(s => s.gid)]);
+      const belum = guru.filter(g => !combined.has(g.id));
+
+      Utils.modal(`${belum.length} Guru Belum Disupervisi`, `
+        <div style="border:1px solid var(--slate-200);border-radius:8px;max-height:400px;overflow-y:auto">
+          ${belum.map((g, i) => `
+            <div style="padding:.6rem .85rem;border-bottom:1px solid var(--slate-100);font-size:.85rem;${i === belum.length-1 ? 'border-bottom:none' : ''}">
+              <div style="font-weight:600">${Utils.esc(g.nama)}</div>
+              <div style="font-size:.75rem;color:var(--slate-500)">${Utils.esc(g.mapel || '—')}${g.kelas ? ' · Kls ' + Utils.esc(g.kelas) : ''}${g.tipe ? ` · <span class="badge badge-info" style="font-size:.6rem">${g.tipe}</span>` : ''}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:.75rem;font-size:.8rem;color:var(--slate-500)">Buka menu Supervisi 3T, Akademik, atau Coaching untuk mulai supervisi guru-guru ini.</div>
+      `, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>');
     });
   }
 };
