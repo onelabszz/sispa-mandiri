@@ -7,497 +7,1338 @@
 <link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
+  /* ============================================
+     DESIGN TOKENS
+     ============================================ */
   :root {
-    --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-500:#6366f1;
-    --brand-600:#4f46e5; --brand-700:#4338ca;
-    --slate-50:#f8fafc; --slate-100:#f1f5f9; --slate-200:#e2e8f0;
-    --slate-300:#cbd5e1; --slate-400:#94a3b8; --slate-500:#64748b;
-    --slate-600:#475569; --slate-700:#334155; --slate-900:#0f172a;
-    --success:#16a34a; --danger:#dc2626; --warning:#f59e0b; --info:#0ea5e9;
-  }
-  * { box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
-  body { margin:0; background:var(--slate-50); color:var(--slate-900); display:flex; height:100vh; overflow:hidden; }
-  svg { display:inline-block; vertical-align:middle; }
+    /* Spacing scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
 
-  /* LOGIN */
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+
+    /* Shadow */
+    --shadow-xs: 0 1px 2px rgba(15,23,42,.04);
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
+    --shadow-md: 0 4px 8px -2px rgba(15,23,42,.1);
+    --shadow-lg: 0 12px 24px -8px rgba(15,23,42,.15);
+    --shadow-xl: 0 24px 48px -12px rgba(15,23,42,.2);
+
+    /* Brand */
+    --brand-50: #eef2ff;
+    --brand-100: #e0e7ff;
+    --brand-500: #6366f1;
+    --brand-600: #4f46e5;
+    --brand-700: #4338ca;
+
+    /* Slate */
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+
+    /* Semantic */
+    --success-50: #f0fdf4;
+    --success-100: #dcfce7;
+    --success-600: #16a34a;
+    --success-700: #15803d;
+
+    --warning-50: #fffbeb;
+    --warning-100: #fef3c7;
+    --warning-600: #d97706;
+    --warning-700: #b45309;
+
+    --danger-50: #fef2f2;
+    --danger-100: #fee2e2;
+    --danger-600: #dc2626;
+    --danger-700: #b91c1c;
+
+    /* Typography */
+    --font-sans: -apple-system, 'Inter', 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
+    /* Layout */
+    --sidebar-w: 260px;
+  }
+
+  /* ============================================
+     RESET
+     ============================================ */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--slate-900);
+    background: var(--slate-50);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; }
+  input, select, textarea { font-family: inherit; }
+  svg { display: block; flex-shrink: 0; }
+  a { color: inherit; text-decoration: none; }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
+
+  /* ============================================
+     LOGIN SCREEN
+     ============================================ */
   .login-screen {
-    position:fixed; inset:0; background:var(--slate-50);
-    display:flex; align-items:center; justify-content:center; z-index:9999;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    z-index: 9999;
   }
   .login-card {
-    background:#fff; padding:2.5rem; border-radius:20px;
-    box-shadow:0 20px 40px -10px rgba(0,0,0,.1);
-    width:100%; max-width:400px; text-align:center;
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-10) var(--space-8);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-xl);
+    text-align: center;
   }
-  .login-icon {
-    width:64px; height:64px; background:var(--brand-50); color:var(--brand-600);
-    border-radius:16px; display:flex; align-items:center; justify-content:center;
-    margin:0 auto 1.5rem;
+  .login-logo {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-5);
+    box-shadow: 0 8px 24px -8px rgba(79,70,229,.6);
   }
-  .login-card h2 { margin:0 0 .5rem; font-size:1.4rem; }
-  .login-card p { color:var(--slate-500); font-size:.85rem; margin-bottom:1.5rem; }
-  .login-card input {
-    width:100%; padding:.75rem; border:1px solid var(--slate-300);
-    border-radius:10px; font-size:.9rem; text-align:center;
-    margin-bottom:1rem; outline:none; transition:border .15s;
+  .login-card h2 {
+    margin: 0 0 var(--space-2);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--slate-900);
   }
-  .login-card input:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
-  .login-card button {
-    width:100%; padding:.75rem; background:var(--brand-600); color:#fff;
-    border:none; border-radius:10px; font-weight:600; font-size:.9rem;
-    cursor:pointer; transition:background .15s;
+  .login-card p {
+    margin: 0 0 var(--space-6);
+    font-size: 14px;
+    color: var(--slate-500);
   }
-  .login-card button:hover { background:var(--brand-700); }
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .login-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--slate-300);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    text-align: center;
+    letter-spacing: 0.05em;
+    color: var(--slate-900);
+    transition: all 0.15s;
+  }
+  .login-input:focus {
+    outline: none;
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+  }
+  .login-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, #5b54e8, var(--brand-600));
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px -1px rgba(79,70,229,.4);
+    transition: all 0.15s;
+  }
+  .login-btn:hover {
+    background: linear-gradient(180deg, var(--brand-600), var(--brand-700));
+    box-shadow: 0 4px 12px -2px rgba(79,70,229,.5);
+  }
 
-  /* SIDEBAR */
+  /* ============================================
+     APP LAYOUT
+     ============================================ */
+  #app {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
   .sidebar {
-    width:260px; background:#fff; border-right:1px solid var(--slate-200);
-    display:flex; flex-direction:column; z-index:10;
+    width: var(--sidebar-w);
+    background: white;
+    border-right: 1px solid var(--slate-200);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
   }
   .sidebar-brand {
-    padding:1.5rem; border-bottom:1px solid var(--slate-200);
-    display:flex; align-items:center; gap:.75rem;
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--slate-200);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
   }
-  .sidebar-logo {
-    width:40px; height:40px; background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
-    color:#fff; border-radius:10px; display:flex; align-items:center; justify-content:center;
-    box-shadow:0 4px 6px -1px rgba(79,70,229,.3);
+  .sidebar-brand-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -4px rgba(79,70,229,.5);
+  }
+  .sidebar-brand-info {
+    min-width: 0;
+    flex: 1;
+  }
+  .sidebar-brand-info strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate-900);
+    letter-spacing: -0.01em;
+  }
+  .sidebar-brand-info span {
+    display: block;
+    font-size: 11px;
+    color: var(--slate-500);
+    margin-top: 2px;
+  }
+  .sidebar-nav {
+    flex: 1;
+    padding: var(--space-3);
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--slate-400);
+    padding: var(--space-3) var(--space-3) var(--space-2);
   }
   .nav-item {
-    padding:.85rem 1.5rem; display:flex; align-items:center; gap:.75rem;
-    cursor:pointer; color:var(--slate-500); font-weight:500; font-size:.9rem;
-    transition:all .15s; border-left:3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    color: var(--slate-600);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.12s;
+    margin-bottom: 2px;
+    width: 100%;
+    text-align: left;
   }
-  .nav-item:hover { background:var(--slate-50); color:var(--slate-900); }
+  .nav-item:hover {
+    background: var(--slate-100);
+    color: var(--slate-900);
+  }
   .nav-item.active {
-    background:var(--brand-50); color:var(--brand-700);
-    border-left-color:var(--brand-600); font-weight:600;
+    background: var(--brand-50);
+    color: var(--brand-700);
+    font-weight: 600;
   }
-  .sidebar-footer { padding:1.5rem; border-top:1px solid var(--slate-200); margin-top:auto; }
+  .nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+  .sidebar-footer {
+    padding: var(--space-4);
+    border-top: 1px solid var(--slate-200);
+  }
 
-  /* MAIN */
-  .main-content { flex:1; overflow-y:auto; padding:2rem 2.5rem; }
-  .page-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
-  .page-head h1 { margin:0; font-size:1.5rem; font-weight:700; }
-  .page-head p { margin:.25rem 0 0; color:var(--slate-500); font-size:.9rem; }
+  /* Main content */
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
 
-  /* STAT CARDS */
+  /* Page header */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .page-header-title h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--slate-900);
+  }
+  .page-header-title p {
+    margin: var(--space-1) 0 0;
+    font-size: 14px;
+    color: var(--slate-500);
+  }
+  .page-header-actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  /* ============================================
+     BUTTONS
+     ============================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .btn svg { width: 15px; height: 15px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary {
+    background: linear-gradient(180deg, #5b54e8, var(--brand-600));
+    color: white;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--brand-600), var(--brand-700));
+    box-shadow: 0 4px 12px -2px rgba(79,70,229,.4);
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--slate-700);
+    border-color: var(--slate-300);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--slate-50);
+    border-color: var(--slate-400);
+  }
+  .btn-danger {
+    background: white;
+    color: var(--danger-600);
+    border-color: var(--danger-100);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: var(--danger-50);
+    border-color: var(--danger-600);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--slate-600);
+  }
+  .btn-ghost:hover {
+    background: var(--slate-100);
+    color: var(--slate-900);
+  }
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--slate-200);
+    background: white;
+    color: var(--slate-600);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+  }
+  .btn-icon svg { width: 15px; height: 15px; }
+  .btn-icon:hover {
+    background: var(--slate-50);
+    border-color: var(--slate-300);
+    color: var(--slate-900);
+  }
+  .btn-icon.danger { color: var(--danger-600); border-color: var(--danger-100); }
+  .btn-icon.danger:hover { background: var(--danger-50); border-color: var(--danger-600); }
+
+  /* ============================================
+     STAT CARDS
+     ============================================ */
   .stats-grid {
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-    gap:1rem; margin-bottom:1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
   }
   .stat-card {
-    background:#fff; padding:1.25rem; border-radius:14px;
-    border:1px solid var(--slate-200); box-shadow:0 1px 3px rgba(0,0,0,.04);
-    display:flex; align-items:center; gap:1rem; transition:all .15s;
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
   }
-  .stat-card:hover { box-shadow:0 4px 12px -2px rgba(0,0,0,.08); transform:translateY(-1px); }
-  .stat-icon {
-    width:48px; height:48px; border-radius:12px;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent, var(--brand-500));
+    opacity: 0;
+    transition: opacity 0.2s;
   }
-  .stat-label { font-size:.75rem; color:var(--slate-500); text-transform:uppercase; letter-spacing:.03em; font-weight:600; }
-  .stat-value { font-size:1.75rem; font-weight:800; margin-top:.25rem; line-height:1; }
+  .stat-card:hover {
+    border-color: var(--slate-300);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .stat-card:hover::before { opacity: 1; }
+  .stat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-4);
+  }
+  .stat-card-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--slate-500);
+    line-height: 1.4;
+  }
+  .stat-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .stat-card-icon svg { width: 20px; height: 20px; }
+  .stat-card-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--slate-900);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+  }
+  .stat-card-sub {
+    font-size: 12px;
+    color: var(--slate-500);
+    margin-top: var(--space-2);
+  }
 
-  /* WARNINGS */
+  /* ============================================
+     WARNING CARDS
+     ============================================ */
+  .warnings-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
   .warning-card {
-    background:#fff; border:1px solid var(--slate-200); border-radius:14px;
-    padding:1rem 1.25rem; margin-bottom:1rem; display:flex; gap:.75rem; align-items:flex-start;
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-3);
+    align-items: center;
+    transition: all 0.15s;
+    border-left-width: 3px;
   }
-  .warning-card.warn { border-left:3px solid var(--warning); }
-  .warning-card.info { border-left:3px solid var(--info); }
+  .warning-card:hover {
+    box-shadow: var(--shadow-sm);
+    border-color: var(--slate-300);
+  }
+  .warning-card.warn { border-left-color: var(--warning-600); }
+  .warning-card.info { border-left-color: var(--brand-500); }
+  .warning-card.success { border-left-color: var(--success-600); }
+  .warning-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .warning-card-icon svg { width: 18px; height: 18px; }
+  .warning-card.warn .warning-card-icon { background: var(--warning-100); color: var(--warning-700); }
+  .warning-card.info .warning-card-icon { background: var(--brand-100); color: var(--brand-700); }
+  .warning-card.success .warning-card-icon { background: var(--success-100); color: var(--success-700); }
+  .warning-card-text {
+    font-size: 14px;
+    color: var(--slate-700);
+    line-height: 1.5;
+  }
+  .warning-card-text strong {
+    color: var(--slate-900);
+    font-weight: 700;
+  }
 
-  /* TOOLBAR */
+  /* ============================================
+     TOOLBAR
+     ============================================ */
   .toolbar {
-    background:#fff; padding:1rem 1.25rem; border-radius:14px;
-    border:1px solid var(--slate-200); margin-bottom:1rem;
-    display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-3);
+    align-items: center;
   }
-  .toolbar-filters { display:flex; gap:.5rem; flex-wrap:wrap; flex:1; min-width:0; }
-  .toolbar-filters input,
-  .toolbar-filters select {
-    padding:.55rem .85rem; border:1px solid var(--slate-300); border-radius:8px;
-    font-size:.85rem; outline:none; transition:border .15s; font-family:inherit;
+  .toolbar-filters {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
   }
-  .toolbar-filters input:focus,
-  .toolbar-filters select:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
-  .toolbar-filters input { min-width:220px; flex:1; }
-  .toolbar-actions { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .toolbar-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .input-with-icon {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+  }
+  .input-with-icon svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--slate-400);
+    pointer-events: none;
+  }
+  .input-with-icon input {
+    width: 100%;
+    padding: 9px 14px 9px 36px;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    background: white;
+    transition: all 0.15s;
+  }
+  .input-with-icon input:focus {
+    outline: none;
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  }
+  .select {
+    padding: 9px 32px 9px 14px;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    background: white;
+    color: var(--slate-700);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .select:focus {
+    outline: none;
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  }
+  .checkbox-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 9px 14px;
+    background: white;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--slate-700);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .checkbox-pill:has(input:checked) {
+    background: var(--brand-50);
+    border-color: var(--brand-500);
+    color: var(--brand-700);
+    font-weight: 600;
+  }
+  .checkbox-pill input {
+    margin: 0;
+    cursor: pointer;
+  }
 
-  /* BUTTONS */
-  .btn {
-    padding:.55rem 1rem; border-radius:8px; border:1px solid transparent;
-    font-weight:600; font-size:.8rem; cursor:pointer; transition:all .15s;
-    display:inline-flex; align-items:center; gap:.4rem; font-family:inherit;
+  /* ============================================
+     TABLE
+     ============================================ */
+  .table-wrapper {
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
   }
-  .btn-primary { background:var(--brand-600); color:#fff; }
-  .btn-primary:hover { background:var(--brand-700); }
-  .btn-secondary { background:#fff; color:var(--slate-700); border-color:var(--slate-300); }
-  .btn-secondary:hover { background:var(--slate-50); }
-  .btn-danger { background:#fff; color:var(--danger); border-color:#fecaca; }
-  .btn-danger:hover { background:#fef2f2; }
-  .btn-ghost { background:transparent; color:var(--slate-500); border-color:transparent; }
-  .btn-ghost:hover { background:var(--slate-100); color:var(--slate-900); }
-  .btn-sm { padding:.3rem .6rem; font-size:.72rem; }
-  .btn:disabled { opacity:.5; cursor:not-allowed; }
-
-  /* TABLE */
-  .table-card {
-    background:#fff; border-radius:14px; border:1px solid var(--slate-200);
-    overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.04);
+  .table-scroll {
+    overflow-x: auto;
   }
-  table { width:100%; border-collapse:collapse; text-align:left; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+  }
+  thead {
+    background: var(--slate-50);
+  }
   thead th {
-    background:var(--slate-50); padding:.75rem 1rem;
-    font-size:.72rem; color:var(--slate-500); text-transform:uppercase;
-    letter-spacing:.03em; font-weight:600; border-bottom:1px solid var(--slate-200);
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--slate-500);
+    text-align: left;
+    border-bottom: 1px solid var(--slate-200);
+    white-space: nowrap;
+    line-height: 1.4;
   }
+  tbody tr {
+    border-bottom: 1px solid var(--slate-100);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--slate-50); }
   tbody td {
-    padding:.85rem 1rem; border-bottom:1px solid var(--slate-100);
-    font-size:.85rem; color:var(--slate-700); vertical-align:middle;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--slate-700);
+    vertical-align: middle;
+    line-height: 1.5;
   }
-  tbody tr:hover { background:var(--slate-50); }
-  tbody tr:last-child td { border-bottom:none; }
-  .mono { font-family:'SF Mono', Monaco, monospace; }
+  td.mono { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--slate-900); }
+  td.cell-actions { text-align: right; white-space: nowrap; }
+  td.cell-actions > * + * { margin-left: var(--space-1); }
+  td.cell-center { text-align: center; }
+  .cell-title { font-weight: 600; color: var(--slate-900); line-height: 1.4; }
+  .cell-sub { font-size: 12px; color: var(--slate-500); margin-top: 2px; line-height: 1.4; }
 
-  /* BADGES */
+  /* Badges */
   .badge {
-    padding:.25rem .6rem; border-radius:999px; font-size:.7rem;
-    font-weight:600; display:inline-flex; align-items:center; gap:.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
   }
-  .badge-success { background:#dcfce7; color:var(--success); }
-  .badge-warning { background:#fef3c7; color:#92400e; }
-  .badge-danger { background:#fee2e2; color:var(--danger); }
-  .badge-info { background:#dbeafe; color:#1e40af; }
-  .badge-neutral { background:var(--slate-100); color:var(--slate-500); }
+  .badge svg { width: 12px; height: 12px; }
+  .badge-success { background: var(--success-100); color: var(--success-700); }
+  .badge-warning { background: var(--warning-100); color: var(--warning-700); }
+  .badge-danger { background: var(--danger-100); color: var(--danger-700); }
+  .badge-info { background: var(--brand-100); color: var(--brand-700); }
+  .badge-neutral { background: var(--slate-100); color: var(--slate-600); }
 
-  /* PAGINATION */
+  /* Pagination */
   .pagination {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:.85rem 1.25rem; background:var(--slate-50);
-    border-top:1px solid var(--slate-200); font-size:.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--slate-50);
+    border-top: 1px solid var(--slate-200);
+    font-size: 13px;
+    color: var(--slate-600);
   }
+  .pagination-buttons { display: flex; gap: var(--space-2); }
 
-  /* MODAL */
-  .modal {
-    position:fixed; inset:0; background:rgba(15,23,42,.5);
-    backdrop-filter:blur(4px); display:none; align-items:center;
-    justify-content:center; z-index:1000; padding:1rem;
+  /* ============================================
+     MODAL
+     ============================================ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    z-index: 1000;
   }
-  .modal.show { display:flex; }
+  .modal-overlay.show { display: flex; }
   .modal-panel {
-    background:#fff; border-radius:16px; width:100%; max-width:520px;
-    box-shadow:0 20px 40px -10px rgba(0,0,0,.2);
-    max-height:90vh; display:flex; flex-direction:column;
-    animation:slideUp .2s;
+    background: white;
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-xl);
+    animation: modalIn 0.22s ease-out;
   }
-  .modal-panel.wide { max-width:720px; }
-  @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-  .modal-head {
-    padding:1.25rem 1.5rem; border-bottom:1px solid var(--slate-200);
-    display:flex; justify-content:space-between; align-items:center;
+  .modal-panel.wide { max-width: 720px; }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
-  .modal-head h3 { margin:0; font-size:1.1rem; }
-  .modal-body { padding:1.5rem; overflow-y:auto; flex:1; }
-  .modal-foot {
-    padding:1rem 1.5rem; border-top:1px solid var(--slate-200);
-    background:var(--slate-50); display:flex; justify-content:flex-end; gap:.5rem;
-    border-radius:0 0 16px 16px;
+  .modal-header {
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--slate-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+  }
+  .modal-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--slate-900);
+    letter-spacing: -0.01em;
+  }
+  .modal-title svg { width: 20px; height: 20px; color: var(--brand-600); }
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--slate-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+  }
+  .modal-close:hover {
+    background: var(--slate-100);
+    color: var(--slate-900);
+  }
+  .modal-close svg { width: 18px; height: 18px; }
+  .modal-body {
+    padding: var(--space-6);
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-footer {
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--slate-200);
+    background: var(--slate-50);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    flex-shrink: 0;
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
   }
 
-  /* FORM */
-  .form-group { margin-bottom:1rem; }
-  .form-group label {
-    display:block; font-size:.8rem; font-weight:600;
-    color:var(--slate-700); margin-bottom:.4rem;
+  /* ============================================
+     FORM
+     ============================================ */
+  .form-group { margin-bottom: var(--space-4); }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--slate-700);
+    margin-bottom: var(--space-2);
   }
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    width:100%; padding:.65rem .85rem; border:1px solid var(--slate-300);
-    border-radius:8px; font-size:.9rem; outline:none; font-family:inherit;
-    transition:border .15s;
+  .form-label .required { color: var(--danger-600); margin-left: 2px; }
+  .form-input,
+  .form-select,
+  .form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--slate-300);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--slate-900);
+    background: white;
+    transition: all 0.15s;
   }
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
-  .form-group input:disabled { background:var(--slate-100); color:var(--slate-500); }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
-  .form-hint { font-size:.75rem; color:var(--slate-500); margin-top:.25rem; }
-  .checkbox-label {
-    display:flex; align-items:center; gap:.5rem;
-    padding:.6rem; background:var(--slate-50); border-radius:8px;
-    font-size:.85rem; cursor:pointer;
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  }
+  .form-input:disabled {
+    background: var(--slate-50);
+    color: var(--slate-500);
+    cursor: not-allowed;
+  }
+  .form-hint {
+    margin-top: var(--space-2);
+    font-size: 12px;
+    color: var(--slate-500);
+    line-height: 1.5;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+  .form-section {
+    padding-top: var(--space-4);
+    margin-top: var(--space-4);
+    border-top: 1px solid var(--slate-200);
+  }
+  .form-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--slate-500);
+    margin-bottom: var(--space-3);
   }
 
-  /* RESET WARNING */
-  .warning-box {
-    padding:.85rem 1rem; border-radius:8px; font-size:.85rem;
-    line-height:1.6; margin-bottom:1rem;
+  /* Info Box dalam modal */
+  .info-box {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    line-height: 1.5;
   }
-  .warning-box.danger { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
-  .warning-box.warn { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+  .info-box svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+  .info-box.success { background: var(--success-50); color: var(--success-700); border: 1px solid var(--success-100); }
+  .info-box.warning { background: var(--warning-50); color: var(--warning-700); border: 1px solid var(--warning-100); }
+  .info-box.danger { background: var(--danger-50); color: var(--danger-700); border: 1px solid var(--danger-100); }
+  .info-box.info { background: var(--brand-50); color: var(--brand-700); border: 1px solid var(--brand-100); }
+  .info-box strong { font-weight: 700; }
 
-  /* TOAST */
+  /* ============================================
+     TOAST & LOADING
+     ============================================ */
   #toast {
-    position:fixed; bottom:1.5rem; right:1.5rem; background:var(--slate-900);
-    color:#fff; padding:.75rem 1rem; border-radius:8px; font-size:.85rem;
-    display:flex; align-items:center; gap:.5rem; box-shadow:0 10px 25px -5px rgba(0,0,0,.3);
-    z-index:9999; opacity:0; transform:translateY(10px);
-    transition:all .2s; pointer-events:none; max-width:400px;
+    position: fixed;
+    bottom: var(--space-6);
+    right: var(--space-6);
+    background: var(--slate-900);
+    color: white;
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    box-shadow: var(--shadow-lg);
+    z-index: 2000;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: all 0.22s;
+    pointer-events: none;
+    max-width: 420px;
   }
-  #toast.show { opacity:1; transform:translateY(0); }
-  #toast.success { background:var(--success); }
-  #toast.error { background:var(--danger); }
-  #toast.warning { background:var(--warning); }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast svg { width: 18px; height: 18px; flex-shrink: 0; }
+  #toast.success { background: var(--success-600); }
+  #toast.error { background: var(--danger-600); }
+  #toast.warning { background: var(--warning-600); }
 
-  /* LOADING */
-  .loading-overlay {
-    position:fixed; inset:0; background:rgba(248,250,252,.8);
-    backdrop-filter:blur(2px); display:none;
-    align-items:center; justify-content:center; z-index:5000;
+  #loading {
+    position: fixed;
+    inset: 0;
+    background: rgba(248, 250, 252, 0.85);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
   }
-  .loading-overlay.show { display:flex; }
-  .spinner { animation:spin 1s linear infinite; color:var(--brand-600); }
-  @keyframes spin { to { transform:rotate(360deg); } }
+  #loading.show { display: flex; }
+  .loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--slate-600);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .loading-spinner svg {
+    width: 40px;
+    height: 40px;
+    color: var(--brand-600);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* EMPTY STATE */
-  .empty-row {
-    padding:3rem 1rem; text-align:center; color:var(--slate-400); font-size:.85rem;
+  /* ============================================
+     EMPTY STATE
+     ============================================ */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-10) var(--space-4);
+    text-align: center;
+  }
+  .empty-state-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: var(--slate-100);
+    color: var(--slate-400);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-4);
+  }
+  .empty-state-icon svg { width: 32px; height: 32px; }
+  .empty-state h3 {
+    margin: 0 0 var(--space-2);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--slate-700);
+  }
+  .empty-state p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--slate-500);
+    max-width: 360px;
   }
 
-  @media (max-width:768px) {
-    body { flex-direction:column; height:auto; overflow:auto; }
-    .sidebar { width:100%; flex-direction:row; overflow-x:auto; padding:0; }
-    .sidebar-brand { display:none; }
-    .nav-item { padding:.75rem 1rem; white-space:nowrap; border-left:none; border-bottom:3px solid transparent; }
-    .nav-item.active { border-left:none; border-bottom-color:var(--brand-600); }
-    .sidebar-footer { display:none; }
-    .main-content { padding:1rem; }
-    .toolbar { flex-direction:column; align-items:stretch; }
-    .toolbar-filters { flex-direction:column; }
-    .toolbar-filters input { min-width:0; }
+  /* ============================================
+     INFO CARD (Cara Kerja)
+     ============================================ */
+  .info-card {
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
   }
+  .info-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .info-card-header svg { width: 20px; height: 20px; color: var(--brand-600); }
+  .info-card-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--slate-900);
+  }
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    counter-reset: step;
+  }
+  .step-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    counter-increment: step;
+  }
+  .step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    background: var(--brand-100);
+    color: var(--brand-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-number::before { content: counter(step); }
+  .step-content {
+    padding-top: 4px;
+    font-size: 14px;
+    color: var(--slate-700);
+    line-height: 1.55;
+  }
+  .step-content strong { color: var(--slate-900); font-weight: 600; }
+
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 1024px) {
+    .main-content { padding: var(--space-5); }
+    .toolbar { grid-template-columns: 1fr; }
+    .toolbar-filters { flex-direction: column; }
+    .toolbar-actions { width: 100%; }
+    .toolbar-actions .btn { flex: 1; }
+    .input-with-icon { min-width: 100%; }
+  }
+  @media (max-width: 768px) {
+    #app { flex-direction: column; height: auto; min-height: 100vh; overflow: auto; }
+    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--slate-200); }
+    .sidebar-brand { display: none; }
+    .sidebar-nav { flex-direction: row; padding: var(--space-2); flex: 1; }
+    .nav-item { white-space: nowrap; margin-bottom: 0; }
+    .sidebar-footer { border-top: none; border-left: 1px solid var(--slate-200); padding: var(--space-2); }
+    .sidebar-footer .btn { padding: 8px 12px; font-size: 12px; }
+    .main-content { padding: var(--space-4); }
+    .page-header { flex-direction: column; }
+    .page-header-actions { width: 100%; }
+    .page-header-actions .btn { flex: 1; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-row { grid-template-columns: 1fr; }
+    .modal-footer { flex-direction: column-reverse; }
+    .modal-footer .btn { width: 100%; }
+  }
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Utility */
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
-    <div class="login-icon"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div>
+    <div class="login-logo">
+      <i data-lucide="shield-check" style="width:32px;height:32px;"></i>
+    </div>
     <h2>Admin Panel</h2>
     <p>SISPA Mandiri — Kabupaten Wonogiri</p>
-    <form id="loginForm">
-      <input type="password" id="adminKey" placeholder="Masukkan Kunci Admin" autofocus autocomplete="current-password">
-      <button type="submit" id="btnLogin">Masuk ke Panel</button>
+    <form id="loginForm" class="login-form">
+      <input type="password" id="adminKey" class="login-input" placeholder="Masukkan Kunci Admin" autocomplete="current-password" autofocus>
+      <button type="submit" class="login-btn">Masuk ke Panel</button>
     </form>
   </div>
 </div>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <div class="sidebar-logo"><i data-lucide="graduation-cap" style="width:22px;height:22px;"></i></div>
-    <div>
-      <div style="font-weight:800;font-size:.9rem;color:var(--slate-900);">Admin SISPA</div>
-      <div style="font-size:.7rem;color:var(--slate-500);">Kab. Wonogiri</div>
-    </div>
-  </div>
-  <a class="nav-item active" data-tab="dashboard" id="navDash">
-    <i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i> Dashboard
-  </a>
-  <a class="nav-item" data-tab="sekolah" id="navSek">
-    <i data-lucide="school" style="width:18px;height:18px;"></i> Data Sekolah
-  </a>
-  <a class="nav-item" data-tab="pengawas" id="navPen">
-    <i data-lucide="users" style="width:18px;height:18px;"></i> Data Pengawas
-  </a>
-  <div class="sidebar-footer">
-    <button class="btn btn-secondary" style="width:100%;justify-content:center;color:var(--danger);border-color:#fecaca;" id="btnLogout">
-      <i data-lucide="log-out" style="width:16px;height:16px;"></i> Keluar
-    </button>
-  </div>
-</aside>
+<!-- APP -->
+<div id="app" style="display:none;">
 
-<!-- MAIN CONTENT -->
-<main class="main-content">
-  <div class="page-head">
-    <div>
-      <h1 id="pageTitle">Dashboard</h1>
-      <p id="pageSub">Ringkasan data akun & klaim SISPA Mandiri</p>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-logo">
+        <i data-lucide="graduation-cap" style="width:22px;height:22px;"></i>
+      </div>
+      <div class="sidebar-brand-info">
+        <strong>Admin SISPA</strong>
+        <span>Kab. Wonogiri</span>
+      </div>
     </div>
-  </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Menu</div>
+      <button class="nav-item active" data-tab="dashboard">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-tab="sekolah">
+        <i data-lucide="school"></i>
+        <span>Data Sekolah</span>
+      </button>
+      <button class="nav-item" data-tab="pengawas">
+        <i data-lucide="users"></i>
+        <span>Data Pengawas</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary" style="width:100%;color:var(--danger-600);border-color:var(--danger-100);" id="btnLogout">
+        <i data-lucide="log-out"></i>
+        <span>Keluar</span>
+      </button>
+    </div>
+  </aside>
 
-  <!-- DASHBOARD VIEW -->
-  <div id="viewDashboard">
-    <div class="stats-grid" id="statsGrid"></div>
-    <div id="warningsBox"></div>
-    <div class="table-card">
-      <div style="padding:1.25rem;">
-        <h3 style="margin:0 0 .75rem;font-size:.95rem;font-weight:700;">
-          <i data-lucide="info" style="width:16px;height:16px;color:var(--brand-600);"></i>
-          Cara Kerja Klaim Pengawas
-        </h3>
-        <ol style="margin:0;padding-left:1.25rem;font-size:.85rem;color:var(--slate-600);line-height:1.7;">
-          <li><strong>Pengawas</strong> klaim sekolah via aplikasi PS → status otomatis <span class="badge badge-warning" style="font-size:.65rem;">Pending</span></li>
-          <li><strong>Kepala Sekolah</strong> buka aplikasi KS → klik "Cek Pengawas" → konfirmasi/tolak</li>
-          <li>Jika <strong>diterima</strong> → status <span class="badge badge-success" style="font-size:.65rem;">Terkonfirmasi</span></li>
-          <li>Jika ada konflik/masalah → <strong>Admin</strong> bisa override via Edit Sekolah</li>
-          <li>Gunakan tombol <strong>Reset Klaim</strong> jika klaim deadlock / salah</li>
-        </ol>
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="page-header">
+      <div class="page-header-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSub">Ringkasan data akun & klaim SISPA Mandiri</p>
       </div>
-    </div>
-  </div>
+      <div class="page-header-actions" id="pageActions"></div>
+    </header>
 
-  <!-- SEKOLAH VIEW -->
-  <div id="viewSekolah" style="display:none">
-    <div class="toolbar">
-      <div class="toolbar-filters">
-        <input id="searchSekolah" placeholder="🔍 Cari NPSN / Nama Sekolah / Pengawas...">
-        <select id="filterKlaim">
-          <option value="">Semua Klaim</option>
-          <option value="confirmed">✓ Terkonfirmasi</option>
-          <option value="pending">⏳ Pending</option>
-          <option value="none">— Belum Ada</option>
-        </select>
-        <select id="filterPengawasSek"><option value="">Semua Pengawas</option></select>
-      </div>
-      <div class="toolbar-actions">
-        <button class="btn btn-secondary" id="btnImportSekolah"><i data-lucide="upload" style="width:14px;height:14px;"></i> Import CSV</button>
-        <button class="btn btn-primary" id="btnAddSekolah"><i data-lucide="plus" style="width:14px;height:14px;"></i> Tambah Sekolah</button>
+    <!-- VIEW: DASHBOARD -->
+    <div id="viewDashboard">
+      <div class="stats-grid" id="statsGrid" style="margin-bottom:var(--space-4);"></div>
+      <div class="warnings-list" id="warningsList" style="margin-bottom:var(--space-4);"></div>
+      <div class="info-card">
+        <div class="info-card-header">
+          <i data-lucide="info"></i>
+          <h3>Cara Kerja Klaim Pengawas</h3>
+        </div>
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-number"></div>
+            <div class="step-content"><strong>Pengawas</strong> klaim sekolah via aplikasi PS → status <span class="badge badge-warning" style="font-size:11px;">Pending</span></div>
+          </div>
+          <div class="step-item">
+            <div class="step-number"></div>
+            <div class="step-content"><strong>Kepala Sekolah</strong> buka aplikasi KS → klik "Cek Pengawas" → konfirmasi/tolak</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number"></div>
+            <div class="step-content">Jika <strong>diterima</strong> → status berubah menjadi <span class="badge badge-success" style="font-size:11px;">Terkonfirmasi</span></div>
+          </div>
+          <div class="step-item">
+            <div class="step-number"></div>
+            <div class="step-content">Jika ada konflik/masalah → <strong>Admin</strong> bisa override via Edit Sekolah atau <strong>Assign Pengawas</strong> manual</div>
+          </div>
+          <div class="step-item">
+            <div class="step-number"></div>
+            <div class="step-content">Gunakan tombol <strong>Reset Klaim</strong> jika klaim deadlock atau salah</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="table-card">
-      <table>
-        <thead><tr>
-          <th>NPSN</th>
-          <th>Nama Sekolah</th>
-          <th>Pengawas Pembina</th>
-          <th style="text-align:center">Klaim</th>
-          <th style="text-align:center">Status</th>
-          <th style="text-align:right">Aksi</th>
-        </tr></thead>
-        <tbody id="tbodySekolah"></tbody>
-      </table>
-      <div id="paginationSekolah"></div>
-    </div>
-  </div>
 
-  <!-- PENGAWAS VIEW -->
-  <div id="viewPengawas" style="display:none">
-    <div class="toolbar">
-      <div class="toolbar-filters">
-        <input id="searchPengawas" placeholder="🔍 Cari NIP / Nama / Wilayah...">
-        <select id="sortPengawas">
-          <option value="nama">Urut: Nama A-Z</option>
-          <option value="binaan">Urut: Binaan Terbanyak</option>
-          <option value="binaan_asc">Urut: Binaan Sedikit</option>
-        </select>
-        <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--slate-700);cursor:pointer;padding:.55rem .85rem;background:#fff;border:1px solid var(--slate-300);border-radius:8px;">
-          <input type="checkbox" id="filterBelumBinaan" style="margin:0;"> Hanya Belum Punya Binaan
-        </label>
+    <!-- VIEW: SEKOLAH -->
+    <div id="viewSekolah" style="display:none;">
+      <div class="toolbar" style="margin-bottom:var(--space-4);">
+        <div class="toolbar-filters">
+          <div class="input-with-icon">
+            <i data-lucide="search"></i>
+            <input type="text" id="searchSekolah" placeholder="Cari NPSN, nama sekolah, atau pengawas...">
+          </div>
+          <select class="select" id="filterKlaim">
+            <option value="">Semua Klaim</option>
+            <option value="confirmed">Terkonfirmasi</option>
+            <option value="pending">Pending</option>
+            <option value="none">Belum Ada</option>
+          </select>
+          <select class="select" id="filterPengawasSek">
+            <option value="">Semua Pengawas</option>
+          </select>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" id="btnImportSekolah"><i data-lucide="upload"></i><span>Import CSV</span></button>
+          <button class="btn btn-primary" id="btnAddSekolah"><i data-lucide="plus"></i><span>Tambah Sekolah</span></button>
+        </div>
       </div>
-      <div class="toolbar-actions">
-        <button class="btn btn-secondary" id="btnImportPengawas"><i data-lucide="upload" style="width:14px;height:14px;"></i> Import CSV</button>
-        <button class="btn btn-primary" id="btnAddPengawas"><i data-lucide="plus" style="width:14px;height:14px;"></i> Tambah Pengawas</button>
+      <div class="table-wrapper">
+        <div class="table-scroll">
+          <table>
+            <thead><tr>
+              <th style="width:110px;">NPSN</th>
+              <th>Nama Sekolah</th>
+              <th style="width:200px;">Pengawas Pembina</th>
+              <th style="width:130px;text-align:center;">Klaim</th>
+              <th style="width:100px;text-align:center;">Status</th>
+              <th style="width:100px;text-align:right;">Aksi</th>
+            </tr></thead>
+            <tbody id="tbodySekolah"></tbody>
+          </table>
+        </div>
+        <div id="paginationSekolah"></div>
       </div>
     </div>
-    <div class="table-card">
-      <table>
-        <thead><tr>
-          <th>NIP</th>
-          <th>Nama Pengawas</th>
-          <th>Wilayah</th>
-          <th style="text-align:center">Binaan</th>
-          <th style="text-align:center">Status</th>
-          <th style="text-align:right">Aksi</th>
-        </tr></thead>
-        <tbody id="tbodyPengawas"></tbody>
-      </table>
+
+    <!-- VIEW: PENGAWAS -->
+    <div id="viewPengawas" style="display:none;">
+      <div class="toolbar" style="margin-bottom:var(--space-4);">
+        <div class="toolbar-filters">
+          <div class="input-with-icon">
+            <i data-lucide="search"></i>
+            <input type="text" id="searchPengawas" placeholder="Cari NIP, nama, atau wilayah...">
+          </div>
+          <select class="select" id="sortPengawas">
+            <option value="nama">Urut: Nama A-Z</option>
+            <option value="binaan">Urut: Binaan Terbanyak</option>
+            <option value="binaan_asc">Urut: Binaan Sedikit</option>
+          </select>
+          <label class="checkbox-pill">
+            <input type="checkbox" id="filterBelumBinaan">
+            <span>Hanya Belum Punya Binaan</span>
+          </label>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" id="btnImportPengawas"><i data-lucide="upload"></i><span>Import CSV</span></button>
+          <button class="btn btn-primary" id="btnAddPengawas"><i data-lucide="plus"></i><span>Tambah Pengawas</span></button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <div class="table-scroll">
+          <table>
+            <thead><tr>
+              <th style="width:180px;">NIP</th>
+              <th>Nama Pengawas</th>
+              <th style="width:200px;">Wilayah</th>
+              <th style="width:120px;text-align:center;">Binaan</th>
+              <th style="width:100px;text-align:center;">Status</th>
+              <th style="width:100px;text-align:right;">Aksi</th>
+            </tr></thead>
+            <tbody id="tbodyPengawas"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
+</div>
 
 <!-- MODAL: SEKOLAH -->
-<div class="modal" id="modalSekolah">
+<div class="modal-overlay" id="modalSekolah">
   <div class="modal-panel wide">
-    <div class="modal-head">
-      <h3 id="modalSekolahTitle">Data Sekolah</h3>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalSekolah')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    <div class="modal-header">
+      <div class="modal-title" id="modalSekolahTitle">
+        <i data-lucide="school"></i>
+        <span>Data Sekolah</span>
+      </div>
+      <button class="modal-close" data-close="modalSekolah"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body" id="modalSekolahBody"></div>
-    <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeModal('modalSekolah')">Batal</button>
-      <button class="btn btn-primary" id="btnSaveSekolah"><i data-lucide="save" style="width:14px;height:14px;"></i> Simpan</button>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="modalSekolah">Batal</button>
+      <button class="btn btn-primary" id="btnSaveSekolah"><i data-lucide="save"></i><span>Simpan</span></button>
     </div>
   </div>
 </div>
 
 <!-- MODAL: PENGAWAS -->
-<div class="modal" id="modalPengawas">
+<div class="modal-overlay" id="modalPengawas">
   <div class="modal-panel">
-    <div class="modal-head">
-      <h3 id="modalPengawasTitle">Data Pengawas</h3>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalPengawas')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    <div class="modal-header">
+      <div class="modal-title" id="modalPengawasTitle">
+        <i data-lucide="users"></i>
+        <span>Data Pengawas</span>
+      </div>
+      <button class="modal-close" data-close="modalPengawas"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body" id="modalPengawasBody"></div>
-    <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeModal('modalPengawas')">Batal</button>
-      <button class="btn btn-primary" id="btnSavePengawas"><i data-lucide="save" style="width:14px;height:14px;"></i> Simpan</button>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="modalPengawas">Batal</button>
+      <button class="btn btn-primary" id="btnSavePengawas"><i data-lucide="save"></i><span>Simpan</span></button>
     </div>
   </div>
 </div>
 
 <!-- MODAL: RESET KLAIM -->
-<div class="modal" id="modalReset">
+<div class="modal-overlay" id="modalReset">
   <div class="modal-panel">
-    <div class="modal-head">
-      <h3 style="color:var(--danger);"><i data-lucide="alert-triangle" style="width:20px;height:20px;"></i> Reset Klaim Pengawas</h3>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalReset')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    <div class="modal-header">
+      <div class="modal-title">
+        <i data-lucide="alert-triangle" style="color:var(--danger-600);"></i>
+        <span>Reset Klaim Pengawas</span>
+      </div>
+      <button class="modal-close" data-close="modalReset"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body">
-      <div class="warning-box danger">
-        <strong>⚠️ Tindakan Destruktif</strong><br>
-        Reset ini akan <strong>menghapus pengawas pembina</strong> dari sekolah ini. KS akan melihat "belum ada pengawas". PS lama kehilangan akses (data lokal PS tetap aman).
+      <div class="info-box danger" style="margin-bottom:var(--space-4);">
+        <i data-lucide="alert-triangle"></i>
+        <div>
+          <strong>Tindakan Destruktif</strong><br>
+          Reset ini akan <strong>menghapus pengawas pembina</strong> dari sekolah ini. KS akan melihat "belum ada pengawas". PS lama kehilangan akses (data lokal PS tetap aman).
+        </div>
       </div>
       <div class="form-group">
-        <label>Ketik <code style="background:var(--slate-200);padding:.15rem .35rem;border-radius:4px;font-family:monospace;">RESET</code> untuk konfirmasi:</label>
-        <input type="text" id="resetConfirmInput" placeholder="Ketik RESET" autocomplete="off" style="font-family:monospace;text-align:center;font-size:1rem;letter-spacing:.2em;">
+        <label class="form-label">Ketik <code style="background:var(--slate-100);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);">RESET</code> untuk konfirmasi:</label>
+        <input type="text" id="resetConfirmInput" class="form-input" placeholder="Ketik RESET" autocomplete="off" style="font-family:var(--font-mono);text-align:center;font-size:16px;letter-spacing:0.2em;">
       </div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeModal('modalReset')">Batal</button>
-      <button class="btn btn-danger" id="btnDoReset" disabled>Reset Klaim</button>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="modalReset">Batal</button>
+      <button class="btn btn-danger" id="btnDoReset" disabled><i data-lucide="trash-2"></i><span>Reset Klaim</span></button>
     </div>
   </div>
 </div>
 
 <!-- MODAL: CONFIRM ASSIGN -->
-<div class="modal" id="modalConfirmAssign">
+<div class="modal-overlay" id="modalConfirmAssign">
   <div class="modal-panel">
-    <div class="modal-head">
-      <h3><i data-lucide="alert-circle" style="width:20px;height:20px;color:var(--warning);"></i> Ganti Pengawas?</h3>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalConfirmAssign')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    <div class="modal-header">
+      <div class="modal-title">
+        <i data-lucide="alert-circle" style="color:var(--warning-600);"></i>
+        <span>Ganti Pengawas?</span>
+      </div>
+      <button class="modal-close" data-close="modalConfirmAssign"><i data-lucide="x"></i></button>
     </div>
     <div class="modal-body" id="confirmAssignBody"></div>
-    <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeModal('modalConfirmAssign')">Batal</button>
-      <button class="btn btn-primary" id="btnConfirmAssign">Ya, Ganti Pengawas</button>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="modalConfirmAssign">Batal</button>
+      <button class="btn btn-primary" id="btnConfirmAssign"><i data-lucide="check"></i><span>Ya, Ganti Pengawas</span></button>
     </div>
   </div>
 </div>
 
 <!-- TOAST & LOADING -->
 <div id="toast"></div>
-<div class="loading-overlay" id="loading"><i data-lucide="loader-2" class="spinner" style="width:40px;height:40px;"></i></div>
+<div id="loading">
+  <div class="loading-spinner">
+    <i data-lucide="loader-2"></i>
+    <span>Memproses...</span>
+  </div>
+</div>
 
 <!-- IMPORTS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
 import { Supabase } from '../shared/js/supabase.js';
 
-const ADMIN_KEY = 'admin123';
+// ============================================
+// CONFIG
+// ============================================
+const ADMIN_KEY = 'admin123'; // ⚠️ GANTI SEBELUM DEPLOY!
 
 // ============================================
 // STATE
@@ -523,39 +1364,57 @@ const State = {
 // ============================================
 const el = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 const toast = (msg, type = '') => {
   const t = el('toast');
-  t.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : type === 'warning' ? 'alert-triangle' : 'info'}" style="width:18px;height:18px;"></i><span>${esc(msg)}</span>`;
+  const icons = {
+    success: 'check-circle',
+    error: 'alert-circle',
+    warning: 'alert-triangle',
+    info: 'info'
+  };
+  const icon = icons[type] || icons.info;
+  t.innerHTML = `<i data-lucide="${icon}"></i><span>${esc(msg)}</span>`;
   t.className = `show ${type}`;
   lucide.createIcons();
   clearTimeout(window._toastT);
-  window._toastT = setTimeout(() => { t.className = ''; }, 3000);
-};
-const loading = (show) => el('loading').classList.toggle('show', show);
-const openModal = (id) => el(id).classList.add('show');
-const closeModal = (id) => el(id).classList.remove('show');
-const relDate = (iso) => {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  const diff = Date.now() - d.getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return 'Hari ini';
-  if (days === 1) return 'Kemarin';
-  if (days < 30) return `${days} hari lalu`;
-  if (days < 365) return `${Math.floor(days/30)} bulan lalu`;
-  return `${Math.floor(days/365)} tahun lalu`;
+  window._toastT = setTimeout(() => { t.className = ''; }, 3200);
 };
 
-window.openModal = openModal;
-window.closeModal = closeModal;
+const loading = (show) => el('loading').classList.toggle('show', show);
+
+const openModal = (id) => {
+  el(id).classList.add('show');
+  lucide.createIcons();
+};
+
+const closeModal = (id) => el(id).classList.remove('show');
+
+// Attach close buttons
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.onclick = () => closeModal(btn.dataset.close);
+});
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) {
+      m.classList.remove('show');
+      if (m.id === 'modalSekolah') State.editSekolah = null;
+      if (m.id === 'modalPengawas') State.editPengawas = null;
+    }
+  });
+});
 
 // ============================================
-// INIT
+// LOGIN
 // ============================================
 el('loginForm').onsubmit = (e) => {
   e.preventDefault();
   if (el('adminKey').value === ADMIN_KEY) {
     el('loginScreen').style.display = 'none';
+    el('app').style.display = 'flex';
+    lucide.createIcons();
     loadData();
   } else {
     toast('Kunci Admin salah!', 'error');
@@ -566,38 +1425,43 @@ el('loginForm').onsubmit = (e) => {
 
 el('btnLogout').onclick = () => location.reload();
 
+// ============================================
+// NAVIGATION
+// ============================================
 document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
   item.onclick = () => switchTab(item.dataset.tab);
 });
 
 function switchTab(tab) {
-  // Reset active class di semua nav
+  // Update active state
   document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-  
-  // Set active berdasarkan data-tab attribute (bukan ID)
   const navItem = document.querySelector(`.nav-item[data-tab="${tab}"]`);
   if (navItem) navItem.classList.add('active');
-  
+
+  // Update title & sub
   const titles = {
-    dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun & klaim SISPA Mandiri' },
-    sekolah: { title: 'Data Sekolah', sub: `${State.sekolah.length} sekolah terdaftar` },
-    pengawas: { title: 'Data Pengawas', sub: `${State.pengawas.length} pengawas terdaftar` }
+    dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun & klaim SISPA Mandiri', actions: '' },
+    sekolah: { title: 'Data Sekolah', sub: `${State.sekolah.length} sekolah terdaftar`, actions: '' },
+    pengawas: { title: 'Data Pengawas', sub: `${State.pengawas.length} pengawas terdaftar`, actions: '' }
   };
-  
+
   if (titles[tab]) {
     el('pageTitle').textContent = titles[tab].title;
     el('pageSub').textContent = titles[tab].sub;
+    el('pageActions').innerHTML = titles[tab].actions;
   }
-  
-  // Hide semua view
-  el('viewDashboard').style.display = 'none';
-  el('viewSekolah').style.display = 'none';
-  el('viewPengawas').style.display = 'none';
-  
-  // Show view yang aktif
-  if (tab === 'dashboard') el('viewDashboard').style.display = 'block';
-  else if (tab === 'sekolah') el('viewSekolah').style.display = 'block';
-  else if (tab === 'pengawas') el('viewPengawas').style.display = 'block';
+
+  // Hide all views
+  ['dashboard', 'sekolah', 'pengawas'].forEach(t => {
+    const view = el('view' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (view) view.style.display = 'none';
+  });
+
+  // Show target view
+  const target = el('view' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (target) target.style.display = 'block';
+
+  lucide.createIcons();
 }
 
 // ============================================
@@ -610,20 +1474,19 @@ async function loadData() {
       Supabase.getAllSekolah(),
       Supabase.getAllPengawas()
     ]);
-    
+
     State.sekolah = sekolahList || [];
     State.pengawas = pengawasList || [];
     State.pengawasByNip = {};
     State.pengawas.forEach(p => State.pengawasByNip[p.nip] = p);
-    
-    // Build binaan count
+
     State.binaanCount = {};
     State.sekolah.forEach(sk => {
       if (sk.pengawas_nip) {
         State.binaanCount[sk.pengawas_nip] = (State.binaanCount[sk.pengawas_nip] || 0) + 1;
       }
     });
-    
+
     renderDashboard();
     renderSekolahTable();
     renderPengawasTable();
@@ -653,93 +1516,126 @@ function renderDashboard() {
   const belumAda = State.sekolah.filter(s => !s.pengawas_nip).length;
   const pending = State.sekolah.filter(s => s.pengawas_status === 'pending').length;
   const pengawasKosong = State.pengawas.filter(p => !State.binaanCount[p.nip]).length;
-  
+
   el('statsGrid').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--brand-100);color:var(--brand-700);">
-        <i data-lucide="school" style="width:24px;height:24px;"></i>
+    <div class="stat-card" style="--accent: var(--brand-500);">
+      <div class="stat-card-header">
+        <div class="stat-card-label">Total<br>Sekolah</div>
+        <div class="stat-card-icon" style="background:var(--brand-100);color:var(--brand-700);">
+          <i data-lucide="school"></i>
+        </div>
       </div>
-      <div>
-        <div class="stat-label">Sekolah</div>
-        <div class="stat-value">${total}</div>
-      </div>
+      <div class="stat-card-value">${total}</div>
+      <div class="stat-card-sub">Terdaftar di sistem</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#dcfce7;color:#166534;">
-        <i data-lucide="users" style="width:24px;height:24px;"></i>
+    <div class="stat-card" style="--accent: #16a34a;">
+      <div class="stat-card-header">
+        <div class="stat-card-label">Total<br>Pengawas</div>
+        <div class="stat-card-icon" style="background:var(--success-100);color:var(--success-700);">
+          <i data-lucide="users"></i>
+        </div>
       </div>
-      <div>
-        <div class="stat-label">Pengawas</div>
-        <div class="stat-value">${pengawasCount}</div>
-      </div>
+      <div class="stat-card-value">${pengawasCount}</div>
+      <div class="stat-card-sub">Aktif bertugas</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#d1fae5;color:var(--success);">
-        <i data-lucide="check-circle" style="width:24px;height:24px;"></i>
+    <div class="stat-card" style="--accent: #059669;">
+      <div class="stat-card-header">
+        <div class="stat-card-label">Terkon-<br>firmasi</div>
+        <div class="stat-card-icon" style="background:#d1fae5;color:#059669;">
+          <i data-lucide="check-circle"></i>
+        </div>
       </div>
-      <div>
-        <div class="stat-label">Terkonfirmasi</div>
-        <div class="stat-value">${confirmed}</div>
-      </div>
+      <div class="stat-card-value">${confirmed}</div>
+      <div class="stat-card-sub">${total > 0 ? Math.round(confirmed/total*100) : 0}% dari total</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#fef3c7;color:#92400e;">
-        <i data-lucide="clock" style="width:24px;height:24px;"></i>
+    <div class="stat-card" style="--accent: #d97706;">
+      <div class="stat-card-header">
+        <div class="stat-card-label">Pending<br>Klaim</div>
+        <div class="stat-card-icon" style="background:var(--warning-100);color:var(--warning-700);">
+          <i data-lucide="clock"></i>
+        </div>
       </div>
-      <div>
-        <div class="stat-label">Pending Klaim</div>
-        <div class="stat-value">${pending}</div>
-      </div>
+      <div class="stat-card-value">${pending}</div>
+      <div class="stat-card-sub">Menunggu konfirmasi KS</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:#fee2e2;color:var(--danger);">
-        <i data-lucide="user-x" style="width:24px;height:24px;"></i>
+    <div class="stat-card" style="--accent: #dc2626;">
+      <div class="stat-card-header">
+        <div class="stat-card-label">Belum<br>Ada PS</div>
+        <div class="stat-card-icon" style="background:var(--danger-100);color:var(--danger-700);">
+          <i data-lucide="user-x"></i>
+        </div>
       </div>
-      <div>
-        <div class="stat-label">Belum Ada PS</div>
-        <div class="stat-value">${belumAda}</div>
-      </div>
+      <div class="stat-card-value">${belumAda}</div>
+      <div class="stat-card-sub">Perlu assign segera</div>
     </div>
   `;
-  
+
   const warnings = [];
   if (belumAda > 0) {
     warnings.push({
-      type: 'warn', icon: 'user-x',
+      type: 'warn',
+      icon: 'user-x',
       text: `<strong>${belumAda} sekolah</strong> belum punya pengawas pembina. Klaim atau assign manual via Edit Sekolah.`,
-      action: () => { State.filter.sekolah.klaim = 'none'; el('filterKlaim').value = 'none'; State.pagination.sekolah = 1; switchTab('sekolah'); renderSekolahTable(); }
+      action: () => {
+        State.filter.sekolah.klaim = 'none';
+        el('filterKlaim').value = 'none';
+        State.pagination.sekolah = 1;
+        switchTab('sekolah');
+        renderSekolahTable();
+      }
     });
   }
   if (pending > 0) {
     warnings.push({
-      type: 'warn', icon: 'clock',
+      type: 'warn',
+      icon: 'clock',
       text: `<strong>${pending} klaim</strong> menunggu konfirmasi KS. Pastikan KS sudah buka aplikasi.`,
-      action: () => { State.filter.sekolah.klaim = 'pending'; el('filterKlaim').value = 'pending'; State.pagination.sekolah = 1; switchTab('sekolah'); renderSekolahTable(); }
+      action: () => {
+        State.filter.sekolah.klaim = 'pending';
+        el('filterKlaim').value = 'pending';
+        State.pagination.sekolah = 1;
+        switchTab('sekolah');
+        renderSekolahTable();
+      }
     });
   }
   if (pengawasKosong > 0) {
     warnings.push({
-      type: 'warn', icon: 'alert-triangle',
-      text: `<strong>${pengawasKosong} pengawas</strong> belum punya binaan. Assign sekolah ke mereka atau cek wilayah.`,
-      action: () => { State.filter.pengawas.onlyEmpty = true; el('filterBelumBinaan').checked = true; switchTab('pengawas'); renderPengawasTable(); }
+      type: 'warn',
+      icon: 'alert-triangle',
+      text: `<strong>${pengawasKosong} pengawas</strong> belum punya binaan. Assign sekolah atau periksa wilayah.`,
+      action: () => {
+        State.filter.pengawas.onlyEmpty = true;
+        el('filterBelumBinaan').checked = true;
+        switchTab('pengawas');
+        renderPengawasTable();
+      }
     });
   }
   if (warnings.length === 0) {
-    warnings.push({ type: 'info', icon: 'check-circle', text: 'Semua data dalam kondisi sehat. Tidak ada peringatan.' });
+    warnings.push({
+      type: 'success',
+      icon: 'check-circle',
+      text: 'Semua data dalam kondisi sehat. Tidak ada peringatan.'
+    });
   }
-  
-  el('warningsBox').innerHTML = warnings.map((w, i) => `
+
+  el('warningsList').innerHTML = warnings.map((w, i) => `
     <div class="warning-card ${w.type}">
-      <i data-lucide="${w.icon}" style="width:20px;height:20px;flex-shrink:0;color:var(--${w.type === 'warn' ? 'warning' : 'info'});"></i>
-      <div style="flex:1;font-size:.85rem;line-height:1.6;">${w.text}</div>
-      ${w.action ? `<button class="btn btn-secondary btn-sm" data-warn-action="${i}">Lihat →</button>` : ''}
+      <div class="warning-card-icon">
+        <i data-lucide="${w.icon}"></i>
+      </div>
+      <div class="warning-card-text">${w.text}</div>
+      ${w.action ? `<button class="btn btn-secondary btn-sm" data-warn-action="${i}">Lihat <i data-lucide="arrow-right" style="width:12px;height:12px;"></i></button>` : '<div></div>'}
     </div>
   `).join('');
-  
-  el('warningsBox').querySelectorAll('[data-warn-action]').forEach(btn => {
+
+  el('warningsList').querySelectorAll('[data-warn-action]').forEach(btn => {
     const idx = parseInt(btn.dataset.warnAction);
     btn.onclick = warnings[idx].action;
   });
+
+  lucide.createIcons();
 }
 
 // ============================================
@@ -748,10 +1644,10 @@ function renderDashboard() {
 function renderSekolahTable() {
   const f = State.filter.sekolah;
   let list = State.sekolah.slice();
-  
+
   if (f.q) {
     const q = f.q.toLowerCase();
-    list = list.filter(s => 
+    list = list.filter(s =>
       (s.npsn || '').toLowerCase().includes(q) ||
       (s.nama_sekolah || '').toLowerCase().includes(q) ||
       (State.pengawasByNip[s.pengawas_nip]?.nama_pengawas || '').toLowerCase().includes(q)
@@ -760,58 +1656,72 @@ function renderSekolahTable() {
   if (f.klaim === 'confirmed') list = list.filter(s => s.pengawas_status === 'confirmed');
   else if (f.klaim === 'pending') list = list.filter(s => s.pengawas_status === 'pending');
   else if (f.klaim === 'none') list = list.filter(s => !s.pengawas_nip);
-  
+
   if (f.pengawas) list = list.filter(s => s.pengawas_nip === f.pengawas);
-  
+
   const totalPages = Math.ceil(list.length / State.pagination.perPage) || 1;
   if (State.pagination.sekolah > totalPages) State.pagination.sekolah = totalPages;
   const start = (State.pagination.sekolah - 1) * State.pagination.perPage;
   const paged = list.slice(start, start + State.pagination.perPage);
-  
+
   el('pageSub').textContent = `${list.length} sekolah ${f.q || f.klaim || f.pengawas ? '(terfilter)' : ''}`;
-  
+
   if (paged.length === 0) {
-    el('tbodySekolah').innerHTML = `<tr><td colspan="6"><div class="empty-row">Tidak ada sekolah yang cocok dengan filter</div></td></tr>`;
+    el('tbodySekolah').innerHTML = `<tr><td colspan="6">
+      <div class="empty-state">
+        <div class="empty-state-icon"><i data-lucide="search-x"></i></div>
+        <h3>Tidak ada hasil</h3>
+        <p>Ubah filter atau kata kunci pencarian</p>
+      </div>
+    </td></tr>`;
     el('paginationSekolah').innerHTML = '';
+    lucide.createIcons();
     return;
   }
-  
+
   el('tbodySekolah').innerHTML = paged.map(sk => {
     const pg = State.pengawasByNip[sk.pengawas_nip];
-    const statusBadge = (() => {
-      if (!sk.pengawas_nip) return `<span class="badge badge-neutral">— Belum</span>`;
-      if (sk.pengawas_status === 'confirmed') return `<span class="badge badge-success">✓ Terkonfirmasi</span>`;
-      if (sk.pengawas_status === 'pending') return `<span class="badge badge-warning">⏳ Pending</span>`;
-      if (sk.pengawas_status === 'rejected') return `<span class="badge badge-danger">✕ Ditolak</span>`;
-      return `<span class="badge badge-neutral">—</span>`;
-    })();
-    const aktifBadge = sk.is_active === false
-      ? `<span class="badge badge-danger">Suspend</span>`
-      : `<span class="badge badge-success">Aktif</span>`;
-    
+    let klaimBadge = '<span class="badge badge-neutral">—</span>';
+    if (sk.pengawas_status === 'confirmed') klaimBadge = '<span class="badge badge-success"><i data-lucide="check-circle"></i>Terkonfirmasi</span>';
+    else if (sk.pengawas_status === 'pending') klaimBadge = '<span class="badge badge-warning"><i data-lucide="clock"></i>Pending</span>';
+    else if (sk.pengawas_status === 'rejected') klaimBadge = '<span class="badge badge-danger"><i data-lucide="x-circle"></i>Ditolak</span>';
+    else if (sk.pengawas_nip) klaimBadge = '<span class="badge badge-neutral">—</span>';
+
+    const statusBadge = sk.is_active === false
+      ? '<span class="badge badge-danger"><i data-lucide="pause-circle"></i>Suspend</span>'
+      : '<span class="badge badge-success"><i data-lucide="check"></i>Aktif</span>';
+
     return `<tr>
-      <td class="mono" style="font-weight:600;">${esc(sk.npsn)}</td>
-      <td style="font-weight:600;">${esc(sk.nama_sekolah)}</td>
-      <td>${pg ? `<div style="font-weight:500;">${esc(pg.nama_pengawas)}</div><div style="font-size:.72rem;color:var(--slate-500);">${esc(pg.wilayah || '')}</div>` : '<span style="color:var(--slate-400);font-size:.8rem;">(belum ada)</span>'}</td>
-      <td style="text-align:center;">${statusBadge}</td>
-      <td style="text-align:center;">${aktifBadge}</td>
-      <td style="text-align:right;white-space:nowrap;">
-        <button class="btn btn-secondary btn-sm" data-edit-sek="${sk.npsn}" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
-        <button class="btn ${sk.is_active === false ? 'btn-secondary' : 'btn-danger'} btn-sm" data-toggle-sek="${sk.npsn}" title="${sk.is_active === false ? 'Aktifkan' : 'Suspend'}">
-          <i data-lucide="power" style="width:14px;height:14px;"></i>
+      <td class="mono">${esc(sk.npsn)}</td>
+      <td>
+        <div class="cell-title">${esc(sk.nama_sekolah)}</div>
+      </td>
+      <td>
+        ${pg ? `<div class="cell-title" style="font-weight:500;">${esc(pg.nama_pengawas)}</div><div class="cell-sub">${esc(pg.wilayah || '')}</div>`
+             : '<span style="color:var(--slate-400);font-size:13px;">Belum ada</span>'}
+      </td>
+      <td class="cell-center">${klaimBadge}</td>
+      <td class="cell-center">${statusBadge}</td>
+      <td class="cell-actions">
+        <button class="btn-icon" data-edit-sek="${sk.npsn}" title="Edit"><i data-lucide="edit-3"></i></button>
+        <button class="btn-icon ${sk.is_active === false ? '' : 'danger'}" data-toggle-sek="${sk.npsn}" title="${sk.is_active === false ? 'Aktifkan' : 'Suspend'}">
+          <i data-lucide="power"></i>
         </button>
       </td>
     </tr>`;
   }).join('');
-  
-  // Pagination
+
   if (totalPages > 1) {
     el('paginationSekolah').innerHTML = `
       <div class="pagination">
-        <span>Halaman ${State.pagination.sekolah} dari ${totalPages} · ${list.length} sekolah</span>
-        <div style="display:flex;gap:.35rem;">
-          <button class="btn btn-secondary btn-sm" id="prevPageSek" ${State.pagination.sekolah === 1 ? 'disabled' : ''}>Prev</button>
-          <button class="btn btn-secondary btn-sm" id="nextPageSek" ${State.pagination.sekolah === totalPages ? 'disabled' : ''}>Next</button>
+        <span>Halaman <strong>${State.pagination.sekolah}</strong> dari <strong>${totalPages}</strong> · ${list.length} sekolah</span>
+        <div class="pagination-buttons">
+          <button class="btn btn-secondary btn-sm" id="prevPageSek" ${State.pagination.sekolah === 1 ? 'disabled' : ''}>
+            <i data-lucide="chevron-left"></i>Prev
+          </button>
+          <button class="btn btn-secondary btn-sm" id="nextPageSek" ${State.pagination.sekolah === totalPages ? 'disabled' : ''}>
+            Next<i data-lucide="chevron-right"></i>
+          </button>
         </div>
       </div>
     `;
@@ -820,7 +1730,7 @@ function renderSekolahTable() {
   } else {
     el('paginationSekolah').innerHTML = `<div class="pagination"><span>${list.length} sekolah</span><span></span></div>`;
   }
-  
+
   el('tbodySekolah').querySelectorAll('[data-edit-sek]').forEach(b => {
     b.onclick = () => openEditSekolah(b.dataset.editSek);
   });
@@ -836,53 +1746,59 @@ function renderSekolahTable() {
 function renderPengawasTable() {
   const f = State.filter.pengawas;
   let list = State.pengawas.slice();
-  
+
   if (f.q) {
     const q = f.q.toLowerCase();
-    list = list.filter(p => 
+    list = list.filter(p =>
       (p.nip || '').toLowerCase().includes(q) ||
       (p.nama_pengawas || '').toLowerCase().includes(q) ||
       (p.wilayah || '').toLowerCase().includes(q)
     );
   }
   if (f.onlyEmpty) list = list.filter(p => !State.binaanCount[p.nip]);
-  
-  // Sort
+
   if (f.sort === 'nama') list.sort((a, b) => (a.nama_pengawas || '').localeCompare(b.nama_pengawas || ''));
   else if (f.sort === 'binaan') list.sort((a, b) => (State.binaanCount[b.nip] || 0) - (State.binaanCount[a.nip] || 0));
   else if (f.sort === 'binaan_asc') list.sort((a, b) => (State.binaanCount[a.nip] || 0) - (State.binaanCount[b.nip] || 0));
-  
+
   el('pageSub').textContent = `${list.length} pengawas ${f.q || f.onlyEmpty ? '(terfilter)' : ''}`;
-  
+
   if (list.length === 0) {
-    el('tbodyPengawas').innerHTML = `<tr><td colspan="6"><div class="empty-row">Tidak ada pengawas yang cocok</div></td></tr>`;
+    el('tbodyPengawas').innerHTML = `<tr><td colspan="6">
+      <div class="empty-state">
+        <div class="empty-state-icon"><i data-lucide="search-x"></i></div>
+        <h3>Tidak ada hasil</h3>
+        <p>Ubah filter atau kata kunci</p>
+      </div>
+    </td></tr>`;
+    lucide.createIcons();
     return;
   }
-  
+
   el('tbodyPengawas').innerHTML = list.map(p => {
     const count = State.binaanCount[p.nip] || 0;
     const binaanBadge = count === 0
-      ? `<span class="badge badge-warning">0 ⚠</span>`
+      ? '<span class="badge badge-warning"><i data-lucide="alert-triangle"></i>0</span>'
       : `<span class="badge badge-info">${count}</span>`;
     const aktifBadge = p.is_active === false
-      ? `<span class="badge badge-danger">Suspend</span>`
-      : `<span class="badge badge-success">Aktif</span>`;
-    
+      ? '<span class="badge badge-danger"><i data-lucide="pause-circle"></i>Suspend</span>'
+      : '<span class="badge badge-success"><i data-lucide="check"></i>Aktif</span>';
+
     return `<tr>
-      <td class="mono" style="font-weight:600;">${esc(p.nip)}</td>
-      <td style="font-weight:600;">${esc(p.nama_pengawas)}</td>
+      <td class="mono">${esc(p.nip)}</td>
+      <td><div class="cell-title">${esc(p.nama_pengawas)}</div></td>
       <td>${esc(p.wilayah || '—')}</td>
-      <td style="text-align:center;">${binaanBadge}</td>
-      <td style="text-align:center;">${aktifBadge}</td>
-      <td style="text-align:right;white-space:nowrap;">
-        <button class="btn btn-secondary btn-sm" data-edit-pen="${p.nip}" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
-        <button class="btn ${p.is_active === false ? 'btn-secondary' : 'btn-danger'} btn-sm" data-toggle-pen="${p.nip}" title="${p.is_active === false ? 'Aktifkan' : 'Suspend'}">
-          <i data-lucide="power" style="width:14px;height:14px;"></i>
+      <td class="cell-center">${binaanBadge}</td>
+      <td class="cell-center">${aktifBadge}</td>
+      <td class="cell-actions">
+        <button class="btn-icon" data-edit-pen="${p.nip}" title="Edit"><i data-lucide="edit-3"></i></button>
+        <button class="btn-icon ${p.is_active === false ? '' : 'danger'}" data-toggle-pen="${p.nip}" title="${p.is_active === false ? 'Aktifkan' : 'Suspend'}">
+          <i data-lucide="power"></i>
         </button>
       </td>
     </tr>`;
   }).join('');
-  
+
   el('tbodyPengawas').querySelectorAll('[data-edit-pen]').forEach(b => {
     b.onclick = () => openEditPengawas(b.dataset.editPen);
   });
@@ -904,143 +1820,145 @@ el('sortPengawas').addEventListener('change', e => { State.filter.pengawas.sort 
 el('filterBelumBinaan').addEventListener('change', e => { State.filter.pengawas.onlyEmpty = e.target.checked; renderPengawasTable(); });
 
 // ============================================
-// MODAL: SEKOLAH (Add / Edit)
+// MODAL: EDIT SEKOLAH
 // ============================================
 function openEditSekolah(npsn) {
   const sk = State.sekolah.find(x => x.npsn === npsn);
   if (!sk) return;
   State.editSekolah = sk;
-  
-  el('modalSekolahTitle').innerHTML = `<i data-lucide="edit-3" style="width:20px;height:20px;color:var(--brand-600);"></i> Edit Sekolah`;
-  
+
+  el('modalSekolahTitle').innerHTML = '<i data-lucide="edit-3"></i><span>Edit Sekolah</span>';
+
   const pg = State.pengawasByNip[sk.pengawas_nip];
   const pengawasOptions = State.pengawas
     .filter(p => p.is_active !== false)
     .map(p => `<option value="${p.nip}" ${sk.pengawas_nip === p.nip ? 'selected' : ''}>${esc(p.nama_pengawas)} — ${esc(p.wilayah || '')}</option>`)
     .join('');
-  
+
   el('modalSekolahBody').innerHTML = `
     <div class="form-row">
       <div class="form-group">
-        <label>NPSN</label>
-        <input type="text" value="${esc(sk.npsn)}" disabled>
+        <label class="form-label">NPSN</label>
+        <input type="text" class="form-input" value="${esc(sk.npsn)}" disabled>
       </div>
       <div class="form-group">
-        <label>Status Sekolah</label>
-        <select id="editSekAktif">
+        <label class="form-label">Status Sekolah</label>
+        <select class="form-select" id="editSekAktif">
           <option value="true" ${sk.is_active !== false ? 'selected' : ''}>Aktif</option>
           <option value="false" ${sk.is_active === false ? 'selected' : ''}>Suspend</option>
         </select>
       </div>
     </div>
     <div class="form-group">
-      <label>Nama Sekolah</label>
-      <input type="text" id="editSekNama" value="${esc(sk.nama_sekolah)}">
+      <label class="form-label">Nama Sekolah</label>
+      <input type="text" class="form-input" id="editSekNama" value="${esc(sk.nama_sekolah)}">
     </div>
-    
-    <div style="padding-top:1rem;margin-top:1rem;border-top:1px solid var(--slate-200);">
-      <div style="font-size:.8rem;font-weight:600;color:var(--slate-700);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.03em;">Pengawas Pembina</div>
-      
+
+    <div class="form-section">
+      <div class="form-section-title">Pengawas Pembina</div>
+
       ${sk.pengawas_nip ? `
-        <div style="padding:.75rem;background:${sk.pengawas_status === 'confirmed' ? '#dcfce7' : '#fef3c7'};border-radius:8px;margin-bottom:.75rem;font-size:.85rem;">
-          <div style="font-weight:600;color:${sk.pengawas_status === 'confirmed' ? '#166534' : '#92400e'};">
-            ${sk.pengawas_status === 'confirmed' ? '✓ Terkonfirmasi' : sk.pengawas_status === 'pending' ? '⏳ Pending' : '✕ Ditolak'} oleh KS
+        <div class="info-box ${sk.pengawas_status === 'confirmed' ? 'success' : 'warning'}" style="margin-bottom:var(--space-4);">
+          <i data-lucide="${sk.pengawas_status === 'confirmed' ? 'check-circle' : 'clock'}"></i>
+          <div>
+            <strong>${sk.pengawas_status === 'confirmed' ? 'Terkonfirmasi oleh KS' : sk.pengawas_status === 'pending' ? 'Menunggu konfirmasi KS' : 'Ditolak oleh KS'}</strong>
+            <div style="margin-top:4px;">${esc(pg?.nama_pengawas || '—')} · ${esc(pg?.wilayah || '')}</div>
           </div>
-          <div style="color:var(--slate-600);margin-top:.15rem;">${esc(pg?.nama_pengawas || '—')} · ${esc(pg?.wilayah || '')}</div>
         </div>
       ` : `
-        <div style="padding:.75rem;background:var(--slate-100);border-radius:8px;margin-bottom:.75rem;font-size:.85rem;color:var(--slate-600);">
-          Belum ada pengawas pembina. Assign manual di bawah atau tunggu PS klaim.
+        <div class="info-box info" style="margin-bottom:var(--space-4);">
+          <i data-lucide="info"></i>
+          <div>Belum ada pengawas pembina. Assign manual di bawah atau tunggu PS klaim.</div>
         </div>
       `}
-      
+
       <div class="form-group">
-        <label>Assign / Ganti Pengawas</label>
-        <select id="editSekPengawas">
+        <label class="form-label">Assign / Ganti Pengawas</label>
+        <select class="form-select" id="editSekPengawas">
           <option value="">— Belum ada —</option>
           ${pengawasOptions}
         </select>
         <div class="form-hint">Pilih pengawas untuk assign manual. Admin override langsung jadi <strong>terkonfirmasi</strong> (bypass KS).</div>
       </div>
-      
+
       ${sk.pengawas_nip ? `
-        <button class="btn btn-danger btn-sm" id="btnResetKlaim" style="margin-top:.5rem;">
-          <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> Reset Klaim Pengawas
+        <button class="btn btn-danger btn-sm" id="btnResetKlaim" style="margin-top:var(--space-2);">
+          <i data-lucide="rotate-ccw"></i><span>Reset Klaim Pengawas</span>
         </button>
       ` : ''}
     </div>
   `;
-  
+
   if (sk.pengawas_nip) {
     el('btnResetKlaim').onclick = () => {
       closeModal('modalSekolah');
       openResetKlaim(sk);
     };
   }
-  
+
   openModal('modalSekolah');
-  lucide.createIcons();
 }
 
+// Save sekolah
 el('btnSaveSekolah').onclick = async () => {
   const sk = State.editSekolah;
   if (!sk) return;
-  
+
+  if (sk.isNew) return; // handled separately
+
   const newNama = el('editSekNama').value.trim();
   const newAktif = el('editSekAktif').value === 'true';
   const newPengawas = el('editSekPengawas').value;
-  
+
   if (!newNama) return toast('Nama sekolah wajib diisi', 'error');
-  
-  // Cek konflik: pengawas lama berbeda
-  if (sk.pengawas_nip && newPengawas && sk.pengawas_nip !== newPengawas) {
+
+  // If pengawas changed (from existing to different/none)
+  if (sk.pengawas_nip !== newPengawas) {
     const oldPg = State.pengawasByNip[sk.pengawas_nip];
     const newPg = State.pengawasByNip[newPengawas];
     showConfirmAssign(sk, oldPg, newPg, newNama, newAktif);
     return;
   }
-  
-  // Kalau pengawas berubah dari ada ke tidak ada (unclaim)
-  if (sk.pengawas_nip && !newPengawas) {
-    showConfirmAssign(sk, State.pengawasByNip[sk.pengawas_nip], null, newNama, newAktif);
-    return;
-  }
-  
-  // Save langsung
+
   await saveSekolah(sk, { nama_sekolah: newNama, is_active: newAktif, pengawas_nip: newPengawas || null });
 };
 
 function showConfirmAssign(sk, oldPg, newPg, newNama, newAktif) {
   State.pendingAssign = { sk, oldPg, newPg, newNama, newAktif };
-  
+
   el('confirmAssignBody').innerHTML = `
-    <div class="warning-box warn">
-      <strong>Konfirmasi Perubahan Pengawas</strong><br>
-      Sekolah ini akan pindah pengawas. PS lama akan kehilangan akses (data lokal PS tetap aman).
+    <div class="info-box warning" style="margin-bottom:var(--space-4);">
+      <i data-lucide="alert-triangle"></i>
+      <div>
+        <strong>Konfirmasi Perubahan Pengawas</strong><br>
+        Sekolah ini akan pindah pengawas. PS lama kehilangan akses (data lokal PS tetap aman).
+      </div>
     </div>
-    <table style="width:100%;font-size:.85rem;">
-      <tr style="background:var(--slate-50);">
-        <td style="padding:.5rem;">Pengawas Lama</td>
-        <td style="padding:.5rem;font-weight:600;">${oldPg ? esc(oldPg.nama_pengawas) : '(belum ada)'}</td>
-      </tr>
-      <tr>
-        <td style="padding:.5rem;">Pengawas Baru</td>
-        <td style="padding:.5rem;font-weight:600;color:var(--brand-600);">${newPg ? esc(newPg.nama_pengawas) : '(tidak ada)'}</td>
-      </tr>
-    </table>
+    <div style="border:1px solid var(--slate-200);border-radius:var(--radius-md);overflow:hidden;">
+      <div style="padding:12px 16px;background:var(--slate-50);border-bottom:1px solid var(--slate-200);font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:0.06em;">Perubahan</div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--slate-100);display:flex;justify-content:space-between;font-size:14px;">
+        <span style="color:var(--slate-600);">Pengawas Lama</span>
+        <strong style="color:var(--slate-900);">${oldPg ? esc(oldPg.nama_pengawas) : '(belum ada)'}</strong>
+      </div>
+      <div style="padding:12px 16px;display:flex;justify-content:space-between;font-size:14px;">
+        <span style="color:var(--slate-600);">Pengawas Baru</span>
+        <strong style="color:var(--brand-600);">${newPg ? esc(newPg.nama_pengawas) : '(tidak ada)'}</strong>
+      </div>
+    </div>
   `;
-  
+
   closeModal('modalSekolah');
   openModal('modalConfirmAssign');
+  lucide.createIcons();
 }
 
 el('btnConfirmAssign').onclick = async () => {
   const { sk, newNama, newAktif, newPg } = State.pendingAssign;
   closeModal('modalConfirmAssign');
-  await saveSekolah(sk, { 
-    nama_sekolah: newNama, 
-    is_active: newAktif, 
-    pengawas_nip: newPg ? newPg.nip : null 
+  await saveSekolah(sk, {
+    nama_sekolah: newNama,
+    is_active: newAktif,
+    pengawas_nip: newPg ? newPg.nip : null
   });
   State.pendingAssign = null;
 };
@@ -1054,6 +1972,7 @@ async function saveSekolah(sk, changes) {
       pengawas_status: changes.pengawas_nip ? 'confirmed' : null,
       pengawas_confirmed_at: changes.pengawas_nip ? new Date().toISOString() : null
     };
+    delete payload.isNew;
     await Supabase.saveSekolah(payload);
     toast('Data sekolah tersimpan', 'success');
     closeModal('modalSekolah');
@@ -1074,8 +1993,7 @@ function openResetKlaim(sk) {
   el('resetConfirmInput').value = '';
   el('btnDoReset').disabled = true;
   openModal('modalReset');
-  setTimeout(() => el('resetConfirmInput').focus(), 100);
-  lucide.createIcons();
+  setTimeout(() => el('resetConfirmInput').focus(), 150);
 }
 
 el('resetConfirmInput').addEventListener('input', e => {
@@ -1087,7 +2005,7 @@ el('btnDoReset').onclick = async () => {
   const npsn = State.resetNpsn;
   const sk = State.sekolah.find(x => x.npsn === npsn);
   if (!sk) return;
-  
+
   loading(true);
   try {
     await Supabase.saveSekolah({
@@ -1115,7 +2033,7 @@ async function toggleSekolahActive(npsn) {
   if (!sk) return;
   const newStatus = sk.is_active === false;
   if (!confirm(`${newStatus ? 'Aktifkan' : 'Suspend'} sekolah ${sk.nama_sekolah}?`)) return;
-  
+
   loading(true);
   try {
     await Supabase.toggleSekolah(npsn, newStatus);
@@ -1133,7 +2051,7 @@ async function togglePengawasActive(nip) {
   if (!p) return;
   const newStatus = p.is_active === false;
   if (!confirm(`${newStatus ? 'Aktifkan' : 'Suspend'} pengawas ${p.nama_pengawas}?`)) return;
-  
+
   loading(true);
   try {
     await Supabase.togglePengawas(nip, newStatus);
@@ -1147,54 +2065,53 @@ async function togglePengawasActive(nip) {
 }
 
 // ============================================
-// MODAL: PENGAWAS (Add / Edit)
+// MODAL: PENGAWAS
 // ============================================
 function openEditPengawas(nip) {
   const p = State.pengawas.find(x => x.nip === nip);
   if (!p) return;
   State.editPengawas = p;
-  
-  el('modalPengawasTitle').innerHTML = `<i data-lucide="edit-3" style="width:20px;height:20px;color:var(--brand-600);"></i> Edit Pengawas`;
-  
+
+  el('modalPengawasTitle').innerHTML = '<i data-lucide="edit-3"></i><span>Edit Pengawas</span>';
+
   el('modalPengawasBody').innerHTML = `
     <div class="form-group">
-      <label>NIP</label>
-      <input type="text" value="${esc(p.nip)}" disabled>
+      <label class="form-label">NIP</label>
+      <input type="text" class="form-input" value="${esc(p.nip)}" disabled>
     </div>
     <div class="form-group">
-      <label>Nama Pengawas</label>
-      <input type="text" id="editPenNama" value="${esc(p.nama_pengawas)}">
+      <label class="form-label">Nama Pengawas</label>
+      <input type="text" class="form-input" id="editPenNama" value="${esc(p.nama_pengawas)}">
     </div>
     <div class="form-group">
-      <label>Wilayah</label>
-      <input type="text" id="editPenWilayah" value="${esc(p.wilayah || '')}">
+      <label class="form-label">Wilayah</label>
+      <input type="text" class="form-input" id="editPenWilayah" value="${esc(p.wilayah || '')}">
     </div>
     <div class="form-group">
-      <label>Status</label>
-      <select id="editPenAktif">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="editPenAktif">
         <option value="true" ${p.is_active !== false ? 'selected' : ''}>Aktif</option>
         <option value="false" ${p.is_active === false ? 'selected' : ''}>Suspend</option>
       </select>
     </div>
-    <div class="form-hint" style="margin-top:.5rem;">
-      Binaan saat ini: <strong>${State.binaanCount[p.nip] || 0} sekolah</strong>
-    </div>
+    <div class="form-hint">Binaan saat ini: <strong>${State.binaanCount[p.nip] || 0} sekolah</strong></div>
   `;
-  
+
   openModal('modalPengawas');
-  lucide.createIcons();
 }
 
 el('btnSavePengawas').onclick = async () => {
   const p = State.editPengawas;
   if (!p) return;
-  
+
+  if (p.isNew) return;
+
   const newNama = el('editPenNama').value.trim();
   const newWilayah = el('editPenWilayah').value.trim();
   const newAktif = el('editPenAktif').value === 'true';
-  
+
   if (!newNama) return toast('Nama pengawas wajib diisi', 'error');
-  
+
   loading(true);
   try {
     await Supabase.savePengawas({
@@ -1215,48 +2132,47 @@ el('btnSavePengawas').onclick = async () => {
 };
 
 // ============================================
-// ADD SEKOLAH (form kosong)
+// ADD SEKOLAH
 // ============================================
 el('btnAddSekolah').onclick = () => {
-  el('modalSekolahTitle').innerHTML = `<i data-lucide="plus-circle" style="width:20px;height:20px;color:var(--brand-600);"></i> Tambah Sekolah`;
-  
+  el('modalSekolahTitle').innerHTML = '<i data-lucide="plus-circle"></i><span>Tambah Sekolah</span>';
+
   const pengawasOptions = State.pengawas
     .filter(p => p.is_active !== false)
     .map(p => `<option value="${p.nip}">${esc(p.nama_pengawas)} — ${esc(p.wilayah || '')}</option>`)
     .join('');
-  
+
   el('modalSekolahBody').innerHTML = `
     <div class="form-group">
-      <label>NPSN (8 digit)</label>
-      <input type="text" id="addSekNpsn" maxlength="8" inputmode="numeric" placeholder="20311457">
+      <label class="form-label">NPSN (8 digit) <span class="required">*</span></label>
+      <input type="text" class="form-input" id="addSekNpsn" maxlength="8" inputmode="numeric" placeholder="20311457">
     </div>
     <div class="form-group">
-      <label>Nama Sekolah</label>
-      <input type="text" id="addSekNama" placeholder="SD Negeri 1 Pule">
+      <label class="form-label">Nama Sekolah <span class="required">*</span></label>
+      <input type="text" class="form-input" id="addSekNama" placeholder="SD Negeri 1 Pule">
     </div>
     <div class="form-group">
-      <label>Assign Pengawas (opsional)</label>
-      <select id="addSekPengawas">
+      <label class="form-label">Assign Pengawas (opsional)</label>
+      <select class="form-select" id="addSekPengawas">
         <option value="">— Belum ada (PS akan klaim nanti) —</option>
         ${pengawasOptions}
       </select>
       <div class="form-hint">Kalau dipilih, admin langsung assign + konfirmasi.</div>
     </div>
   `;
-  
+
   State.editSekolah = { isNew: true };
   openModal('modalSekolah');
-  lucide.createIcons();
-  
+
   el('btnSaveSekolah').onclick = async () => {
     const npsn = el('addSekNpsn').value.trim();
     const nama = el('addSekNama').value.trim();
     const pengawas = el('addSekPengawas').value;
-    
+
     if (!npsn || !/^\d{8}$/.test(npsn)) return toast('NPSN harus 8 digit angka', 'error');
     if (!nama) return toast('Nama sekolah wajib diisi', 'error');
     if (State.sekolah.find(x => x.npsn === npsn)) return toast('NPSN sudah terdaftar', 'error');
-    
+
     loading(true);
     try {
       await Supabase.saveSekolah({
@@ -1279,37 +2195,39 @@ el('btnAddSekolah').onclick = () => {
   };
 };
 
+// ============================================
+// ADD PENGAWAS
+// ============================================
 el('btnAddPengawas').onclick = () => {
-  el('modalPengawasTitle').innerHTML = `<i data-lucide="plus-circle" style="width:20px;height:20px;color:var(--brand-600);"></i> Tambah Pengawas`;
-  
+  el('modalPengawasTitle').innerHTML = '<i data-lucide="plus-circle"></i><span>Tambah Pengawas</span>';
+
   el('modalPengawasBody').innerHTML = `
     <div class="form-group">
-      <label>NIP</label>
-      <input type="text" id="addPenNip" placeholder="197001012000031001">
+      <label class="form-label">NIP <span class="required">*</span></label>
+      <input type="text" class="form-input" id="addPenNip" placeholder="197001012000031001">
     </div>
     <div class="form-group">
-      <label>Nama Pengawas</label>
-      <input type="text" id="addPenNama" placeholder="Dr. Ahmad Suryadi, M.Pd">
+      <label class="form-label">Nama Pengawas <span class="required">*</span></label>
+      <input type="text" class="form-input" id="addPenNama" placeholder="Dr. Ahmad Suryadi, M.Pd">
     </div>
     <div class="form-group">
-      <label>Wilayah</label>
-      <input type="text" id="addPenWilayah" placeholder="Kecamatan Pule">
+      <label class="form-label">Wilayah</label>
+      <input type="text" class="form-input" id="addPenWilayah" placeholder="Kecamatan Pule">
     </div>
   `;
-  
+
   State.editPengawas = { isNew: true };
   openModal('modalPengawas');
-  lucide.createIcons();
-  
+
   el('btnSavePengawas').onclick = async () => {
     const nip = el('addPenNip').value.trim();
     const nama = el('addPenNama').value.trim();
     const wilayah = el('addPenWilayah').value.trim();
-    
+
     if (!nip) return toast('NIP wajib diisi', 'error');
     if (!nama) return toast('Nama pengawas wajib diisi', 'error');
     if (State.pengawas.find(x => x.nip === nip)) return toast('NIP sudah terdaftar', 'error');
-    
+
     loading(true);
     try {
       await Supabase.savePengawas({ nip, nama_pengawas: nama, wilayah, is_active: true });
@@ -1325,23 +2243,12 @@ el('btnAddPengawas').onclick = () => {
   };
 };
 
-// Reset state edit saat tutup modal
-document.querySelectorAll('.modal').forEach(m => {
-  m.addEventListener('click', e => {
-    if (e.target === m) {
-      m.classList.remove('show');
-      if (m.id === 'modalSekolah') State.editSekolah = null;
-      if (m.id === 'modalPengawas') State.editPengawas = null;
-    }
-  });
-});
-
-// Import CSV tetap pakai existing (placeholder)
+// Import CSV placeholders
 el('btnImportSekolah').onclick = () => toast('Fitur Import CSV sekolah — pakai admin lama atau request upgrade terpisah', 'warning');
 el('btnImportPengawas').onclick = () => toast('Fitur Import CSV pengawas — pakai admin lama atau request upgrade terpisah', 'warning');
 
 // ============================================
-// INIT
+// INIT ICONS
 // ============================================
 lucide.createIcons();
 </script>
