@@ -26,7 +26,6 @@ const App = {
   async init() {
     await Store.init();
 
-    // 1. Cek Session (Auto Login)
     const session = Auth.getSessionFor('KS');
     if (session) {
       const cfg = Store.config();
@@ -34,7 +33,6 @@ const App = {
         Store.setConfig({ ...cfg, nama_sekolah: session.nama_sekolah, npsn: session.npsn });
       }
 
-      // Cek PIN
       if (cfg.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
         PinLock.show(cfg, 'KS', () => this.boot());
         return;
@@ -42,7 +40,6 @@ const App = {
       return this.boot();
     }
 
-    // 2. Belum Login -> Tampil Layar Login NPSN
     this.showLogin();
   },
 
@@ -56,7 +53,6 @@ const App = {
         <div class="auth-brand-shape" style="width:260px;height:260px;top:-80px;right:-80px"></div>
         <div class="auth-brand-shape" style="width:130px;height:130px;bottom:15%;right:10%"></div>
         <div class="auth-brand-shape" style="width:80px;height:80px;top:45%;left:-30px"></div>
-
         <div style="display:flex;flex-direction:column;justify-content:space-between;height:100%;position:relative;z-index:2;gap:1.5rem">
           <div class="auth-brand-header">
             <div class="logo-badge">${Icons.svg('graduation-cap', 24)}</div>
@@ -65,7 +61,6 @@ const App = {
               <div class="brand-tagline">Sistem Supervisi Pendidikan Akademik</div>
             </div>
           </div>
-
           <div>
             <h1 class="auth-hero-title">
               Supervisi akademik yang<br>
@@ -76,7 +71,6 @@ const App = {
               <strong style="color:#e0e7ff">observasi pembelajaran mendalam</strong> dan
               <strong style="color:#e0e7ff">percakapan coaching-mentoring</strong>.
             </p>
-
             <div class="auth-feature-list">
               <div class="auth-feature-item">
                 <div class="auth-fi-icon">${Icons.svg('git-branch', 15)}</div>
@@ -91,13 +85,11 @@ const App = {
                 <div><strong>Analitik PM & KKA</strong><span>Prinsip · Pengalaman · 8 DPL · Koding/AI</span></div>
               </div>
             </div>
-
             <div class="auth-quote-card">
               "Supervisi akademik intinya bukan menilai kinerja guru, tetapi membantu guru untuk meningkatkan profesionalismenya."
               <span class="qa-author">— Modul 5, Supervisi Akademik (2026)</span>
             </div>
           </div>
-
           <div class="auth-brand-footer">
             <div style="display:flex;align-items:center;gap:.6rem">
               <img src="../shared/icons/wonogiri.svg" alt="Lambang Wonogiri" style="width:32px;height:32px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.25))">
@@ -110,7 +102,6 @@ const App = {
           </div>
         </div>
       </aside>
-
       <main class="auth-form-side">
         <div class="auth-form-card">
           <div class="auth-mobile-brand">
@@ -120,21 +111,17 @@ const App = {
               <div style="font-size:.7rem;color:#64748b">Kabupaten Wonogiri</div>
             </div>
           </div>
-
           <div class="auth-step-pill">Login Kepala Sekolah</div>
           <h1 class="auth-heading">Selamat datang 👋</h1>
           <p class="auth-sub">Masukkan NPSN sekolah Anda. Data profil KS akan diisi setelahnya.</p>
-
           <div class="form-group">
             <label class="label">NPSN Sekolah</label>
             <input type="text" id="loginNpsn" class="input" placeholder="Contoh: 20311457" maxlength="8" inputmode="numeric" autocomplete="off">
           </div>
-
           <button class="btn btn-primary btn-lg" style="margin-top:.75rem" id="btnLogin">
             ${Icons.svg('chevron-right', 18)}
             Lanjutkan
           </button>
-
           <div class="auth-footer-note">
             <span style="flex-shrink:0;color:#4f46e5">${Icons.svg('info', 16)}</span>
             <span>Butuh internet pada verifikasi NPSN. Setelah itu bisa offline.</span>
@@ -191,7 +178,7 @@ const App = {
         }
 
         // ============================================
-        // Lanjut login (tidak ada konflik data)
+        // Login normal (tidak ada konflik data)
         // ============================================
         Auth.saveSession({
           role: 'KS',
@@ -254,7 +241,6 @@ const App = {
           </div>
         </div>
       </aside>
-
       <main class="auth-form-side">
         <div class="auth-form-card">
           <div class="auth-mobile-brand">
@@ -267,7 +253,6 @@ const App = {
           <div class="auth-step-pill">Profil Kepala Sekolah</div>
           <h1 class="auth-heading">Lengkapi Profil</h1>
           <p class="auth-sub">Halo! Sepertinya Anda baru pertama kali masuk di perangkat ini.</p>
-
           <div class="form-group">
             <label class="label">Nama Lengkap & Gelar *</label>
             <input type="text" id="setupKs" class="input" placeholder="Dra. Siti Aminah, M.Pd">
@@ -276,7 +261,6 @@ const App = {
             <label class="label">NIP</label>
             <input type="text" id="setupNip" class="input" placeholder="NIP (Opsional)">
           </div>
-
           <button class="btn btn-primary btn-lg" style="margin-top:.75rem" id="btnSaveProfile">
             ${Icons.svg('check', 18)}
             Simpan & Masuk
@@ -296,121 +280,6 @@ const App = {
       s.style.display = 'none';
       setTimeout(() => this.boot(), 300);
     };
-  },
-
-  _showConflictModal(oldCfg, newSchoolData) {
-    const guruCount = (Store.get('guru') || []).length;
-    const supCount = (Store.get('supervisi') || []).length;
-    const akadCount = (Store.get('akademik') || []).length;
-    const coachCount = (Store.get('coaching') || []).length;
-    const progCount = (Store.get('program') || []).length;
-
-    Utils.modal('⚠️ Perangkat Sudah Punya Data', `
-      <div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1rem">
-        <div style="display:flex;gap:.75rem;align-items:flex-start">
-          <span style="color:#dc2626;flex-shrink:0">${Icons.svg('alert-triangle', 24)}</span>
-          <div style="flex:1">
-            <div style="font-weight:700;color:#991b1b;font-size:.95rem">Data Lama Akan Hilang!</div>
-            <div style="font-size:.85rem;color:#7f1d1d;margin-top:.35rem;line-height:1.6">
-              Perangkat ini <strong>sudah menyimpan data</strong> untuk sekolah lain. 
-              Jika Anda login sebagai <strong>${Utils.esc(newSchoolData.nama_sekolah)}</strong>, 
-              semua data sekolah lama akan <strong>DIHAPUS PERMANEN</strong> dan tidak bisa dipulihkan.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
-        <div style="padding:.85rem;background:#fef2f2;border-radius:8px;border:1px solid #fecaca">
-          <div style="font-size:.7rem;color:#991b1b;text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Sekolah Saat Ini</div>
-          <div style="font-weight:700;color:#991b1b;font-size:.9rem">${Utils.esc(oldCfg.nama_sekolah || '—')}</div>
-          <div style="font-size:.75rem;color:#7f1d1d;margin-top:.15rem;font-family:monospace">NPSN ${Utils.esc(oldCfg.npsn || '—')}</div>
-          <div style="font-size:.75rem;color:#991b1b;margin-top:.35rem">
-            ${guruCount} guru · ${supCount + akadCount + coachCount} sesi · ${progCount} program
-          </div>
-        </div>
-        <div style="padding:.85rem;background:var(--brand-50);border-radius:8px;border:1px solid var(--brand-500)">
-          <div style="font-size:.7rem;color:var(--brand-700);text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Akan Login Sebagai</div>
-          <div style="font-weight:700;color:var(--brand-700);font-size:.9rem">${Utils.esc(newSchoolData.nama_sekolah)}</div>
-          <div style="font-size:.75rem;color:var(--brand-600);margin-top:.15rem;font-family:monospace">NPSN ${Utils.esc(newSchoolData.npsn)}</div>
-        </div>
-      </div>
-
-      <div style="padding:.75rem;background:var(--brand-50);border-radius:8px;font-size:.8rem;color:var(--brand-700);line-height:1.6">
-        <strong>💡 Rekomendasi:</strong> Ekspor backup JSON terlebih dahulu agar data sekolah lama bisa dipulihkan jika diperlukan.
-      </div>
-    `, `
-      <button class="btn btn-secondary" id="btnConflictCancel">Batal</button>
-      <button class="btn btn-secondary" id="btnConflictExport" style="color:var(--success);border-color:var(--success)">${Icons.svg('download', 14)} Ekspor Dulu</button>
-      <button class="btn btn-danger" id="btnConflictForce">Lanjut (Timpa)</button>
-    `);
-
-    Utils.el('btnConflictCancel').onclick = () => {
-      Utils.closeModal();
-      const screen = Utils.el('setupScreen');
-      const inp = Utils.el('loginNpsn');
-      if (inp) { inp.value = ''; inp.focus(); }
-    };
-
-    Utils.el('btnConflictExport').onclick = () => {
-      // Ekspor backup
-      const data = Store.load();
-      data.version = '2.0.0';
-      data.app = 'sispa-standalone';
-      data.exported_at = new Date().toISOString();
-      
-      const sanitize = (str) => String(str || '')
-        .replace(/[\\/:*?"<>|]/g, '')
-        .replace(/\s+/g, '_')
-        .replace(/_+/g, '_')
-        .replace(/^_+|_+$/g, '')
-        .slice(0, 60);
-      const filename = `SISPA_Backup_${sanitize(oldCfg.npsn)}_${sanitize(oldCfg.nama_sekolah)}_${new Date().toISOString().slice(0,10)}.json`;
-      
-      Utils.downloadJSON(data, filename);
-      Utils.toast('Backup diekspor. Klik "Lanjut (Timpa)" untuk login.', 'success');
-      
-      // Ubah tombol Export jadi trigger lanjut (opsional)
-      Utils.el('btnConflictExport').innerHTML = `${Icons.svg('check', 14)} Backup OK`;
-      Utils.el('btnConflictExport').disabled = true;
-    };
-
-    Utils.el('btnConflictForce').onclick = () => {
-      Utils.confirm(
-        'Yakin Timpa Data?',
-        `Semua data ${oldCfg.nama_sekolah} (${guruCount} guru, ${supCount + akadCount + coachCount} sesi) akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`,
-        () => {
-          this._wipeAndLogin(newSchoolData);
-        }
-      );
-    };
-  },
-
-  async _wipeAndLogin(newSchoolData) {
-    // Wipe semua data supervisi, KEEP session (session akan di-overwrite)
-    await Store.reset();  // Reset ke state kosong
-    
-    // Login sebagai sekolah baru
-    Auth.saveSession({
-      role: 'KS',
-      npsn: newSchoolData.npsn,
-      nama_sekolah: newSchoolData.nama_sekolah,
-      logged_in_at: new Date().toISOString()
-    });
-
-    Store.setConfig({
-      nama_sekolah: newSchoolData.nama_sekolah,
-      npsn: newSchoolData.npsn,
-      nama_ks: '',
-      nip_ks: '',
-      pin: ''
-    });
-
-    Utils.closeModal();
-    Utils.toast(`Data lama dihapus. Login sebagai ${newSchoolData.nama_sekolah}.`, 'success');
-    
-    // Buka profile setup (karena config fresh = tanpa nama_ks)
-    setTimeout(() => this.showProfileSetup(), 300);
   },
 
   boot() {
@@ -474,13 +343,13 @@ const App = {
 
   logout() {
     Utils.confirm('Keluar Aplikasi?', 'Anda akan keluar dari sesi ini. Data supervisi dan profil KS tetap tersimpan di perangkat ini.', () => {
-      Auth.logout();
+      Auth.logout('KS');
       location.reload();
     });
   },
 
   // ============================================
-  // CEK PENGAWAS — Fitur Klaim Pengawas
+  // CEK PENGAWAS
   // ============================================
   async cekpengawas() {
     const cfg = Store.config();
@@ -494,57 +363,30 @@ const App = {
     try {
       const klaim = await Supabase.getKlaimByNpsn(cfg.npsn);
 
-      // Case 1: Belum ada pengawas
       if (!klaim || !klaim.pengawas_nip) {
-        Store.setConfig({
-          ...cfg,
-          pengawas_nip: null,
-          pengawas_nama: null,
-          pengawas_wilayah: null,
-          pengawas_status: null,
-          pengawas_last_check: new Date().toISOString()
-        });
+        Store.setConfig({ ...cfg, pengawas_nip: null, pengawas_nama: null, pengawas_wilayah: null, pengawas_status: null, pengawas_last_check: new Date().toISOString() });
         Utils.toast('Belum ada pengawas yang mengklaim sekolah Anda', 'info');
         Router.navigate('dashboard');
         return;
       }
 
-      // Case 2: Status pending → tampil modal konfirmasi
       if (klaim.pengawas_status === 'pending') {
         App._showKonfirmasiPengawas(klaim);
         return;
       }
 
-      // Case 3: Status confirmed
       if (klaim.pengawas_status === 'confirmed') {
-        // Cek apakah sama dengan data lokal
         if (cfg.pengawas_nip === klaim.pengawas_nip) {
-          Store.setConfig({
-            ...cfg,
-            pengawas_nip: klaim.pengawas_nip,
-            pengawas_nama: klaim.pengawas_nama,
-            pengawas_wilayah: klaim.pengawas_wilayah,
-            pengawas_status: 'confirmed',
-            pengawas_last_check: new Date().toISOString()
-          });
+          Store.setConfig({ ...cfg, pengawas_nip: klaim.pengawas_nip, pengawas_nama: klaim.pengawas_nama, pengawas_wilayah: klaim.pengawas_wilayah, pengawas_status: 'confirmed', pengawas_last_check: new Date().toISOString() });
           Utils.toast('Pengawas sudah terkonfirmasi', 'success');
           Router.navigate('dashboard');
         } else {
-          // Ada pengawas baru dari Dinas → tampil modal perubahan
           App._showPerubahanPengawas(klaim, cfg);
         }
         return;
       }
 
-      // Case 4: Status 'rejected' atau aneh → anggap belum ada
-      Store.setConfig({
-        ...cfg,
-        pengawas_nip: null,
-        pengawas_nama: null,
-        pengawas_wilayah: null,
-        pengawas_status: null,
-        pengawas_last_check: new Date().toISOString()
-      });
+      Store.setConfig({ ...cfg, pengawas_nip: null, pengawas_nama: null, pengawas_wilayah: null, pengawas_status: null, pengawas_last_check: new Date().toISOString() });
       Utils.toast('Belum ada pengawas aktif', 'info');
       Router.navigate('dashboard');
     } catch (err) {
@@ -557,23 +399,15 @@ const App = {
   _showKonfirmasiPengawas(klaim) {
     Utils.modal('Konfirmasi Pengawas', `
       <div style="text-align:center;padding:1rem 0 1.5rem">
-        <div style="width:72px;height:72px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-          ${Icons.svg('user-check', 36)}
-        </div>
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">${Icons.svg('user-check', 36)}</div>
         <div style="font-size:1.1rem;font-weight:700;color:var(--slate-900)">${Utils.esc(klaim.pengawas_nama || 'Pengawas')}</div>
         <div style="font-size:.85rem;color:var(--slate-600);margin-top:.35rem">${Utils.esc(klaim.pengawas_wilayah || '—')}</div>
         <div style="font-size:.8rem;color:var(--slate-500);font-family:monospace;margin-top:.25rem">NIP: ${Utils.esc(klaim.pengawas_nip)}</div>
       </div>
-      <div style="padding:1rem;background:var(--brand-50);border-radius:8px;font-size:.85rem;color:var(--brand-700);line-height:1.6;margin-bottom:1rem">
-        Pengawas ini telah mengklaim sebagai pembina sekolah Anda. Konfirmasi jika benar.
-      </div>
+      <div style="padding:1rem;background:var(--brand-50);border-radius:8px;font-size:.85rem;color:var(--brand-700);line-height:1.6;margin-bottom:1rem">Pengawas ini telah mengklaim sebagai pembina sekolah Anda. Konfirmasi jika benar.</div>
       <div style="display:flex;gap:.5rem">
-        <button class="btn btn-danger" id="btnTolakKlaim" style="flex:1">
-          ${Icons.svg('x', 16)} Tolak
-        </button>
-        <button class="btn btn-primary" id="btnKonfirmasiKlaim" style="flex:1">
-          ${Icons.svg('check', 16)} Konfirmasi
-        </button>
+        <button class="btn btn-danger" id="btnTolakKlaim" style="flex:1">${Icons.svg('x', 16)} Tolak</button>
+        <button class="btn btn-primary" id="btnKonfirmasiKlaim" style="flex:1">${Icons.svg('check', 16)} Konfirmasi</button>
       </div>
     `, '');
 
@@ -581,49 +415,28 @@ const App = {
       try {
         await Supabase.konfirmasiKlaim(klaim.npsn);
         const cfg = Store.config();
-        Store.setConfig({
-          ...cfg,
-          pengawas_nip: klaim.pengawas_nip,
-          pengawas_nama: klaim.pengawas_nama,
-          pengawas_wilayah: klaim.pengawas_wilayah,
-          pengawas_status: 'confirmed',
-          pengawas_last_check: new Date().toISOString()
-        });
+        Store.setConfig({ ...cfg, pengawas_nip: klaim.pengawas_nip, pengawas_nama: klaim.pengawas_nama, pengawas_wilayah: klaim.pengawas_wilayah, pengawas_status: 'confirmed', pengawas_last_check: new Date().toISOString() });
         Utils.closeModal();
         Utils.toast('Pengawas terkonfirmasi', 'success');
         Router.navigate('dashboard');
-      } catch (err) {
-        Utils.toast('Gagal konfirmasi: ' + err.message, 'error');
-      }
+      } catch (err) { Utils.toast('Gagal konfirmasi: ' + err.message, 'error'); }
     };
 
     Utils.el('btnTolakKlaim').onclick = async () => {
       try {
         await Supabase.tolakKlaim(klaim.npsn);
         const cfg = Store.config();
-        Store.setConfig({
-          ...cfg,
-          pengawas_nip: null,
-          pengawas_nama: null,
-          pengawas_wilayah: null,
-          pengawas_status: null,
-          pengawas_last_check: new Date().toISOString()
-        });
+        Store.setConfig({ ...cfg, pengawas_nip: null, pengawas_nama: null, pengawas_wilayah: null, pengawas_status: null, pengawas_last_check: new Date().toISOString() });
         Utils.closeModal();
         Utils.toast('Klaim pengawas ditolak', 'info');
         Router.navigate('dashboard');
-      } catch (err) {
-        Utils.toast('Gagal tolak: ' + err.message, 'error');
-      }
+      } catch (err) { Utils.toast('Gagal tolak: ' + err.message, 'error'); }
     };
   },
 
   _showPerubahanPengawas(klaim, cfgLama) {
     Utils.modal('Pengawas Pembina Berubah', `
-      <div style="padding:1rem;background:#fef3c7;border-radius:8px;margin-bottom:1rem;font-size:.85rem;color:#92400e;line-height:1.6">
-        <strong>Perubahan terdeteksi:</strong> Dinas telah mengganti pengawas pembina Anda. Konfirmasi pengawas baru untuk melanjutkan.
-      </div>
-
+      <div style="padding:1rem;background:#fef3c7;border-radius:8px;margin-bottom:1rem;font-size:.85rem;color:#92400e;line-height:1.6"><strong>Perubahan terdeteksi:</strong> Dinas telah mengganti pengawas pembina Anda. Konfirmasi pengawas baru untuk melanjutkan.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
         <div style="padding:.85rem;background:var(--slate-50);border-radius:8px">
           <div style="font-size:.7rem;color:var(--slate-500);text-transform:uppercase;font-weight:600;margin-bottom:.35rem">Sebelumnya</div>
@@ -636,33 +449,116 @@ const App = {
           <div style="font-size:.75rem;color:var(--brand-600);margin-top:.15rem">${Utils.esc(klaim.pengawas_wilayah || '')}</div>
         </div>
       </div>
-
       <div style="display:flex;gap:.5rem">
         <button class="btn btn-secondary" onclick="Utils.closeModal()" style="flex:1">Batal</button>
-        <button class="btn btn-primary" id="btnKonfirmasiBaru" style="flex:1">
-          ${Icons.svg('check', 16)} Konfirmasi PS Baru
-        </button>
+        <button class="btn btn-primary" id="btnKonfirmasiBaru" style="flex:1">${Icons.svg('check', 16)} Konfirmasi PS Baru</button>
       </div>
     `, '');
 
     Utils.el('btnKonfirmasiBaru').onclick = async () => {
       try {
         await Supabase.konfirmasiKlaim(klaim.npsn);
-        Store.setConfig({
-          ...cfgLama,
-          pengawas_nip: klaim.pengawas_nip,
-          pengawas_nama: klaim.pengawas_nama,
-          pengawas_wilayah: klaim.pengawas_wilayah,
-          pengawas_status: 'confirmed',
-          pengawas_last_check: new Date().toISOString()
-        });
+        Store.setConfig({ ...cfgLama, pengawas_nip: klaim.pengawas_nip, pengawas_nama: klaim.pengawas_nama, pengawas_wilayah: klaim.pengawas_wilayah, pengawas_status: 'confirmed', pengawas_last_check: new Date().toISOString() });
         Utils.closeModal();
         Utils.toast('Pengawas baru dikonfirmasi', 'success');
         Router.navigate('dashboard');
-      } catch (err) {
-        Utils.toast('Gagal: ' + err.message, 'error');
-      }
+      } catch (err) { Utils.toast('Gagal: ' + err.message, 'error'); }
     };
+  },
+
+  // ============================================
+  // CONFLICT HANDLER — Device Sharing Protection
+  // ============================================
+  _showConflictModal(oldCfg, newSchoolData) {
+    const guruCount = (Store.get('guru') || []).length;
+    const supCount = (Store.get('supervisi') || []).length;
+    const akadCount = (Store.get('akademik') || []).length;
+    const coachCount = (Store.get('coaching') || []).length;
+    const progCount = (Store.get('program') || []).length;
+
+    Utils.modal('⚠️ Perangkat Sudah Punya Data', `
+      <div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1rem">
+        <div style="display:flex;gap:.75rem;align-items:flex-start">
+          <span style="color:#dc2626;flex-shrink:0">${Icons.svg('alert-triangle', 24)}</span>
+          <div style="flex:1">
+            <div style="font-weight:700;color:#991b1b;font-size:.95rem">Data Lama Akan Hilang!</div>
+            <div style="font-size:.85rem;color:#7f1d1d;margin-top:.35rem;line-height:1.6">
+              Perangkat ini <strong>sudah menyimpan data</strong> untuk sekolah lain. 
+              Jika Anda login sebagai <strong>${Utils.esc(newSchoolData.nama_sekolah)}</strong>, 
+              semua data sekolah lama akan <strong>DIHAPUS PERMANEN</strong> dan tidak bisa dipulihkan.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+        <div style="padding:.85rem;background:#fef2f2;border-radius:8px;border:1px solid #fecaca">
+          <div style="font-size:.7rem;color:#991b1b;text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Sekolah Saat Ini</div>
+          <div style="font-weight:700;color:#991b1b;font-size:.9rem">${Utils.esc(oldCfg.nama_sekolah || '—')}</div>
+          <div style="font-size:.75rem;color:#7f1d1d;margin-top:.15rem;font-family:monospace">NPSN ${Utils.esc(oldCfg.npsn || '—')}</div>
+          <div style="font-size:.75rem;color:#991b1b;margin-top:.35rem">${guruCount} guru · ${supCount + akadCount + coachCount} sesi · ${progCount} program</div>
+        </div>
+        <div style="padding:.85rem;background:var(--brand-50);border-radius:8px;border:1px solid var(--brand-500)">
+          <div style="font-size:.7rem;color:var(--brand-700);text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Akan Login Sebagai</div>
+          <div style="font-weight:700;color:var(--brand-700);font-size:.9rem">${Utils.esc(newSchoolData.nama_sekolah)}</div>
+          <div style="font-size:.75rem;color:var(--brand-600);margin-top:.15rem;font-family:monospace">NPSN ${Utils.esc(newSchoolData.npsn)}</div>
+        </div>
+      </div>
+      <div style="padding:.75rem;background:var(--brand-50);border-radius:8px;font-size:.8rem;color:var(--brand-700);line-height:1.6">
+        <strong>💡 Rekomendasi:</strong> Ekspor backup JSON terlebih dahulu agar data sekolah lama bisa dipulihkan jika diperlukan.
+      </div>
+    `, `
+      <button class="btn btn-secondary" id="btnConflictCancel">Batal</button>
+      <button class="btn btn-secondary" id="btnConflictExport" style="color:var(--success);border-color:var(--success)">${Icons.svg('download', 14)} Ekspor Dulu</button>
+      <button class="btn btn-danger" id="btnConflictForce">Lanjut (Timpa)</button>
+    `);
+
+    Utils.el('btnConflictCancel').onclick = () => {
+      Utils.closeModal();
+      const inp = Utils.el('loginNpsn');
+      if (inp) { inp.value = ''; inp.focus(); }
+    };
+
+    Utils.el('btnConflictExport').onclick = () => {
+      const data = Store.load();
+      data.version = '2.0.0';
+      data.app = 'sispa-standalone';
+      data.exported_at = new Date().toISOString();
+      const sanitize = (str) => String(str || '').replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60);
+      const filename = `SISPA_Backup_${sanitize(oldCfg.npsn)}_${sanitize(oldCfg.nama_sekolah)}_${new Date().toISOString().slice(0,10)}.json`;
+      Utils.downloadJSON(data, filename);
+      Utils.toast('Backup diekspor. Klik "Lanjut (Timpa)" untuk login.', 'success');
+      Utils.el('btnConflictExport').innerHTML = `${Icons.svg('check', 14)} Backup OK`;
+      Utils.el('btnConflictExport').disabled = true;
+    };
+
+    Utils.el('btnConflictForce').onclick = () => {
+      Utils.confirm('Yakin Timpa Data?', `Semua data ${oldCfg.nama_sekolah} (${guruCount} guru, ${supCount + akadCount + coachCount} sesi) akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`, () => {
+        this._wipeAndLogin(newSchoolData);
+      });
+    };
+  },
+
+  async _wipeAndLogin(newSchoolData) {
+    await Store.reset();
+
+    Auth.saveSession({
+      role: 'KS',
+      npsn: newSchoolData.npsn,
+      nama_sekolah: newSchoolData.nama_sekolah,
+      logged_in_at: new Date().toISOString()
+    });
+
+    Store.setConfig({
+      nama_sekolah: newSchoolData.nama_sekolah,
+      npsn: newSchoolData.npsn,
+      nama_ks: '',
+      nip_ks: '',
+      pin: ''
+    });
+
+    Utils.closeModal();
+    Utils.toast(`Data lama dihapus. Login sebagai ${newSchoolData.nama_sekolah}.`, 'success');
+    setTimeout(() => this.showProfileSetup(), 300);
   }
 };
 
