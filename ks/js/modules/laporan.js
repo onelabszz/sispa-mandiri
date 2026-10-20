@@ -23,6 +23,7 @@ export const Laporan = {
           <h2>Laporan & Riwayat</h2>
           <div class="page-sub">${all.length} sesi total</div>
         </div>
+        ${all.length > 0 ? `<button class="btn btn-primary" onclick="Laporan.printRekapSemester()">${Icons.svg('printer', 16)} Cetak Rekap Semester</button>` : ''}
       </div>
 
       ${all.length === 0 ? `<div class="card"><div class="card-body">
@@ -60,7 +61,10 @@ export const Laporan = {
   },
 
   async bind() {
-    if (Store.get('guru').length === 0 && Store.get('supervisi').length === 0 && Store.get('akademik').length === 0 && Store.get('coaching').length === 0) return;
+    const hasData = Store.get('supervisi').length > 0
+      || Store.get('akademik').length > 0
+      || Store.get('coaching').length > 0;
+    if (!hasData) return;
 
     this._draw();
 
@@ -162,5 +166,124 @@ export const Laporan = {
         });
       };
     });
+  },
+
+  printRekapSemester() {
+    const c = Store.config();
+    const guru = Store.get('guru');
+    const sup = Store.get('supervisi');
+    const akad = Store.get('akademik');
+    const coach = Store.get('coaching');
+
+    // Auto-detect periode aktif
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    const periode = m >= 7 ? `${y}/${y+1} Ganjil` : `${y-1}/${y} Genap`;
+
+    // Filter sesi dalam 6 bulan terakhir (auto detect semester)
+    const cutOff = new Date();
+    cutOff.setMonth(cutOff.getMonth() - 6);
+    const cutoffISO = cutOff.toISOString().slice(0, 10);
+
+    const supFiltered = sup.filter(s => (s.tgl || '') >= cutoffISO);
+    const akadFiltered = akad.filter(s => (s.tgl || '') >= cutoffISO);
+    const coachFiltered = coach.filter(s => (s.tgl || '') >= cutoffISO);
+
+    const totalSesi = supFiltered.length + akadFiltered.length + coachFiltered.length;
+
+    // Statistik
+    const guruIdsSup = new Set(supFiltered.map(s => s.gid));
+    const guruIdsAkad = new Set(akadFiltered.map(s => s.gid));
+    const guruIdsCoach = new Set(coachFiltered.map(s => s.gid));
+    const guruCovered = new Set([...guruIdsSup, ...guruIdsAkad, ...guruIdsCoach]);
+    const coverage = guru.length > 0 ? Math.round(guruCovered.size / guru.length * 100) : 0;
+
+    // Distribusi tipe
+    const tipeDist = { Dropout: 0, Unfocused: 0, Analytical: 0, Professional: 0 };
+    guru.forEach(g => { if (g.tipe && tipeDist[g.tipe] !== undefined) tipeDist[g.tipe]++; });
+
+    // Rata-rata skor
+    const avgAkad = akadFiltered.length > 0
+      ? (akadFiltered.reduce((s, x) => s + (x.skor || 0), 0) / akadFiltered.length).toFixed(1)
+      : '—';
+    const avgCoach = coachFiltered.length > 0
+      ? (coachFiltered.reduce((s, x) => s + (x.skor || 0), 0) / coachFiltered.length).toFixed(1)
+      : '—';
+
+    // Tabel per guru
+    const guruRows = guru.map((g, i) => {
+      const s3 = supFiltered.filter(s => s.gid === g.id).length;
+      const sA = akadFiltered.filter(s => s.gid === g.id).length;
+      const sC = coachFiltered.filter(s => s.gid === g.id).length;
+      return `<tr>
+        <td style="text-align:center">${i+1}</td>
+        <td>${Utils.esc(g.nama)}</td>
+        <td style="font-size:8.5pt">${Utils.esc(g.mapel || '-')}</td>
+        <td style="text-align:center;font-size:8.5pt">${g.tipe || '—'}</td>
+        <td style="text-align:center">${s3}</td>
+        <td style="text-align:center">${sA}</td>
+        <td style="text-align:center">${sC}</td>
+      </tr>`;
+    }).join('');
+
+    Utils.el('printArea').innerHTML = `
+      <h1>REKAP SUPERVISI SEMESTER</h1>
+      <p class="sub">${Utils.esc(c.nama_sekolah)} — NPSN ${Utils.esc(c.npsn || '-')}<br>Periode: ${periode}</p>
+      <table class="info">
+        <tr><td>Kepala Sekolah</td><td>:</td><td><strong>${Utils.esc(c.nama_ks || '-')}</strong></td></tr>
+        <tr><td>NIP</td><td>:</td><td>${Utils.esc(c.nip_ks || '-')}</td></tr>
+        <tr><td>Tanggal Cetak</td><td>:</td><td>${new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'})}</td></tr>
+      </table>
+
+      <h2>Ringkasan</h2>
+      <table class="info">
+        <tr><td>Total Guru</td><td>:</td><td><strong>${guru.length}</strong></td></tr>
+        <tr><td>Total Sesi Supervisi</td><td>:</td><td><strong>${totalSesi}</strong> (3T: ${supFiltered.length}, Akademik: ${akadFiltered.length}, Coaching: ${coachFiltered.length})</td></tr>
+        <tr><td>Coverage (Guru Tersentuh)</td><td>:</td><td><strong>${guruCovered.size}/${guru.length} (${coverage}%)</strong></td></tr>
+        <tr><td>Rata-rata Skor Akademik</td><td>:</td><td>${avgAkad} / 76</td></tr>
+        <tr><td>Rata-rata Skor Coaching</td><td>:</td><td>${avgCoach} / 32</td></tr>
+      </table>
+
+      <h2>Distribusi Tipe Guru (Glickman)</h2>
+      <table class="ind">
+        <thead><tr>
+          <th style="text-align:center">Dropout</th>
+          <th style="text-align:center">Unfocused</th>
+          <th style="text-align:center">Analytical</th>
+          <th style="text-align:center">Professional</th>
+          <th style="text-align:center">Belum Dinilai</th>
+        </tr></thead>
+        <tbody><tr>
+          <td style="text-align:center">${tipeDist.Dropout}</td>
+          <td style="text-align:center">${tipeDist.Unfocused}</td>
+          <td style="text-align:center">${tipeDist.Analytical}</td>
+          <td style="text-align:center">${tipeDist.Professional}</td>
+          <td style="text-align:center">${guru.length - (tipeDist.Dropout+tipeDist.Unfocused+tipeDist.Analytical+tipeDist.Professional)}</td>
+        </tr></tbody>
+      </table>
+
+      <h2>Rekap per Guru</h2>
+      <table class="ind">
+        <thead><tr>
+          <th style="text-align:center;width:30px">#</th>
+          <th>Nama Guru</th>
+          <th>Mapel</th>
+          <th style="text-align:center">Tipe</th>
+          <th style="text-align:center">3T</th>
+          <th style="text-align:center">Akad</th>
+          <th style="text-align:center">Coach</th>
+        </tr></thead>
+        <tbody>${guruRows || '<tr><td colspan="7" style="text-align:center">Belum ada data guru</td></tr>'}</tbody>
+      </table>
+
+      <div class="ttd-grid">
+        <div class="ttd-box"><div>Mengetahui,<br>Pengawas Pembina</div><div class="ttd-space"></div><div class="ttd-name">(...................................)</div></div>
+        <div class="ttd-box"><div>${new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'})}<br>Kepala Sekolah</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(c.nama_ks || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(c.nip_ks || '...')}</div></div>
+      </div>`;
+    setTimeout(() => window.print(), 200);
   }
 };
+
+// Expose ke window untuk onclick inline
+if (typeof window !== 'undefined') window.Laporan = Laporan;
