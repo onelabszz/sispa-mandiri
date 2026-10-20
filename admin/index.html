@@ -5,104 +5,291 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Admin Panel — SISPA Mandiri</title>
 <link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
-<!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
   :root {
-    --brand-50: #eef2ff; --brand-100: #e0e7ff; --brand-500: #6366f1;
-    --brand-600: #4f46e5; --brand-700: #4338ca;
-    --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
-    --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b;
-    --slate-700: #334155; --slate-900: #0f172a;
-    --success: #16a34a; --danger: #dc2626; --warning: #f59e0b;
+    --brand-50:#eef2ff; --brand-100:#e0e7ff; --brand-500:#6366f1;
+    --brand-600:#4f46e5; --brand-700:#4338ca;
+    --slate-50:#f8fafc; --slate-100:#f1f5f9; --slate-200:#e2e8f0;
+    --slate-300:#cbd5e1; --slate-400:#94a3b8; --slate-500:#64748b;
+    --slate-600:#475569; --slate-700:#334155; --slate-900:#0f172a;
+    --success:#16a34a; --danger:#dc2626; --warning:#f59e0b; --info:#0ea5e9;
   }
-  * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
-  body { margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; height: 100vh; overflow: hidden; }
-  svg { display: inline-block; vertical-align: middle; }
+  * { box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  body { margin:0; background:var(--slate-50); color:var(--slate-900); display:flex; height:100vh; overflow:hidden; }
+  svg { display:inline-block; vertical-align:middle; }
 
-  /* ============ SIDEBAR ============ */
-  .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--slate-200); display: flex; flex-direction: column; z-index: 10; }
-  .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; gap: .75rem; }
-  .sidebar-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--brand-500), var(--brand-700)); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(79,70,229,.3); }
-  .nav-item { padding: .85rem 1.5rem; display: flex; align-items: center; gap: .75rem; cursor: pointer; color: var(--slate-500); font-weight: 500; font-size: .9rem; transition: all .15s; border-left: 3px solid transparent; text-decoration: none; }
-  .nav-item:hover { background: var(--slate-50); color: var(--slate-900); }
-  .nav-item.active { background: var(--brand-50); color: var(--brand-700); border-left-color: var(--brand-600); font-weight: 600; }
-  
-  /* ============ MAIN CONTENT ============ */
-  .main-content { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; position: relative; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-  .header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--slate-900); }
-  .header p { margin: .25rem 0 0; color: var(--slate-500); font-size: .9rem; }
-  
-  /* ============ STAT CARDS ============ */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
-  .stat-card { background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid var(--slate-200); box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: center; gap: 1.25rem; }
-  .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .stat-title { font-size: .8rem; color: var(--slate-500); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
-  .stat-value { font-size: 1.8rem; font-weight: 800; margin-top: .25rem; color: var(--slate-900); line-height: 1; }
+  /* LOGIN */
+  .login-screen {
+    position:fixed; inset:0; background:var(--slate-50);
+    display:flex; align-items:center; justify-content:center; z-index:9999;
+  }
+  .login-card {
+    background:#fff; padding:2.5rem; border-radius:20px;
+    box-shadow:0 20px 40px -10px rgba(0,0,0,.1);
+    width:100%; max-width:400px; text-align:center;
+  }
+  .login-icon {
+    width:64px; height:64px; background:var(--brand-50); color:var(--brand-600);
+    border-radius:16px; display:flex; align-items:center; justify-content:center;
+    margin:0 auto 1.5rem;
+  }
+  .login-card h2 { margin:0 0 .5rem; font-size:1.4rem; }
+  .login-card p { color:var(--slate-500); font-size:.85rem; margin-bottom:1.5rem; }
+  .login-card input {
+    width:100%; padding:.75rem; border:1px solid var(--slate-300);
+    border-radius:10px; font-size:.9rem; text-align:center;
+    margin-bottom:1rem; outline:none; transition:border .15s;
+  }
+  .login-card input:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+  .login-card button {
+    width:100%; padding:.75rem; background:var(--brand-600); color:#fff;
+    border:none; border-radius:10px; font-weight:600; font-size:.9rem;
+    cursor:pointer; transition:background .15s;
+  }
+  .login-card button:hover { background:var(--brand-700); }
 
-  /* ============ TABLE ============ */
-  .card { background: #fff; border-radius: 16px; border: 1px solid var(--slate-200); box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; margin-bottom: 2rem; }
-  .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; background: #fff; }
-  .card-header h3 { margin: 0; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; }
-  table { width: 100%; border-collapse: collapse; text-align: left; }
-  th { background: var(--slate-50); padding: .85rem 1.5rem; font-size: .75rem; color: var(--slate-500); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; border-bottom: 1px solid var(--slate-200); }
-  td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-100); font-size: .875rem; color: var(--slate-700); vertical-align: middle; }
-  tbody tr:hover { background: var(--slate-50); }
-  tbody tr:last-child td { border-bottom: none; }
-  
-  /* ============ BUTTONS & BADGES ============ */
-  .btn { padding: .5rem .9rem; border-radius: 8px; border: 1px solid transparent; cursor: pointer; font-weight: 600; font-size: .8rem; transition: all .15s; display: inline-flex; align-items: center; gap: .4rem; font-family: inherit; }
-  .btn-primary { background: var(--brand-600); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
-  .btn-primary:hover { background: var(--brand-700); }
-  .btn-danger { background: #fff; color: var(--danger); border-color: #fecaca; }
-  .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
-  .btn-secondary { background: #fff; color: var(--slate-700); border-color: var(--slate-300); }
-  .btn-secondary:hover { background: var(--slate-50); }
-  .btn-sm { padding: .35rem .6rem; font-size: .75rem; }
-  .btn-icon { padding: .4rem; border-radius: 6px; }
-  
-  .badge { padding: .25rem .6rem; border-radius: 999px; font-size: .7rem; font-weight: 700; display: inline-flex; align-items: center; gap: .25rem; }
-  .badge-active { background: #dcfce7; color: var(--success); }
-  .badge-suspend { background: #fee2e2; color: var(--danger); }
+  /* SIDEBAR */
+  .sidebar {
+    width:260px; background:#fff; border-right:1px solid var(--slate-200);
+    display:flex; flex-direction:column; z-index:10;
+  }
+  .sidebar-brand {
+    padding:1.5rem; border-bottom:1px solid var(--slate-200);
+    display:flex; align-items:center; gap:.75rem;
+  }
+  .sidebar-logo {
+    width:40px; height:40px; background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    color:#fff; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 6px -1px rgba(79,70,229,.3);
+  }
+  .nav-item {
+    padding:.85rem 1.5rem; display:flex; align-items:center; gap:.75rem;
+    cursor:pointer; color:var(--slate-500); font-weight:500; font-size:.9rem;
+    transition:all .15s; border-left:3px solid transparent;
+  }
+  .nav-item:hover { background:var(--slate-50); color:var(--slate-900); }
+  .nav-item.active {
+    background:var(--brand-50); color:var(--brand-700);
+    border-left-color:var(--brand-600); font-weight:600;
+  }
+  .sidebar-footer { padding:1.5rem; border-top:1px solid var(--slate-200); margin-top:auto; }
 
-  /* ============ MODAL & TOAST ============ */
-  .modal { position: fixed; inset: 0; background: rgba(15,23,42,.4); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); }
-  .modal.show { display: flex; animation: fadeIn .2s; }
-  .modal-content { background: #fff; padding: 1.75rem; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 20px 40px -10px rgba(0,0,0,.15); animation: slideUp .2s; }
-  .input { width: 100%; padding: .65rem .85rem; border: 1px solid var(--slate-300); border-radius: 8px; font-size: .9rem; outline: none; margin-bottom: 1rem; transition: border .15s; }
-  .input:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
-  .label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: .4rem; color: var(--slate-700); }
-  
-  #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--slate-900); color: #fff; padding: .75rem 1rem; border-radius: 8px; font-size: .85rem; display: flex; align-items: center; gap: .5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,.3); z-index: 999; opacity: 0; transform: translateY(10px); transition: all .2s; pointer-events: none; }
-  #toast.show { opacity: 1; transform: translateY(0); }
-  #toast.error { background: var(--danger); }
-  #toast.success { background: var(--success); }
+  /* MAIN */
+  .main-content { flex:1; overflow-y:auto; padding:2rem 2.5rem; }
+  .page-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+  .page-head h1 { margin:0; font-size:1.5rem; font-weight:700; }
+  .page-head p { margin:.25rem 0 0; color:var(--slate-500); font-size:.9rem; }
 
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  /* STAT CARDS */
+  .stats-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:1rem; margin-bottom:1.5rem;
+  }
+  .stat-card {
+    background:#fff; padding:1.25rem; border-radius:14px;
+    border:1px solid var(--slate-200); box-shadow:0 1px 3px rgba(0,0,0,.04);
+    display:flex; align-items:center; gap:1rem; transition:all .15s;
+  }
+  .stat-card:hover { box-shadow:0 4px 12px -2px rgba(0,0,0,.08); transform:translateY(-1px); }
+  .stat-icon {
+    width:48px; height:48px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .stat-label { font-size:.75rem; color:var(--slate-500); text-transform:uppercase; letter-spacing:.03em; font-weight:600; }
+  .stat-value { font-size:1.75rem; font-weight:800; margin-top:.25rem; line-height:1; }
 
-  /* Loading State */
-  .loading-overlay { position: absolute; inset: 0; background: rgba(248,250,252,.8); backdrop-filter: blur(2px); display: none; align-items: center; justify-content: center; z-index: 50; }
-  .loading-overlay.show { display: flex; }
-  .spinner { animation: spin 1s linear infinite; color: var(--brand-600); }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
+  /* WARNINGS */
+  .warning-card {
+    background:#fff; border:1px solid var(--slate-200); border-radius:14px;
+    padding:1rem 1.25rem; margin-bottom:1rem; display:flex; gap:.75rem; align-items:flex-start;
+  }
+  .warning-card.warn { border-left:3px solid var(--warning); }
+  .warning-card.info { border-left:3px solid var(--info); }
+
+  /* TOOLBAR */
+  .toolbar {
+    background:#fff; padding:1rem 1.25rem; border-radius:14px;
+    border:1px solid var(--slate-200); margin-bottom:1rem;
+    display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+  }
+  .toolbar-filters { display:flex; gap:.5rem; flex-wrap:wrap; flex:1; min-width:0; }
+  .toolbar-filters input,
+  .toolbar-filters select {
+    padding:.55rem .85rem; border:1px solid var(--slate-300); border-radius:8px;
+    font-size:.85rem; outline:none; transition:border .15s; font-family:inherit;
+  }
+  .toolbar-filters input:focus,
+  .toolbar-filters select:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+  .toolbar-filters input { min-width:220px; flex:1; }
+  .toolbar-actions { display:flex; gap:.5rem; flex-wrap:wrap; }
+
+  /* BUTTONS */
+  .btn {
+    padding:.55rem 1rem; border-radius:8px; border:1px solid transparent;
+    font-weight:600; font-size:.8rem; cursor:pointer; transition:all .15s;
+    display:inline-flex; align-items:center; gap:.4rem; font-family:inherit;
+  }
+  .btn-primary { background:var(--brand-600); color:#fff; }
+  .btn-primary:hover { background:var(--brand-700); }
+  .btn-secondary { background:#fff; color:var(--slate-700); border-color:var(--slate-300); }
+  .btn-secondary:hover { background:var(--slate-50); }
+  .btn-danger { background:#fff; color:var(--danger); border-color:#fecaca; }
+  .btn-danger:hover { background:#fef2f2; }
+  .btn-ghost { background:transparent; color:var(--slate-500); border-color:transparent; }
+  .btn-ghost:hover { background:var(--slate-100); color:var(--slate-900); }
+  .btn-sm { padding:.3rem .6rem; font-size:.72rem; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+
+  /* TABLE */
+  .table-card {
+    background:#fff; border-radius:14px; border:1px solid var(--slate-200);
+    overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.04);
+  }
+  table { width:100%; border-collapse:collapse; text-align:left; }
+  thead th {
+    background:var(--slate-50); padding:.75rem 1rem;
+    font-size:.72rem; color:var(--slate-500); text-transform:uppercase;
+    letter-spacing:.03em; font-weight:600; border-bottom:1px solid var(--slate-200);
+  }
+  tbody td {
+    padding:.85rem 1rem; border-bottom:1px solid var(--slate-100);
+    font-size:.85rem; color:var(--slate-700); vertical-align:middle;
+  }
+  tbody tr:hover { background:var(--slate-50); }
+  tbody tr:last-child td { border-bottom:none; }
+  .mono { font-family:'SF Mono', Monaco, monospace; }
+
+  /* BADGES */
+  .badge {
+    padding:.25rem .6rem; border-radius:999px; font-size:.7rem;
+    font-weight:600; display:inline-flex; align-items:center; gap:.25rem;
+  }
+  .badge-success { background:#dcfce7; color:var(--success); }
+  .badge-warning { background:#fef3c7; color:#92400e; }
+  .badge-danger { background:#fee2e2; color:var(--danger); }
+  .badge-info { background:#dbeafe; color:#1e40af; }
+  .badge-neutral { background:var(--slate-100); color:var(--slate-500); }
+
+  /* PAGINATION */
+  .pagination {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:.85rem 1.25rem; background:var(--slate-50);
+    border-top:1px solid var(--slate-200); font-size:.8rem;
+  }
+
+  /* MODAL */
+  .modal {
+    position:fixed; inset:0; background:rgba(15,23,42,.5);
+    backdrop-filter:blur(4px); display:none; align-items:center;
+    justify-content:center; z-index:1000; padding:1rem;
+  }
+  .modal.show { display:flex; }
+  .modal-panel {
+    background:#fff; border-radius:16px; width:100%; max-width:520px;
+    box-shadow:0 20px 40px -10px rgba(0,0,0,.2);
+    max-height:90vh; display:flex; flex-direction:column;
+    animation:slideUp .2s;
+  }
+  .modal-panel.wide { max-width:720px; }
+  @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+  .modal-head {
+    padding:1.25rem 1.5rem; border-bottom:1px solid var(--slate-200);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .modal-head h3 { margin:0; font-size:1.1rem; }
+  .modal-body { padding:1.5rem; overflow-y:auto; flex:1; }
+  .modal-foot {
+    padding:1rem 1.5rem; border-top:1px solid var(--slate-200);
+    background:var(--slate-50); display:flex; justify-content:flex-end; gap:.5rem;
+    border-radius:0 0 16px 16px;
+  }
+
+  /* FORM */
+  .form-group { margin-bottom:1rem; }
+  .form-group label {
+    display:block; font-size:.8rem; font-weight:600;
+    color:var(--slate-700); margin-bottom:.4rem;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width:100%; padding:.65rem .85rem; border:1px solid var(--slate-300);
+    border-radius:8px; font-size:.9rem; outline:none; font-family:inherit;
+    transition:border .15s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color:var(--brand-500); box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+  .form-group input:disabled { background:var(--slate-100); color:var(--slate-500); }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+  .form-hint { font-size:.75rem; color:var(--slate-500); margin-top:.25rem; }
+  .checkbox-label {
+    display:flex; align-items:center; gap:.5rem;
+    padding:.6rem; background:var(--slate-50); border-radius:8px;
+    font-size:.85rem; cursor:pointer;
+  }
+
+  /* RESET WARNING */
+  .warning-box {
+    padding:.85rem 1rem; border-radius:8px; font-size:.85rem;
+    line-height:1.6; margin-bottom:1rem;
+  }
+  .warning-box.danger { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+  .warning-box.warn { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+
+  /* TOAST */
+  #toast {
+    position:fixed; bottom:1.5rem; right:1.5rem; background:var(--slate-900);
+    color:#fff; padding:.75rem 1rem; border-radius:8px; font-size:.85rem;
+    display:flex; align-items:center; gap:.5rem; box-shadow:0 10px 25px -5px rgba(0,0,0,.3);
+    z-index:9999; opacity:0; transform:translateY(10px);
+    transition:all .2s; pointer-events:none; max-width:400px;
+  }
+  #toast.show { opacity:1; transform:translateY(0); }
+  #toast.success { background:var(--success); }
+  #toast.error { background:var(--danger); }
+  #toast.warning { background:var(--warning); }
+
+  /* LOADING */
+  .loading-overlay {
+    position:fixed; inset:0; background:rgba(248,250,252,.8);
+    backdrop-filter:blur(2px); display:none;
+    align-items:center; justify-content:center; z-index:5000;
+  }
+  .loading-overlay.show { display:flex; }
+  .spinner { animation:spin 1s linear infinite; color:var(--brand-600); }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* EMPTY STATE */
+  .empty-row {
+    padding:3rem 1rem; text-align:center; color:var(--slate-400); font-size:.85rem;
+  }
+
+  @media (max-width:768px) {
+    body { flex-direction:column; height:auto; overflow:auto; }
+    .sidebar { width:100%; flex-direction:row; overflow-x:auto; padding:0; }
+    .sidebar-brand { display:none; }
+    .nav-item { padding:.75rem 1rem; white-space:nowrap; border-left:none; border-bottom:3px solid transparent; }
+    .nav-item.active { border-left:none; border-bottom-color:var(--brand-600); }
+    .sidebar-footer { display:none; }
+    .main-content { padding:1rem; }
+    .toolbar { flex-direction:column; align-items:stretch; }
+    .toolbar-filters { flex-direction:column; }
+    .toolbar-filters input { min-width:0; }
+  }
 </style>
 </head>
 <body>
 
-<!-- LOGIN ADMIN -->
-<div id="loginScreen" style="position:fixed;inset:0;background:var(--slate-50);display:flex;align-items:center;justify-content:center;z-index:999;">
-  <div style="background:#fff;padding:2.5rem;border-radius:20px;box-shadow:0 20px 40px -10px rgba(0,0,0,.1);width:100%;max-width:380px;text-align:center">
-    <div style="width:60px;height:60px;background:var(--brand-50);color:var(--brand-600);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
-      <i data-lucide="shield-check" style="width:32px;height:32px;"></i>
-    </div>
-    <h2 style="margin:0 0 .5rem;font-size:1.4rem;">Admin Panel</h2>
-    <p style="color:var(--slate-500);font-size:.85rem;margin-bottom:1.5rem">SISPA Mandiri — Kabupaten Wonogiri</p>
-    <form id="loginForm" onsubmit="event.preventDefault(); loginAdmin();">
-      <input type="password" id="adminKey" class="input" placeholder="Masukkan Kunci Admin" style="text-align:center" autofocus>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem">Masuk ke Panel</button>
-    </form>
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-icon"><i data-lucide="shield-check" style="width:32px;height:32px;"></i></div>
+    <h2>Admin Panel</h2>
+    <p>SISPA Mandiri — Kabupaten Wonogiri</p>
+    <input type="password" id="adminKey" placeholder="Masukkan Kunci Admin" autofocus>
+    <button id="btnLogin">Masuk ke Panel</button>
   </div>
 </div>
 
@@ -115,13 +302,17 @@
       <div style="font-size:.7rem;color:var(--slate-500);">Kab. Wonogiri</div>
     </div>
   </div>
-  <div style="flex:1; padding-top:1rem;">
-    <a class="nav-item active" onclick="switchTab('dashboard')" id="navDash"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i> Dashboard</a>
-    <a class="nav-item" onclick="switchTab('sekolah')" id="navSek"><i data-lucide="school" style="width:18px;height:18px;"></i> Data Sekolah</a>
-    <a class="nav-item" onclick="switchTab('pengawas')" id="navPen"><i data-lucide="users" style="width:18px;height:18px;"></i> Data Pengawas</a>
-  </div>
-  <div style="padding:1.5rem;border-top:1px solid var(--slate-200);">
-    <button class="btn btn-secondary" style="width:100%;justify-content:center;color:var(--danger);border-color:#fecaca;" onclick="logoutAdmin()">
+  <a class="nav-item active" data-tab="dashboard" id="navDash">
+    <i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i> Dashboard
+  </a>
+  <a class="nav-item" data-tab="sekolah" id="navSek">
+    <i data-lucide="school" style="width:18px;height:18px;"></i> Data Sekolah
+  </a>
+  <a class="nav-item" data-tab="pengawas" id="navPen">
+    <i data-lucide="users" style="width:18px;height:18px;"></i> Data Pengawas
+  </a>
+  <div class="sidebar-footer">
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;color:var(--danger);border-color:#fecaca;" id="btnLogout">
       <i data-lucide="log-out" style="width:16px;height:16px;"></i> Keluar
     </button>
   </div>
@@ -129,426 +320,1014 @@
 
 <!-- MAIN CONTENT -->
 <main class="main-content">
-  <div class="loading-overlay" id="loadingOverlay">
-    <i data-lucide="loader-2" class="spinner" style="width:32px;height:32px;"></i>
-  </div>
-
-  <div class="header">
+  <div class="page-head">
     <div>
       <h1 id="pageTitle">Dashboard</h1>
-      <p id="pageSub">Ringkasan data akun SISPA Mandiri</p>
+      <p id="pageSub">Ringkasan data akun & klaim SISPA Mandiri</p>
     </div>
-    <div id="headerAction"></div>
   </div>
 
-  <!-- VIEW: DASHBOARD -->
+  <!-- DASHBOARD VIEW -->
   <div id="viewDashboard">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon" style="background:#e0e7ff;color:#4338ca"><i data-lucide="school" style="width:24px;height:24px;"></i></div>
-        <div>
-          <div class="stat-title">Total Sekolah</div>
-          <div class="stat-value" id="statSekolah">0</div>
-        </div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div id="warningsBox"></div>
+    <div class="table-card">
+      <div style="padding:1.25rem;">
+        <h3 style="margin:0 0 .75rem;font-size:.95rem;font-weight:700;">
+          <i data-lucide="info" style="width:16px;height:16px;color:var(--brand-600);"></i>
+          Cara Kerja Klaim Pengawas
+        </h3>
+        <ol style="margin:0;padding-left:1.25rem;font-size:.85rem;color:var(--slate-600);line-height:1.7;">
+          <li><strong>Pengawas</strong> klaim sekolah via aplikasi PS → status otomatis <span class="badge badge-warning" style="font-size:.65rem;">Pending</span></li>
+          <li><strong>Kepala Sekolah</strong> buka aplikasi KS → klik "Cek Pengawas" → konfirmasi/tolak</li>
+          <li>Jika <strong>diterima</strong> → status <span class="badge badge-success" style="font-size:.65rem;">Terkonfirmasi</span></li>
+          <li>Jika ada konflik/masalah → <strong>Admin</strong> bisa override via Edit Sekolah</li>
+          <li>Gunakan tombol <strong>Reset Klaim</strong> jika klaim deadlock / salah</li>
+        </ol>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:#dcfce7;color:#166534"><i data-lucide="users" style="width:24px;height:24px;"></i></div>
-        <div>
-          <div class="stat-title">Total Pengawas</div>
-          <div class="stat-value" id="statPengawas">0</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background:#fef3c7;color:#92400e"><i data-lucide="activity" style="width:24px;height:24px;"></i></div>
-        <div>
-          <div class="stat-title">Akun Aktif</div>
-          <div class="stat-value" id="statAktif">0</div>
-        </div>
-      </div>
-    </div>
-    <div class="card" style="padding:3rem 2rem;text-align:center;color:var(--slate-500)">
-      <i data-lucide="layout-dashboard" style="width:48px;height:48px;color:var(--slate-300);margin-bottom:1rem;"></i>
-      <h3 style="margin:0 0 .5rem;color:var(--slate-700)">Selamat Datang di Panel Admin</h3>
-      <p style="margin:0;font-size:.9rem;">Gunakan menu di sebelah kiri untuk mengelola data Sekolah (KS) dan Pengawas (PS).</p>
     </div>
   </div>
 
-  <!-- VIEW: SEKOLAH -->
+  <!-- SEKOLAH VIEW -->
   <div id="viewSekolah" style="display:none">
-    <div class="card">
-      <div class="card-header">
-        <h3><i data-lucide="school" style="width:18px;height:18px;color:var(--brand-600)"></i> Daftar Sekolah</h3>
-        <div style="display:flex;gap:.5rem">
-          <button class="btn btn-secondary" onclick="openImportModal('sekolah')"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
-          <button class="btn btn-primary" onclick="openModalSekolah()"><i data-lucide="plus" style="width:16px;height:16px;"></i> Tambah Sekolah</button>
-        </div>
+    <div class="toolbar">
+      <div class="toolbar-filters">
+        <input id="searchSekolah" placeholder="🔍 Cari NPSN / Nama Sekolah / Pengawas...">
+        <select id="filterKlaim">
+          <option value="">Semua Klaim</option>
+          <option value="confirmed">✓ Terkonfirmasi</option>
+          <option value="pending">⏳ Pending</option>
+          <option value="none">— Belum Ada</option>
+        </select>
+        <select id="filterPengawasSek"><option value="">Semua Pengawas</option></select>
       </div>
+      <div class="toolbar-actions">
+        <button class="btn btn-secondary" id="btnImportSekolah"><i data-lucide="upload" style="width:14px;height:14px;"></i> Import CSV</button>
+        <button class="btn btn-primary" id="btnAddSekolah"><i data-lucide="plus" style="width:14px;height:14px;"></i> Tambah Sekolah</button>
+      </div>
+    </div>
+    <div class="table-card">
       <table>
-        <thead><tr><th>NPSN</th><th>Nama Sekolah</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+        <thead><tr>
+          <th>NPSN</th>
+          <th>Nama Sekolah</th>
+          <th>Pengawas Pembina</th>
+          <th style="text-align:center">Klaim</th>
+          <th style="text-align:center">Status</th>
+          <th style="text-align:right">Aksi</th>
+        </tr></thead>
         <tbody id="tbodySekolah"></tbody>
       </table>
+      <div id="paginationSekolah"></div>
     </div>
   </div>
 
-  <!-- VIEW: PENGAWAS -->
+  <!-- PENGAWAS VIEW -->
   <div id="viewPengawas" style="display:none">
-    <div class="card">
-      <div class="card-header">
-        <h3><i data-lucide="users" style="width:18px;height:18px;color:var(--brand-600)"></i> Daftar Pengawas</h3>
-        <div style="display:flex;gap:.5rem">
-          <button class="btn btn-secondary" onclick="openImportModal('pengawas')"><i data-lucide="upload" style="width:16px;height:16px;"></i> Import CSV</button>
-          <button class="btn btn-primary" onclick="openModalPengawas()"><i data-lucide="plus" style="width:16px;height:16px;"></i> Tambah Pengawas</button>
-        </div>
+    <div class="toolbar">
+      <div class="toolbar-filters">
+        <input id="searchPengawas" placeholder="🔍 Cari NIP / Nama / Wilayah...">
+        <select id="sortPengawas">
+          <option value="nama">Urut: Nama A-Z</option>
+          <option value="binaan">Urut: Binaan Terbanyak</option>
+          <option value="binaan_asc">Urut: Binaan Sedikit</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--slate-700);cursor:pointer;padding:.55rem .85rem;background:#fff;border:1px solid var(--slate-300);border-radius:8px;">
+          <input type="checkbox" id="filterBelumBinaan" style="margin:0;"> Hanya Belum Punya Binaan
+        </label>
       </div>
+      <div class="toolbar-actions">
+        <button class="btn btn-secondary" id="btnImportPengawas"><i data-lucide="upload" style="width:14px;height:14px;"></i> Import CSV</button>
+        <button class="btn btn-primary" id="btnAddPengawas"><i data-lucide="plus" style="width:14px;height:14px;"></i> Tambah Pengawas</button>
+      </div>
+    </div>
+    <div class="table-card">
       <table>
-        <thead><tr><th>NIP</th><th>Nama Pengawas</th><th>Wilayah</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+        <thead><tr>
+          <th>NIP</th>
+          <th>Nama Pengawas</th>
+          <th>Wilayah</th>
+          <th style="text-align:center">Binaan</th>
+          <th style="text-align:center">Status</th>
+          <th style="text-align:right">Aksi</th>
+        </tr></thead>
         <tbody id="tbodyPengawas"></tbody>
       </table>
     </div>
   </div>
 </main>
 
-<!-- MODAL FORM -->
-<div class="modal" id="formModal">
-  <div class="modal-content">
-    <h3 id="modalTitle" style="margin:0 0 1.5rem;display:flex;align-items:center;gap:.5rem;">Form Data</h3>
-    <div id="modalFields"></div>
-    <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem">
-      <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
-      <button class="btn btn-primary" onclick="saveData()">Simpan Data</button>
+<!-- MODAL: SEKOLAH -->
+<div class="modal" id="modalSekolah">
+  <div class="modal-panel wide">
+    <div class="modal-head">
+      <h3 id="modalSekolahTitle">Data Sekolah</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalSekolah')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    </div>
+    <div class="modal-body" id="modalSekolahBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modalSekolah')">Batal</button>
+      <button class="btn btn-primary" id="btnSaveSekolah"><i data-lucide="save" style="width:14px;height:14px;"></i> Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL IMPORT CSV -->
-<div class="modal" id="importModal">
-  <div class="modal-content" style="max-width:500px;">
-    <h3 style="margin:0 0 1rem;display:flex;align-items:center;gap:.5rem;" id="importTitle">
-      <i data-lucide="file-spreadsheet" style="width:20px;height:20px;color:var(--brand-600)"></i> Import Data
-    </h3>
-    
-    <div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
-      <div style="font-weight:600;font-size:.85rem;margin-bottom:.5rem;color:var(--slate-900)">Langkah 1: Download Template</div>
-      <p style="font-size:.8rem;color:var(--slate-600);margin:0 0 .75rem;">Gunakan template ini agar format kolom sesuai dengan sistem.</p>
-      <button class="btn btn-secondary btn-sm" id="btnDownloadTemplate" style="width:100%;justify-content:center;">
-        <i data-lucide="download" style="width:14px;height:14px;"></i> Download Template CSV
-      </button>
+<!-- MODAL: PENGAWAS -->
+<div class="modal" id="modalPengawas">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h3 id="modalPengawasTitle">Data Pengawas</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalPengawas')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
     </div>
-
-    <div style="margin-bottom:1.5rem;">
-      <div style="font-weight:600;font-size:.85rem;margin-bottom:.5rem;color:var(--slate-900)">Langkah 2: Upload File</div>
-      <input type="file" id="importFileInput" accept=".csv" class="input" style="padding:.5rem;">
-    </div>
-
-    <div style="display:flex;gap:.5rem;justify-content:flex-end;">
-      <button class="btn btn-secondary" onclick="document.getElementById('importModal').classList.remove('show')">Batal</button>
-      <button class="btn btn-primary" id="btnProcessImport" onclick="processImportData()">Mulai Import</button>
+    <div class="modal-body" id="modalPengawasBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modalPengawas')">Batal</button>
+      <button class="btn btn-primary" id="btnSavePengawas"><i data-lucide="save" style="width:14px;height:14px;"></i> Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div id="toast"><span id="toastMsg"></span></div>
+<!-- MODAL: RESET KLAIM -->
+<div class="modal" id="modalReset">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h3 style="color:var(--danger);"><i data-lucide="alert-triangle" style="width:20px;height:20px;"></i> Reset Klaim Pengawas</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalReset')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="warning-box danger">
+        <strong>⚠️ Tindakan Destruktif</strong><br>
+        Reset ini akan <strong>menghapus pengawas pembina</strong> dari sekolah ini. KS akan melihat "belum ada pengawas". PS lama kehilangan akses (data lokal PS tetap aman).
+      </div>
+      <div class="form-group">
+        <label>Ketik <code style="background:var(--slate-200);padding:.15rem .35rem;border-radius:4px;font-family:monospace;">RESET</code> untuk konfirmasi:</label>
+        <input type="text" id="resetConfirmInput" placeholder="Ketik RESET" autocomplete="off" style="font-family:monospace;text-align:center;font-size:1rem;letter-spacing:.2em;">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modalReset')">Batal</button>
+      <button class="btn btn-danger" id="btnDoReset" disabled>Reset Klaim</button>
+    </div>
+  </div>
+</div>
 
+<!-- MODAL: CONFIRM ASSIGN -->
+<div class="modal" id="modalConfirmAssign">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h3><i data-lucide="alert-circle" style="width:20px;height:20px;color:var(--warning);"></i> Ganti Pengawas?</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modalConfirmAssign')"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    </div>
+    <div class="modal-body" id="confirmAssignBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('modalConfirmAssign')">Batal</button>
+      <button class="btn btn-primary" id="btnConfirmAssign">Ya, Ganti Pengawas</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST & LOADING -->
+<div id="toast"></div>
+<div class="loading-overlay" id="loading"><i data-lucide="loader-2" class="spinner" style="width:40px;height:40px;"></i></div>
+
+<!-- IMPORTS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
-  import { Supabase } from '../shared/js/supabase.js';
+import { Supabase } from '../shared/js/supabase.js';
 
-  const ADMIN_KEY = 'admin123'; // GANTI KUNCI INI
-  let currentTab = 'dashboard';
-  let currentFormType = '';
-  let editMode = false;
-  let dataSekolah = [];
-  let dataPengawas = [];
+const ADMIN_KEY = 'admin123';
 
-  // Inisialisasi Lucide Icons
+// ============================================
+// STATE
+// ============================================
+const State = {
+  sekolah: [],
+  pengawas: [],
+  pengawasByNip: {},
+  binaanCount: {},
+  filter: {
+    sekolah: { q: '', klaim: '', pengawas: '' },
+    pengawas: { q: '', onlyEmpty: false, sort: 'nama' }
+  },
+  pagination: { sekolah: 1, perPage: 50 },
+  editSekolah: null,
+  editPengawas: null,
+  resetNpsn: null,
+  pendingAssign: null
+};
+
+// ============================================
+// UTILS
+// ============================================
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast = (msg, type = '') => {
+  const t = el('toast');
+  t.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : type === 'warning' ? 'alert-triangle' : 'info'}" style="width:18px;height:18px;"></i><span>${esc(msg)}</span>`;
+  t.className = `show ${type}`;
   lucide.createIcons();
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => { t.className = ''; }, 3000);
+};
+const loading = (show) => el('loading').classList.toggle('show', show);
+const openModal = (id) => el(id).classList.add('show');
+const closeModal = (id) => el(id).classList.remove('show');
+const relDate = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const diff = Date.now() - d.getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Hari ini';
+  if (days === 1) return 'Kemarin';
+  if (days < 30) return `${days} hari lalu`;
+  if (days < 365) return `${Math.floor(days/30)} bulan lalu`;
+  return `${Math.floor(days/365)} tahun lalu`;
+};
 
-  // Helper Toast
-  window.showToast = (msg, type = '') => {
-    const t = document.getElementById('toast');
-    document.getElementById('toastMsg').textContent = msg;
-    t.className = `show ${type}`;
-    setTimeout(() => { t.className = ''; }, 3000);
-  };
+window.openModal = openModal;
+window.closeModal = closeModal;
 
-  window.loginAdmin = () => {
-    if (document.getElementById('adminKey').value === ADMIN_KEY) {
-      document.getElementById('loginScreen').style.display = 'none';
-      loadData();
-    } else {
-      showToast('Kunci Admin salah!', 'error');
-    }
-  };
-
-  window.logoutAdmin = () => location.reload();
-
-  window.switchTab = (tab) => {
-    currentTab = tab;
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    // Perbaikan mapping ID yang benar
-    const navMap = { dashboard: 'navDash', sekolah: 'navSek', pengawas: 'navPen' };
-    document.getElementById(navMap[tab]).classList.add('active');
-    
-    const titles = {
-      dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun SISPA Mandiri' },
-      sekolah: { title: 'Manajemen Sekolah', sub: 'Kelola akun Kepala Sekolah (KS)' },
-      pengawas: { title: 'Manajemen Pengawas', sub: 'Kelola akun Pengawas Sekolah (PS)' }
-    };
-    document.getElementById('pageTitle').textContent = titles[tab].title;
-    document.getElementById('pageSub').textContent = titles[tab].sub;
-    
-    document.getElementById('viewDashboard').style.display = tab === 'dashboard' ? 'block' : 'none';
-    document.getElementById('viewSekolah').style.display = tab === 'sekolah' ? 'block' : 'none';
-    document.getElementById('viewPengawas').style.display = tab === 'pengawas' ? 'block' : 'none';
-  };
-
-  async function loadData() {
-    const overlay = document.getElementById('loadingOverlay');
-    overlay.classList.add('show');
-    try {
-      dataSekolah = await Supabase.getAllSekolah();
-      dataPengawas = await Supabase.getAllPengawas();
-      
-      // Update Stats
-      const totalAktif = dataSekolah.filter(s => s.is_active).length + dataPengawas.filter(p => p.is_active).length;
-      document.getElementById('statSekolah').textContent = dataSekolah.length;
-      document.getElementById('statPengawas').textContent = dataPengawas.length;
-      document.getElementById('statAktif').textContent = totalAktif;
-
-      // Render Tabel Sekolah
-      const tbodySek = document.getElementById('tbodySekolah');
-      if (dataSekolah.length === 0) {
-        tbodySek.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--slate-400)">Belum ada data sekolah.</td></tr>`;
-      } else {
-        tbodySek.innerHTML = dataSekolah.map(s => `
-          <tr>
-            <td style="font-family:monospace;font-weight:600;">${s.npsn}</td>
-            <td style="font-weight:600;color:var(--slate-900)">${s.nama_sekolah}</td>
-            <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-suspend'}">
-              <i data-lucide="${s.is_active ? 'check-circle' : 'x-circle'}" style="width:12px;height:12px;"></i>
-              ${s.is_active ? 'Aktif' : 'Suspend'}
-            </span></td>
-            <td style="text-align:right;white-space:nowrap;">
-              <button class="btn btn-secondary btn-sm" onclick="toggleStatus('sekolah','${s.npsn}',${s.is_active})" title="${s.is_active ? 'Suspend' : 'Aktifkan'}">
-                <i data-lucide="power" style="width:14px;height:14px;color:${s.is_active ? 'var(--danger)' : 'var(--success)'}"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm" onclick="openModalSekolah('${s.npsn}')" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
-              <button class="btn btn-danger btn-sm" onclick="deleteData('sekolah','${s.npsn}')" title="Hapus"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
-            </td>
-          </tr>
-        `).join('');
-      }
-
-      // Render Tabel Pengawas
-      const tbodyPen = document.getElementById('tbodyPengawas');
-      if (dataPengawas.length === 0) {
-        tbodyPen.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--slate-400)">Belum ada data pengawas.</td></tr>`;
-      } else {
-        tbodyPen.innerHTML = dataPengawas.map(p => `
-          <tr>
-            <td style="font-family:monospace;font-weight:600;">${p.nip}</td>
-            <td style="font-weight:600;color:var(--slate-900)">${p.nama_pengawas}</td>
-            <td>${p.wilayah || '-'}</td>
-            <td><span class="badge ${p.is_active ? 'badge-active' : 'badge-suspend'}">
-              <i data-lucide="${p.is_active ? 'check-circle' : 'x-circle'}" style="width:12px;height:12px;"></i>
-              ${p.is_active ? 'Aktif' : 'Suspend'}
-            </span></td>
-            <td style="text-align:right;white-space:nowrap;">
-              <button class="btn btn-secondary btn-sm" onclick="toggleStatus('pengawas','${p.nip}',${p.is_active})" title="${p.is_active ? 'Suspend' : 'Aktifkan'}">
-                <i data-lucide="power" style="width:14px;height:14px;color:${p.is_active ? 'var(--danger)' : 'var(--success)'}"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm" onclick="openModalPengawas('${p.nip}')" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
-              <button class="btn btn-danger btn-sm" onclick="deleteData('pengawas','${p.nip}')" title="Hapus"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
-            </td>
-          </tr>
-        `).join('');
-      }
-      
-      lucide.createIcons(); // Re-render ikon setelah innerHTML diubah
-    } catch (err) {
-      console.error(err);
-      showToast('Gagal memuat data: ' + err.message, 'error');
-    } finally {
-      overlay.classList.remove('show');
-    }
+// ============================================
+// INIT
+// ============================================
+el('btnLogin').onclick = () => {
+  if (el('adminKey').value === ADMIN_KEY) {
+    el('loginScreen').style.display = 'none';
+    loadData();
+  } else {
+    toast('Kunci Admin salah!', 'error');
   }
+};
+el('adminKey').addEventListener('keydown', e => { if (e.key === 'Enter') el('btnLogin').click(); });
 
-  window.toggleStatus = async (type, id, currentStatus) => {
-    if (!confirm(`Yakin ingin ${currentStatus ? 'men-suspend' : 'mengaktifkan'} akun ini?`)) return;
-    try {
-      if (type === 'sekolah') await Supabase.toggleSekolah(id, !currentStatus);
-      else await Supabase.togglePengawas(id, !currentStatus);
-      showToast('Status berhasil diubah', 'success');
-      loadData();
-    } catch(err) { showToast(err.message, 'error'); }
+el('btnLogout').onclick = () => location.reload();
+
+document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+  item.onclick = () => switchTab(item.dataset.tab);
+});
+
+function switchTab(tab) {
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  el('nav' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  
+  const titles = {
+    dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun & klaim SISPA Mandiri' },
+    sekolah: { title: 'Data Sekolah', sub: `${State.sekolah.length} sekolah terdaftar` },
+    pengawas: { title: 'Data Pengawas', sub: `${State.pengawas.length} pengawas terdaftar` }
   };
+  el('pageTitle').textContent = titles[tab].title;
+  el('pageSub').textContent = titles[tab].sub;
+  
+  el('viewDashboard').style.display = tab === 'dashboard' ? 'block' : 'none';
+  el('viewSekolah').style.display = tab === 'sekolah' ? 'block' : 'none';
+  el('viewPengawas').style.display = tab === 'pengawas' ? 'block' : 'none';
+}
 
-  window.openModalSekolah = (npsn = null) => {
-    currentFormType = 'sekolah';
-    editMode = !!npsn;
-    const s = editMode ? dataSekolah.find(x => x.npsn === npsn) : { npsn: '', nama_sekolah: '' };
-    document.getElementById('modalTitle').innerHTML = `<i data-lucide="${editMode ? 'edit-3' : 'plus-circle'}" style="width:20px;height:20px;color:var(--brand-600)"></i> ${editMode ? 'Edit Sekolah' : 'Tambah Sekolah'}`;
-    document.getElementById('modalFields').innerHTML = `
-      <label class="label">NPSN (8 Digit)</label>
-      <input type="text" id="fNpsn" class="input" value="${s.npsn}" ${editMode ? 'disabled style="background:var(--slate-100);"' : ''}>
-      <label class="label">Nama Sekolah</label>
-      <input type="text" id="fNama" class="input" value="${s.nama_sekolah}">
+// ============================================
+// LOAD DATA
+// ============================================
+async function loadData() {
+  loading(true);
+  try {
+    const [sekolahList, pengawasList] = await Promise.all([
+      Supabase.getAllSekolah(),
+      Supabase.getAllPengawas()
+    ]);
+    
+    State.sekolah = sekolahList || [];
+    State.pengawas = pengawasList || [];
+    State.pengawasByNip = {};
+    State.pengawas.forEach(p => State.pengawasByNip[p.nip] = p);
+    
+    // Build binaan count
+    State.binaanCount = {};
+    State.sekolah.forEach(sk => {
+      if (sk.pengawas_nip) {
+        State.binaanCount[sk.pengawas_nip] = (State.binaanCount[sk.pengawas_nip] || 0) + 1;
+      }
+    });
+    
+    renderDashboard();
+    renderSekolahTable();
+    renderPengawasTable();
+    populatePengawasFilter();
+    lucide.createIcons();
+  } catch (err) {
+    console.error(err);
+    toast('Gagal memuat data: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+}
+
+function populatePengawasFilter() {
+  const sel = el('filterPengawasSek');
+  sel.innerHTML = '<option value="">Semua Pengawas</option>' +
+    State.pengawas.map(p => `<option value="${p.nip}">${esc(p.nama_pengawas)}</option>`).join('');
+}
+
+// ============================================
+// RENDER: DASHBOARD
+// ============================================
+function renderDashboard() {
+  const total = State.sekolah.length;
+  const pengawasCount = State.pengawas.length;
+  const confirmed = State.sekolah.filter(s => s.pengawas_status === 'confirmed').length;
+  const belumAda = State.sekolah.filter(s => !s.pengawas_nip).length;
+  const pending = State.sekolah.filter(s => s.pengawas_status === 'pending').length;
+  const pengawasKosong = State.pengawas.filter(p => !State.binaanCount[p.nip]).length;
+  
+  el('statsGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--brand-100);color:var(--brand-700);">
+        <i data-lucide="school" style="width:24px;height:24px;"></i>
+      </div>
+      <div>
+        <div class="stat-label">Sekolah</div>
+        <div class="stat-value">${total}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#dcfce7;color:#166534;">
+        <i data-lucide="users" style="width:24px;height:24px;"></i>
+      </div>
+      <div>
+        <div class="stat-label">Pengawas</div>
+        <div class="stat-value">${pengawasCount}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#d1fae5;color:var(--success);">
+        <i data-lucide="check-circle" style="width:24px;height:24px;"></i>
+      </div>
+      <div>
+        <div class="stat-label">Terkonfirmasi</div>
+        <div class="stat-value">${confirmed}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fef3c7;color:#92400e;">
+        <i data-lucide="clock" style="width:24px;height:24px;"></i>
+      </div>
+      <div>
+        <div class="stat-label">Pending Klaim</div>
+        <div class="stat-value">${pending}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fee2e2;color:var(--danger);">
+        <i data-lucide="user-x" style="width:24px;height:24px;"></i>
+      </div>
+      <div>
+        <div class="stat-label">Belum Ada PS</div>
+        <div class="stat-value">${belumAda}</div>
+      </div>
+    </div>
+  `;
+  
+  const warnings = [];
+  if (belumAda > 0) {
+    warnings.push({
+      type: 'warn', icon: 'user-x',
+      text: `<strong>${belumAda} sekolah</strong> belum punya pengawas pembina. Klaim atau assign manual via Edit Sekolah.`,
+      action: () => { State.filter.sekolah.klaim = 'none'; el('filterKlaim').value = 'none'; State.pagination.sekolah = 1; switchTab('sekolah'); renderSekolahTable(); }
+    });
+  }
+  if (pending > 0) {
+    warnings.push({
+      type: 'warn', icon: 'clock',
+      text: `<strong>${pending} klaim</strong> menunggu konfirmasi KS. Pastikan KS sudah buka aplikasi.`,
+      action: () => { State.filter.sekolah.klaim = 'pending'; el('filterKlaim').value = 'pending'; State.pagination.sekolah = 1; switchTab('sekolah'); renderSekolahTable(); }
+    });
+  }
+  if (pengawasKosong > 0) {
+    warnings.push({
+      type: 'warn', icon: 'alert-triangle',
+      text: `<strong>${pengawasKosong} pengawas</strong> belum punya binaan. Assign sekolah ke mereka atau cek wilayah.`,
+      action: () => { State.filter.pengawas.onlyEmpty = true; el('filterBelumBinaan').checked = true; switchTab('pengawas'); renderPengawasTable(); }
+    });
+  }
+  if (warnings.length === 0) {
+    warnings.push({ type: 'info', icon: 'check-circle', text: 'Semua data dalam kondisi sehat. Tidak ada peringatan.' });
+  }
+  
+  el('warningsBox').innerHTML = warnings.map((w, i) => `
+    <div class="warning-card ${w.type}">
+      <i data-lucide="${w.icon}" style="width:20px;height:20px;flex-shrink:0;color:var(--${w.type === 'warn' ? 'warning' : 'info'});"></i>
+      <div style="flex:1;font-size:.85rem;line-height:1.6;">${w.text}</div>
+      ${w.action ? `<button class="btn btn-secondary btn-sm" data-warn-action="${i}">Lihat →</button>` : ''}
+    </div>
+  `).join('');
+  
+  el('warningsBox').querySelectorAll('[data-warn-action]').forEach(btn => {
+    const idx = parseInt(btn.dataset.warnAction);
+    btn.onclick = warnings[idx].action;
+  });
+}
+
+// ============================================
+// RENDER: SEKOLAH TABLE
+// ============================================
+function renderSekolahTable() {
+  const f = State.filter.sekolah;
+  let list = State.sekolah.slice();
+  
+  if (f.q) {
+    const q = f.q.toLowerCase();
+    list = list.filter(s => 
+      (s.npsn || '').toLowerCase().includes(q) ||
+      (s.nama_sekolah || '').toLowerCase().includes(q) ||
+      (State.pengawasByNip[s.pengawas_nip]?.nama_pengawas || '').toLowerCase().includes(q)
+    );
+  }
+  if (f.klaim === 'confirmed') list = list.filter(s => s.pengawas_status === 'confirmed');
+  else if (f.klaim === 'pending') list = list.filter(s => s.pengawas_status === 'pending');
+  else if (f.klaim === 'none') list = list.filter(s => !s.pengawas_nip);
+  
+  if (f.pengawas) list = list.filter(s => s.pengawas_nip === f.pengawas);
+  
+  const totalPages = Math.ceil(list.length / State.pagination.perPage) || 1;
+  if (State.pagination.sekolah > totalPages) State.pagination.sekolah = totalPages;
+  const start = (State.pagination.sekolah - 1) * State.pagination.perPage;
+  const paged = list.slice(start, start + State.pagination.perPage);
+  
+  el('pageSub').textContent = `${list.length} sekolah ${f.q || f.klaim || f.pengawas ? '(terfilter)' : ''}`;
+  
+  if (paged.length === 0) {
+    el('tbodySekolah').innerHTML = `<tr><td colspan="6"><div class="empty-row">Tidak ada sekolah yang cocok dengan filter</div></td></tr>`;
+    el('paginationSekolah').innerHTML = '';
+    return;
+  }
+  
+  el('tbodySekolah').innerHTML = paged.map(sk => {
+    const pg = State.pengawasByNip[sk.pengawas_nip];
+    const statusBadge = (() => {
+      if (!sk.pengawas_nip) return `<span class="badge badge-neutral">— Belum</span>`;
+      if (sk.pengawas_status === 'confirmed') return `<span class="badge badge-success">✓ Terkonfirmasi</span>`;
+      if (sk.pengawas_status === 'pending') return `<span class="badge badge-warning">⏳ Pending</span>`;
+      if (sk.pengawas_status === 'rejected') return `<span class="badge badge-danger">✕ Ditolak</span>`;
+      return `<span class="badge badge-neutral">—</span>`;
+    })();
+    const aktifBadge = sk.is_active === false
+      ? `<span class="badge badge-danger">Suspend</span>`
+      : `<span class="badge badge-success">Aktif</span>`;
+    
+    return `<tr>
+      <td class="mono" style="font-weight:600;">${esc(sk.npsn)}</td>
+      <td style="font-weight:600;">${esc(sk.nama_sekolah)}</td>
+      <td>${pg ? `<div style="font-weight:500;">${esc(pg.nama_pengawas)}</div><div style="font-size:.72rem;color:var(--slate-500);">${esc(pg.wilayah || '')}</div>` : '<span style="color:var(--slate-400);font-size:.8rem;">(belum ada)</span>'}</td>
+      <td style="text-align:center;">${statusBadge}</td>
+      <td style="text-align:center;">${aktifBadge}</td>
+      <td style="text-align:right;white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" data-edit-sek="${sk.npsn}" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
+        <button class="btn ${sk.is_active === false ? 'btn-secondary' : 'btn-danger'} btn-sm" data-toggle-sek="${sk.npsn}" title="${sk.is_active === false ? 'Aktifkan' : 'Suspend'}">
+          <i data-lucide="power" style="width:14px;height:14px;"></i>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+  
+  // Pagination
+  if (totalPages > 1) {
+    el('paginationSekolah').innerHTML = `
+      <div class="pagination">
+        <span>Halaman ${State.pagination.sekolah} dari ${totalPages} · ${list.length} sekolah</span>
+        <div style="display:flex;gap:.35rem;">
+          <button class="btn btn-secondary btn-sm" id="prevPageSek" ${State.pagination.sekolah === 1 ? 'disabled' : ''}>Prev</button>
+          <button class="btn btn-secondary btn-sm" id="nextPageSek" ${State.pagination.sekolah === totalPages ? 'disabled' : ''}>Next</button>
+        </div>
+      </div>
     `;
-    document.getElementById('formModal').classList.add('show');
-    lucide.createIcons();
-  };
+    el('prevPageSek').onclick = () => { State.pagination.sekolah--; renderSekolahTable(); };
+    el('nextPageSek').onclick = () => { State.pagination.sekolah++; renderSekolahTable(); };
+  } else {
+    el('paginationSekolah').innerHTML = `<div class="pagination"><span>${list.length} sekolah</span><span></span></div>`;
+  }
+  
+  el('tbodySekolah').querySelectorAll('[data-edit-sek]').forEach(b => {
+    b.onclick = () => openEditSekolah(b.dataset.editSek);
+  });
+  el('tbodySekolah').querySelectorAll('[data-toggle-sek]').forEach(b => {
+    b.onclick = () => toggleSekolahActive(b.dataset.toggleSek);
+  });
+  lucide.createIcons();
+}
 
-  window.openModalPengawas = (nip = null) => {
-    currentFormType = 'pengawas';
-    editMode = !!nip;
-    const p = editMode ? dataPengawas.find(x => x.nip === nip) : { nip: '', nama_pengawas: '', wilayah: '' };
-    document.getElementById('modalTitle').innerHTML = `<i data-lucide="${editMode ? 'edit-3' : 'plus-circle'}" style="width:20px;height:20px;color:var(--brand-600)"></i> ${editMode ? 'Edit Pengawas' : 'Tambah Pengawas'}`;
-    document.getElementById('modalFields').innerHTML = `
-      <label class="label">NIP</label>
-      <input type="text" id="fNip" class="input" value="${p.nip}" ${editMode ? 'disabled style="background:var(--slate-100);"' : ''}>
-      <label class="label">Nama Pengawas</label>
-      <input type="text" id="fNama" class="input" value="${p.nama_pengawas}">
-      <label class="label">Wilayah Binaan</label>
-      <input type="text" id="fWilayah" class="input" value="${p.wilayah || ''}">
-    `;
-    document.getElementById('formModal').classList.add('show');
-    lucide.createIcons();
-  };
+// ============================================
+// RENDER: PENGAWAS TABLE
+// ============================================
+function renderPengawasTable() {
+  const f = State.filter.pengawas;
+  let list = State.pengawas.slice();
+  
+  if (f.q) {
+    const q = f.q.toLowerCase();
+    list = list.filter(p => 
+      (p.nip || '').toLowerCase().includes(q) ||
+      (p.nama_pengawas || '').toLowerCase().includes(q) ||
+      (p.wilayah || '').toLowerCase().includes(q)
+    );
+  }
+  if (f.onlyEmpty) list = list.filter(p => !State.binaanCount[p.nip]);
+  
+  // Sort
+  if (f.sort === 'nama') list.sort((a, b) => (a.nama_pengawas || '').localeCompare(b.nama_pengawas || ''));
+  else if (f.sort === 'binaan') list.sort((a, b) => (State.binaanCount[b.nip] || 0) - (State.binaanCount[a.nip] || 0));
+  else if (f.sort === 'binaan_asc') list.sort((a, b) => (State.binaanCount[a.nip] || 0) - (State.binaanCount[b.nip] || 0));
+  
+  el('pageSub').textContent = `${list.length} pengawas ${f.q || f.onlyEmpty ? '(terfilter)' : ''}`;
+  
+  if (list.length === 0) {
+    el('tbodyPengawas').innerHTML = `<tr><td colspan="6"><div class="empty-row">Tidak ada pengawas yang cocok</div></td></tr>`;
+    return;
+  }
+  
+  el('tbodyPengawas').innerHTML = list.map(p => {
+    const count = State.binaanCount[p.nip] || 0;
+    const binaanBadge = count === 0
+      ? `<span class="badge badge-warning">0 ⚠</span>`
+      : `<span class="badge badge-info">${count}</span>`;
+    const aktifBadge = p.is_active === false
+      ? `<span class="badge badge-danger">Suspend</span>`
+      : `<span class="badge badge-success">Aktif</span>`;
+    
+    return `<tr>
+      <td class="mono" style="font-weight:600;">${esc(p.nip)}</td>
+      <td style="font-weight:600;">${esc(p.nama_pengawas)}</td>
+      <td>${esc(p.wilayah || '—')}</td>
+      <td style="text-align:center;">${binaanBadge}</td>
+      <td style="text-align:center;">${aktifBadge}</td>
+      <td style="text-align:right;white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" data-edit-pen="${p.nip}" title="Edit"><i data-lucide="edit-3" style="width:14px;height:14px;"></i></button>
+        <button class="btn ${p.is_active === false ? 'btn-secondary' : 'btn-danger'} btn-sm" data-toggle-pen="${p.nip}" title="${p.is_active === false ? 'Aktifkan' : 'Suspend'}">
+          <i data-lucide="power" style="width:14px;height:14px;"></i>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+  
+  el('tbodyPengawas').querySelectorAll('[data-edit-pen]').forEach(b => {
+    b.onclick = () => openEditPengawas(b.dataset.editPen);
+  });
+  el('tbodyPengawas').querySelectorAll('[data-toggle-pen]').forEach(b => {
+    b.onclick = () => togglePengawasActive(b.dataset.togglePen);
+  });
+  lucide.createIcons();
+}
 
-  window.closeModal = () => document.getElementById('formModal').classList.remove('show');
+// ============================================
+// FILTER HANDLERS
+// ============================================
+el('searchSekolah').addEventListener('input', e => { State.filter.sekolah.q = e.target.value; State.pagination.sekolah = 1; renderSekolahTable(); });
+el('filterKlaim').addEventListener('change', e => { State.filter.sekolah.klaim = e.target.value; State.pagination.sekolah = 1; renderSekolahTable(); });
+el('filterPengawasSek').addEventListener('change', e => { State.filter.sekolah.pengawas = e.target.value; State.pagination.sekolah = 1; renderSekolahTable(); });
 
-  window.saveData = async () => {
-    try {
-      if (currentFormType === 'sekolah') {
-        const payload = { npsn: document.getElementById('fNpsn').value.trim(), nama_sekolah: document.getElementById('fNama').value.trim() };
-        if(!payload.npsn || !payload.nama_sekolah) return showToast('Isi semua kolom!', 'error');
-        await Supabase.saveSekolah(payload);
-      } else {
-        const payload = { nip: document.getElementById('fNip').value.trim(), nama_pengawas: document.getElementById('fNama').value.trim(), wilayah: document.getElementById('fWilayah').value.trim() };
-        if(!payload.nip || !payload.nama_pengawas) return showToast('Isi NIP dan Nama!', 'error');
-        await Supabase.savePengawas(payload);
-      }
-      closeModal();
-      showToast('Data berhasil disimpan', 'success');
-      loadData();
-    } catch (err) { showToast('Gagal simpan: ' + err.message, 'error'); }
-  };
+el('searchPengawas').addEventListener('input', e => { State.filter.pengawas.q = e.target.value; renderPengawasTable(); });
+el('sortPengawas').addEventListener('change', e => { State.filter.pengawas.sort = e.target.value; renderPengawasTable(); });
+el('filterBelumBinaan').addEventListener('change', e => { State.filter.pengawas.onlyEmpty = e.target.checked; renderPengawasTable(); });
 
-  window.deleteData = async (type, id) => {
-    if (!confirm('Yakin ingin menghapus permanen?')) return;
-    try {
-      if (type === 'sekolah') await Supabase.deleteSekolah(id);
-      else await Supabase.deletePengawas(id);
-      showToast('Data berhasil dihapus', 'success');
-      loadData();
-    } catch (err) { showToast(err.message, 'error'); }
-  };
-
-  // ==========================================
-  // FUNGSI IMPORT CSV BARU
-  // ==========================================
-  let currentImportType = '';
-
-  window.openImportModal = (type) => {
-    currentImportType = type;
-    document.getElementById('importTitle').innerHTML = `<i data-lucide="file-spreadsheet" style="width:20px;height:20px;color:var(--brand-600)"></i> Import Data ${type === 'sekolah' ? 'Sekolah' : 'Pengawas'}`;
-    document.getElementById('importFileInput').value = '';
-    document.getElementById('importModal').classList.add('show');
-    lucide.createIcons();
-  };
-
-  window.downloadTemplate = () => {
-    let content = '';
-    let filename = '';
-
-    if (currentImportType === 'sekolah') {
-      filename = 'Template_Import_Sekolah.csv';
-      content = '\uFEFFnpsn;nama_sekolah\n20311457;SD Negeri 1 Pule\n20311458;SD Negeri 2 Pule\n';
-    } else {
-      filename = 'Template_Import_Pengawas.csv';
-      content = '\uFEFFnip;nama_pengawas;wilayah\n197001012000031001;Dr. Ahmad Suryadi, M.Pd;Kecamatan Pule\n198001012005011001;Ekwan Nugroho, S.Pd.I;Kecamatan Pule\n';
-    }
-
-    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    showToast('Template berhasil diunduh', 'success');
-  };
-
-  window.processImportData = () => {
-    const fileInput = document.getElementById('importFileInput');
-    const file = fileInput.files[0];
-    if (!file) return showToast('Pilih file CSV terlebih dahulu', 'error');
-
-    const btn = document.getElementById('btnProcessImport');
-    const originalHtml = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = 'Memproses...';
-
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const rows = ev.target.result.split(/\r?\n/).filter(r => r.trim());
-      if (rows.length < 2) {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-        return showToast('File CSV kosong / tidak valid', 'error');
-      }
-
-      const sep = rows[0].includes(';') ? ';' : ',';
-      const payloads = [];
-
-      for (let i = 1; i < rows.length; i++) {
-        const cols = rows[i].split(sep).map(c => c.trim());
-        if (currentImportType === 'sekolah' && cols[0] && cols[1]) {
-          payloads.push({ npsn: cols[0], nama_sekolah: cols[1] });
-        } else if (currentImportType === 'pengawas' && cols[0] && cols[1]) {
-          payloads.push({ nip: cols[0], nama_pengawas: cols[1], wilayah: cols[2] || '' });
-        }
-      }
-
-      if (payloads.length === 0) {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-        return showToast('Tidak ada data valid yang ditemukan dalam file', 'error');
-      }
-
-      if (!confirm(`Ditemukan ${payloads.length} baris data. Lanjutkan import?`)) {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-        return;
-      }
-
-      const overlay = document.getElementById('loadingOverlay');
-      overlay.classList.add('show');
-
-      try {
-        for (const p of payloads) {
-          if (currentImportType === 'sekolah') {
-            await Supabase.saveSekolah(p);
-          } else {
-            await Supabase.savePengawas(p);
-          }
-        }
-        
-        document.getElementById('importModal').classList.remove('show');
-        showToast(`Berhasil mengimpor ${payloads.length} data.`, 'success');
-        loadData();
-      } catch (err) {
-        showToast('Gagal import: ' + err.message, 'error');
-      } finally {
-        overlay.classList.remove('show');
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-      }
+// ============================================
+// MODAL: SEKOLAH (Add / Edit)
+// ============================================
+function openEditSekolah(npsn) {
+  const sk = State.sekolah.find(x => x.npsn === npsn);
+  if (!sk) return;
+  State.editSekolah = sk;
+  
+  el('modalSekolahTitle').innerHTML = `<i data-lucide="edit-3" style="width:20px;height:20px;color:var(--brand-600);"></i> Edit Sekolah`;
+  
+  const pg = State.pengawasByNip[sk.pengawas_nip];
+  const pengawasOptions = State.pengawas
+    .filter(p => p.is_active !== false)
+    .map(p => `<option value="${p.nip}" ${sk.pengawas_nip === p.nip ? 'selected' : ''}>${esc(p.nama_pengawas)} — ${esc(p.wilayah || '')}</option>`)
+    .join('');
+  
+  el('modalSekolahBody').innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>NPSN</label>
+        <input type="text" value="${esc(sk.npsn)}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Status Sekolah</label>
+        <select id="editSekAktif">
+          <option value="true" ${sk.is_active !== false ? 'selected' : ''}>Aktif</option>
+          <option value="false" ${sk.is_active === false ? 'selected' : ''}>Suspend</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Nama Sekolah</label>
+      <input type="text" id="editSekNama" value="${esc(sk.nama_sekolah)}">
+    </div>
+    
+    <div style="padding-top:1rem;margin-top:1rem;border-top:1px solid var(--slate-200);">
+      <div style="font-size:.8rem;font-weight:600;color:var(--slate-700);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.03em;">Pengawas Pembina</div>
+      
+      ${sk.pengawas_nip ? `
+        <div style="padding:.75rem;background:${sk.pengawas_status === 'confirmed' ? '#dcfce7' : '#fef3c7'};border-radius:8px;margin-bottom:.75rem;font-size:.85rem;">
+          <div style="font-weight:600;color:${sk.pengawas_status === 'confirmed' ? '#166534' : '#92400e'};">
+            ${sk.pengawas_status === 'confirmed' ? '✓ Terkonfirmasi' : sk.pengawas_status === 'pending' ? '⏳ Pending' : '✕ Ditolak'} oleh KS
+          </div>
+          <div style="color:var(--slate-600);margin-top:.15rem;">${esc(pg?.nama_pengawas || '—')} · ${esc(pg?.wilayah || '')}</div>
+        </div>
+      ` : `
+        <div style="padding:.75rem;background:var(--slate-100);border-radius:8px;margin-bottom:.75rem;font-size:.85rem;color:var(--slate-600);">
+          Belum ada pengawas pembina. Assign manual di bawah atau tunggu PS klaim.
+        </div>
+      `}
+      
+      <div class="form-group">
+        <label>Assign / Ganti Pengawas</label>
+        <select id="editSekPengawas">
+          <option value="">— Belum ada —</option>
+          ${pengawasOptions}
+        </select>
+        <div class="form-hint">Pilih pengawas untuk assign manual. Admin override langsung jadi <strong>terkonfirmasi</strong> (bypass KS).</div>
+      </div>
+      
+      ${sk.pengawas_nip ? `
+        <button class="btn btn-danger btn-sm" id="btnResetKlaim" style="margin-top:.5rem;">
+          <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> Reset Klaim Pengawas
+        </button>
+      ` : ''}
+    </div>
+  `;
+  
+  if (sk.pengawas_nip) {
+    el('btnResetKlaim').onclick = () => {
+      closeModal('modalSekolah');
+      openResetKlaim(sk);
     };
-    reader.readAsText(file);
-  };
+  }
+  
+  openModal('modalSekolah');
+  lucide.createIcons();
+}
 
-  document.getElementById('btnDownloadTemplate')?.addEventListener('click', downloadTemplate);
+el('btnSaveSekolah').onclick = async () => {
+  const sk = State.editSekolah;
+  if (!sk) return;
+  
+  const newNama = el('editSekNama').value.trim();
+  const newAktif = el('editSekAktif').value === 'true';
+  const newPengawas = el('editSekPengawas').value;
+  
+  if (!newNama) return toast('Nama sekolah wajib diisi', 'error');
+  
+  // Cek konflik: pengawas lama berbeda
+  if (sk.pengawas_nip && newPengawas && sk.pengawas_nip !== newPengawas) {
+    const oldPg = State.pengawasByNip[sk.pengawas_nip];
+    const newPg = State.pengawasByNip[newPengawas];
+    showConfirmAssign(sk, oldPg, newPg, newNama, newAktif);
+    return;
+  }
+  
+  // Kalau pengawas berubah dari ada ke tidak ada (unclaim)
+  if (sk.pengawas_nip && !newPengawas) {
+    showConfirmAssign(sk, State.pengawasByNip[sk.pengawas_nip], null, newNama, newAktif);
+    return;
+  }
+  
+  // Save langsung
+  await saveSekolah(sk, { nama_sekolah: newNama, is_active: newAktif, pengawas_nip: newPengawas || null });
+};
+
+function showConfirmAssign(sk, oldPg, newPg, newNama, newAktif) {
+  State.pendingAssign = { sk, oldPg, newPg, newNama, newAktif };
+  
+  el('confirmAssignBody').innerHTML = `
+    <div class="warning-box warn">
+      <strong>Konfirmasi Perubahan Pengawas</strong><br>
+      Sekolah ini akan pindah pengawas. PS lama akan kehilangan akses (data lokal PS tetap aman).
+    </div>
+    <table style="width:100%;font-size:.85rem;">
+      <tr style="background:var(--slate-50);">
+        <td style="padding:.5rem;">Pengawas Lama</td>
+        <td style="padding:.5rem;font-weight:600;">${oldPg ? esc(oldPg.nama_pengawas) : '(belum ada)'}</td>
+      </tr>
+      <tr>
+        <td style="padding:.5rem;">Pengawas Baru</td>
+        <td style="padding:.5rem;font-weight:600;color:var(--brand-600);">${newPg ? esc(newPg.nama_pengawas) : '(tidak ada)'}</td>
+      </tr>
+    </table>
+  `;
+  
+  closeModal('modalSekolah');
+  openModal('modalConfirmAssign');
+}
+
+el('btnConfirmAssign').onclick = async () => {
+  const { sk, newNama, newAktif, newPg } = State.pendingAssign;
+  closeModal('modalConfirmAssign');
+  await saveSekolah(sk, { 
+    nama_sekolah: newNama, 
+    is_active: newAktif, 
+    pengawas_nip: newPg ? newPg.nip : null 
+  });
+  State.pendingAssign = null;
+};
+
+async function saveSekolah(sk, changes) {
+  loading(true);
+  try {
+    const payload = {
+      ...sk,
+      ...changes,
+      pengawas_status: changes.pengawas_nip ? 'confirmed' : null,
+      pengawas_confirmed_at: changes.pengawas_nip ? new Date().toISOString() : null
+    };
+    await Supabase.saveSekolah(payload);
+    toast('Data sekolah tersimpan', 'success');
+    closeModal('modalSekolah');
+    State.editSekolah = null;
+    await loadData();
+  } catch (err) {
+    toast('Gagal simpan: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+}
+
+// ============================================
+// MODAL: RESET KLAIM
+// ============================================
+function openResetKlaim(sk) {
+  State.resetNpsn = sk.npsn;
+  el('resetConfirmInput').value = '';
+  el('btnDoReset').disabled = true;
+  openModal('modalReset');
+  setTimeout(() => el('resetConfirmInput').focus(), 100);
+  lucide.createIcons();
+}
+
+el('resetConfirmInput').addEventListener('input', e => {
+  el('btnDoReset').disabled = e.target.value !== 'RESET';
+});
+
+el('btnDoReset').onclick = async () => {
+  if (el('resetConfirmInput').value !== 'RESET') return;
+  const npsn = State.resetNpsn;
+  const sk = State.sekolah.find(x => x.npsn === npsn);
+  if (!sk) return;
+  
+  loading(true);
+  try {
+    await Supabase.saveSekolah({
+      ...sk,
+      pengawas_nip: null,
+      pengawas_status: null,
+      pengawas_confirmed_at: null
+    });
+    toast('Klaim pengawas berhasil direset', 'success');
+    closeModal('modalReset');
+    State.resetNpsn = null;
+    await loadData();
+  } catch (err) {
+    toast('Gagal reset: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+};
+
+// ============================================
+// TOGGLE AKTIF
+// ============================================
+async function toggleSekolahActive(npsn) {
+  const sk = State.sekolah.find(x => x.npsn === npsn);
+  if (!sk) return;
+  const newStatus = sk.is_active === false;
+  if (!confirm(`${newStatus ? 'Aktifkan' : 'Suspend'} sekolah ${sk.nama_sekolah}?`)) return;
+  
+  loading(true);
+  try {
+    await Supabase.toggleSekolah(npsn, newStatus);
+    toast(newStatus ? 'Sekolah diaktifkan' : 'Sekolah di-suspend', 'success');
+    await loadData();
+  } catch (err) {
+    toast('Gagal: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+}
+
+async function togglePengawasActive(nip) {
+  const p = State.pengawas.find(x => x.nip === nip);
+  if (!p) return;
+  const newStatus = p.is_active === false;
+  if (!confirm(`${newStatus ? 'Aktifkan' : 'Suspend'} pengawas ${p.nama_pengawas}?`)) return;
+  
+  loading(true);
+  try {
+    await Supabase.togglePengawas(nip, newStatus);
+    toast(newStatus ? 'Pengawas diaktifkan' : 'Pengawas di-suspend', 'success');
+    await loadData();
+  } catch (err) {
+    toast('Gagal: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+}
+
+// ============================================
+// MODAL: PENGAWAS (Add / Edit)
+// ============================================
+function openEditPengawas(nip) {
+  const p = State.pengawas.find(x => x.nip === nip);
+  if (!p) return;
+  State.editPengawas = p;
+  
+  el('modalPengawasTitle').innerHTML = `<i data-lucide="edit-3" style="width:20px;height:20px;color:var(--brand-600);"></i> Edit Pengawas`;
+  
+  el('modalPengawasBody').innerHTML = `
+    <div class="form-group">
+      <label>NIP</label>
+      <input type="text" value="${esc(p.nip)}" disabled>
+    </div>
+    <div class="form-group">
+      <label>Nama Pengawas</label>
+      <input type="text" id="editPenNama" value="${esc(p.nama_pengawas)}">
+    </div>
+    <div class="form-group">
+      <label>Wilayah</label>
+      <input type="text" id="editPenWilayah" value="${esc(p.wilayah || '')}">
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="editPenAktif">
+        <option value="true" ${p.is_active !== false ? 'selected' : ''}>Aktif</option>
+        <option value="false" ${p.is_active === false ? 'selected' : ''}>Suspend</option>
+      </select>
+    </div>
+    <div class="form-hint" style="margin-top:.5rem;">
+      Binaan saat ini: <strong>${State.binaanCount[p.nip] || 0} sekolah</strong>
+    </div>
+  `;
+  
+  openModal('modalPengawas');
+  lucide.createIcons();
+}
+
+el('btnSavePengawas').onclick = async () => {
+  const p = State.editPengawas;
+  if (!p) return;
+  
+  const newNama = el('editPenNama').value.trim();
+  const newWilayah = el('editPenWilayah').value.trim();
+  const newAktif = el('editPenAktif').value === 'true';
+  
+  if (!newNama) return toast('Nama pengawas wajib diisi', 'error');
+  
+  loading(true);
+  try {
+    await Supabase.savePengawas({
+      nip: p.nip,
+      nama_pengawas: newNama,
+      wilayah: newWilayah,
+      is_active: newAktif
+    });
+    toast('Data pengawas tersimpan', 'success');
+    closeModal('modalPengawas');
+    State.editPengawas = null;
+    await loadData();
+  } catch (err) {
+    toast('Gagal simpan: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+};
+
+// ============================================
+// ADD SEKOLAH (form kosong)
+// ============================================
+el('btnAddSekolah').onclick = () => {
+  el('modalSekolahTitle').innerHTML = `<i data-lucide="plus-circle" style="width:20px;height:20px;color:var(--brand-600);"></i> Tambah Sekolah`;
+  
+  const pengawasOptions = State.pengawas
+    .filter(p => p.is_active !== false)
+    .map(p => `<option value="${p.nip}">${esc(p.nama_pengawas)} — ${esc(p.wilayah || '')}</option>`)
+    .join('');
+  
+  el('modalSekolahBody').innerHTML = `
+    <div class="form-group">
+      <label>NPSN (8 digit)</label>
+      <input type="text" id="addSekNpsn" maxlength="8" inputmode="numeric" placeholder="20311457">
+    </div>
+    <div class="form-group">
+      <label>Nama Sekolah</label>
+      <input type="text" id="addSekNama" placeholder="SD Negeri 1 Pule">
+    </div>
+    <div class="form-group">
+      <label>Assign Pengawas (opsional)</label>
+      <select id="addSekPengawas">
+        <option value="">— Belum ada (PS akan klaim nanti) —</option>
+        ${pengawasOptions}
+      </select>
+      <div class="form-hint">Kalau dipilih, admin langsung assign + konfirmasi.</div>
+    </div>
+  `;
+  
+  State.editSekolah = { isNew: true };
+  openModal('modalSekolah');
+  lucide.createIcons();
+  
+  el('btnSaveSekolah').onclick = async () => {
+    const npsn = el('addSekNpsn').value.trim();
+    const nama = el('addSekNama').value.trim();
+    const pengawas = el('addSekPengawas').value;
+    
+    if (!npsn || !/^\d{8}$/.test(npsn)) return toast('NPSN harus 8 digit angka', 'error');
+    if (!nama) return toast('Nama sekolah wajib diisi', 'error');
+    if (State.sekolah.find(x => x.npsn === npsn)) return toast('NPSN sudah terdaftar', 'error');
+    
+    loading(true);
+    try {
+      await Supabase.saveSekolah({
+        npsn,
+        nama_sekolah: nama,
+        is_active: true,
+        pengawas_nip: pengawas || null,
+        pengawas_status: pengawas ? 'confirmed' : null,
+        pengawas_confirmed_at: pengawas ? new Date().toISOString() : null
+      });
+      toast('Sekolah ditambahkan', 'success');
+      closeModal('modalSekolah');
+      State.editSekolah = null;
+      await loadData();
+    } catch (err) {
+      toast('Gagal tambah: ' + err.message, 'error');
+    } finally {
+      loading(false);
+    }
+  };
+};
+
+el('btnAddPengawas').onclick = () => {
+  el('modalPengawasTitle').innerHTML = `<i data-lucide="plus-circle" style="width:20px;height:20px;color:var(--brand-600);"></i> Tambah Pengawas`;
+  
+  el('modalPengawasBody').innerHTML = `
+    <div class="form-group">
+      <label>NIP</label>
+      <input type="text" id="addPenNip" placeholder="197001012000031001">
+    </div>
+    <div class="form-group">
+      <label>Nama Pengawas</label>
+      <input type="text" id="addPenNama" placeholder="Dr. Ahmad Suryadi, M.Pd">
+    </div>
+    <div class="form-group">
+      <label>Wilayah</label>
+      <input type="text" id="addPenWilayah" placeholder="Kecamatan Pule">
+    </div>
+  `;
+  
+  State.editPengawas = { isNew: true };
+  openModal('modalPengawas');
+  lucide.createIcons();
+  
+  el('btnSavePengawas').onclick = async () => {
+    const nip = el('addPenNip').value.trim();
+    const nama = el('addPenNama').value.trim();
+    const wilayah = el('addPenWilayah').value.trim();
+    
+    if (!nip) return toast('NIP wajib diisi', 'error');
+    if (!nama) return toast('Nama pengawas wajib diisi', 'error');
+    if (State.pengawas.find(x => x.nip === nip)) return toast('NIP sudah terdaftar', 'error');
+    
+    loading(true);
+    try {
+      await Supabase.savePengawas({ nip, nama_pengawas: nama, wilayah, is_active: true });
+      toast('Pengawas ditambahkan', 'success');
+      closeModal('modalPengawas');
+      State.editPengawas = null;
+      await loadData();
+    } catch (err) {
+      toast('Gagal tambah: ' + err.message, 'error');
+    } finally {
+      loading(false);
+    }
+  };
+};
+
+// Reset state edit saat tutup modal
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) {
+      m.classList.remove('show');
+      if (m.id === 'modalSekolah') State.editSekolah = null;
+      if (m.id === 'modalPengawas') State.editPengawas = null;
+    }
+  });
+});
+
+// Import CSV tetap pakai existing (placeholder)
+el('btnImportSekolah').onclick = () => toast('Fitur Import CSV sekolah — pakai admin lama atau request upgrade terpisah', 'warning');
+el('btnImportPengawas').onclick = () => toast('Fitur Import CSV pengawas — pakai admin lama atau request upgrade terpisah', 'warning');
+
+// ============================================
+// INIT
+// ============================================
+lucide.createIcons();
 </script>
+
 </body>
 </html>
