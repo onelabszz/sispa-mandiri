@@ -17,7 +17,8 @@ export const Guru = {
       </div>
 
       ${guru.length === 0 ? `<div class="card"><div class="card-body">
-        ${emptyState('users', 'Belum ada data guru', 'Import file JSON dari KS untuk menampilkan data guru.')}
+        ${emptyState('users', 'Belum ada data guru', 'Import file JSON dari KS terlebih dahulu untuk menampilkan data guru.',
+          `<button class="btn btn-primary" id="btnGoSekolah" style="margin-top:1rem">${Icons.svg('upload', 16)} Ke Menu Sekolah Binaan</button>`)}
       </div></div>` : `
         <div class="card"><div class="card-body" style="padding:.75rem">
           <div style="display:grid;grid-template-columns:2fr 1.5fr 1.5fr 2fr auto;gap:.5rem;align-items:end">
@@ -40,7 +41,7 @@ export const Guru = {
               <option value="full">Lengkap (3 Jenis)</option>
             </select></div>
             <div><label class="label">Cari</label><input class="input" id="fQ" placeholder="Nama / mapel / NIP..."></div>
-            <div><button class="btn btn-ghost" id="btnReset">${Icons.svg('x', 14)}</button></div>
+            <div><button class="btn btn-ghost" id="btnReset" title="Reset Filter">${Icons.svg('x', 14)}</button></div>
           </div>
         </div></div>
         <div class="card"><div id="guruList"></div></div>
@@ -49,7 +50,15 @@ export const Guru = {
   },
 
   async bind() {
-    if (Store.get('sekolah').length === 0) return;
+    // GUARD: Jika belum ada sekolah atau guru, hanya pasang handler untuk empty state
+    if (!Utils.el('fSk')) {
+      Utils.el('btnGoSekolah')?.addEventListener('click', async () => {
+        const { Router } = await import('../../../shared/js/router.js');
+        Router.navigate('sekolah');
+      });
+      return;
+    }
+
     const redraw = () => this._draw();
     Utils.el('fSk').onchange = redraw;
     Utils.el('fTipe').onchange = redraw;
@@ -82,14 +91,14 @@ export const Guru = {
       (g.nip || '').includes(q)
     );
 
-    // Coverage filter
+    // Filter Coverage
     if (covF) {
       list = list.filter(g => {
         const sk = Store.get('sekolah').find(x => x.id === g._skId);
-        const n3 = (sk?.supervisi || []).some(s => s.gid === g.id);
-        const nA = (sk?.akademik || []).some(s => s.gid === g.id);
-        const nC = (sk?.coaching || []).some(s => s.gid === g.id);
-        const typesCovered = [n3, nA, nC].filter(Boolean).length;
+        const has3 = (sk?.supervisi || []).some(s => s.gid === g.id);
+        const hasAk = (sk?.akademik || []).some(s => s.gid === g.id);
+        const hasCo = (sk?.coaching || []).some(s => s.gid === g.id);
+        const typesCovered = [has3, hasAk, hasCo].filter(Boolean).length;
         if (covF === 'none') return typesCovered === 0;
         if (covF === 'partial') return typesCovered > 0 && typesCovered < 3;
         if (covF === 'full') return typesCovered === 3;
@@ -98,7 +107,7 @@ export const Guru = {
     }
 
     if (list.length === 0) {
-      box.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--slate-400);font-size:.85rem">Tidak ada guru yang cocok</div>';
+      box.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--slate-400);font-size:.85rem">Tidak ada guru yang cocok dengan filter</div>';
       return;
     }
     list.sort((a, b) => a._skNama.localeCompare(b._skNama) || a.nama.localeCompare(b.nama));
@@ -118,7 +127,7 @@ export const Guru = {
       const covColor = typesCovered === 3 ? 'success' : typesCovered > 0 ? 'warning' : 'danger';
       const covLabel = typesCovered === 3 ? 'Lengkap' : typesCovered > 0 ? 'Partial' : 'Belum';
 
-      // Render mini icons untuk 3 jenis
+      // Mini icons untuk 3 jenis
       const icon3T = has3
         ? `<span title="Supervisi 3T: ${n3}x" style="color:var(--success)">${Icons.svg('check-circle', 16)}</span>`
         : `<span title="Belum 3T" style="color:var(--slate-300)">${Icons.svg('circle', 16)}</span>`;
