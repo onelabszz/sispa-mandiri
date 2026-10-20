@@ -275,6 +275,7 @@ export const Evaluasi = {
     };
 
     Utils.el('fSek')?.addEventListener('change', (e) => {
+      this._formData.npsn_sekolah = e.target.value; // Simpan langsung ke state
       const sk = Store.get('sekolah').find(x => x.npsn === e.target.value);
       if (sk && sk.ks_nama && Utils.el('fKs')) Utils.el('fKs').value = sk.ks_nama;
     });
@@ -345,10 +346,16 @@ export const Evaluasi = {
 
   _save(status) {
     const f = this._formData;
+    
+    // 1. BACA NILAI DARI FORM TERLEBIH DAHULU
+    if (Utils.el('fSek')) f.npsn_sekolah = Utils.el('fSek').value;
+    if (Utils.el('fKs')) f.ks_nama = Utils.el('fKs').value.trim();
+    
+    // 2. BARU LAKUKAN VALIDASI
     if (!f.npsn_sekolah) return Utils.toast('Sekolah wajib dipilih', 'error');
     if (!f.ks_nama) return Utils.toast('Nama KS wajib diisi', 'error');
 
-    f.ks_nama = Utils.el('fKs')?.value.trim() || f.ks_nama;
+    // 3. SIMPAN SISA INPUTAN
     f.periode = Utils.el('fPeriode')?.value.trim() || f.periode;
     f.tanggal = Utils.el('fTanggal')?.value || f.tanggal;
     f.sumber_data = {
