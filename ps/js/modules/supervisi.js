@@ -16,7 +16,8 @@ export const Supervisi = {
       </div>
 
       ${sesi.length === 0 ? `<div class="card"><div class="card-body">
-        ${emptyState('clipboard-list', 'Belum ada sesi', 'Import file JSON dari KS untuk melihat data.')}
+        ${emptyState('clipboard-list', 'Belum ada sesi', 'Tambahkan data supervisi dengan mengimpor file JSON dari KS terlebih dahulu.', 
+          `<button class="btn btn-primary" id="btnGoSekolah" style="margin-top:1rem">${Icons.svg('upload', 16)} Ke Menu Sekolah Binaan</button>`)}
       </div></div>` : `
         <div class="card"><div class="card-body" style="padding:.75rem">
           <div style="display:grid;grid-template-columns:2fr 1.2fr 1.2fr 2fr;gap:.5rem">
@@ -40,7 +41,15 @@ export const Supervisi = {
   },
 
   async bind() {
-    if (Store.get('sekolah').length === 0) return;
+    // Jika empty state, pasang event navigasi
+    if (!Utils.el('fSk')) {
+      Utils.el('btnGoSekolah')?.addEventListener('click', async () => {
+        const { Router } = await import('../../../shared/js/router.js');
+        Router.navigate('sekolah');
+      });
+      return;
+    }
+
     const redraw = () => this._draw();
     Utils.el('fSk').onchange = redraw;
     Utils.el('fJenis').onchange = redraw;
