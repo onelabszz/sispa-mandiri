@@ -106,8 +106,10 @@ tbody tr { transition: background var(--t-fast); }
 }
 #pinScreen.show { display: block !important; }
 #setupScreen.auth-split { display: grid !important; }
-#modalBack { z-index: 10000 !important; }
-#toast { z-index: 10050 !important; }
+/* Fix z-index stacking: modal & toast HARUS di atas setup/pin screen */
+#modalBack { z-index: 1000000 !important; }
+#modalBack.show { display: flex !important; }
+#toast { z-index: 1000001 !important; }
 
 .auth-brand {
   position: relative;
