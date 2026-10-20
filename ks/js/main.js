@@ -25,16 +25,15 @@ window.Icons = Icons;
 const App = {
   async init() {
     await Store.init();
-    
+
     // 1. Cek Session (Auto Login)
     const session = Auth.getSessionFor('KS');
     if (session) {
-      // Sinkronkan nama sekolah dari Supabase ke lokal (jika ada perubahan)
       const cfg = Store.config();
       if (cfg.nama_sekolah !== session.nama_sekolah) {
         Store.setConfig({ ...cfg, nama_sekolah: session.nama_sekolah, npsn: session.npsn });
       }
-      
+
       // Cek PIN
       if (cfg.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
         PinLock.show(cfg, 'KS', () => this.boot());
@@ -42,7 +41,7 @@ const App = {
       }
       return this.boot();
     }
-    
+
     // 2. Belum Login -> Tampil Layar Login NPSN
     this.showLogin();
   },
@@ -92,6 +91,11 @@ const App = {
                 <div><strong>Analitik PM & KKA</strong><span>Prinsip · Pengalaman · 8 DPL · Koding/AI</span></div>
               </div>
             </div>
+
+            <div class="auth-quote-card">
+              "Supervisi akademik intinya bukan menilai kinerja guru, tetapi membantu guru untuk meningkatkan profesionalismenya."
+              <span class="qa-author">— Modul 5, Supervisi Akademik (2026)</span>
+            </div>
           </div>
 
           <div class="auth-brand-footer">
@@ -138,21 +142,21 @@ const App = {
         </div>
       </main>
     `;
-    
+
     const input = Utils.el('loginNpsn');
     const btn = Utils.el('btnLogin');
-    
+
     const doLogin = async () => {
       const npsn = input.value.trim();
       if (!npsn) return Utils.toast('NPSN wajib diisi', 'error');
       if (!/^\d{8}$/.test(npsn)) return Utils.toast('NPSN harus 8 digit angka', 'error');
-      
+
       if (!Supabase.isReady()) return Utils.toast('Butuh internet untuk verifikasi', 'error');
-      
+
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = `<span>Memverifikasi...</span>`;
-      
+
       try {
         const data = await Supabase.findSekolah(npsn);
         if (!data) {
@@ -160,28 +164,23 @@ const App = {
           btn.innerHTML = originalHtml;
           return Utils.toast('NPSN tidak terdaftar. Hubungi Dinas Pendidikan.', 'error');
         }
-        
-        // --- TAMBAHAN: Cek Status Suspend ---
+
         if (data.is_active === false) {
           btn.disabled = false;
           btn.innerHTML = originalHtml;
           return Utils.toast('Akun sekolah ini dinonaktifkan (Suspend). Hubungi Admin.', 'error');
         }
-        // -----------------------------------
-        
-        // Simpan session
+
         Auth.saveSession({
           role: 'KS',
           npsn: data.npsn,
           nama_sekolah: data.nama_sekolah,
           logged_in_at: new Date().toISOString()
         });
-        
-        // Update config lokal (simpan nama sekolah)
+
         const cfg = Store.config();
         Store.setConfig({ ...cfg, npsn: data.npsn, nama_sekolah: data.nama_sekolah });
-        
-        // Cek: Apakah profil KS (nama_ks) sudah ada di lokal?
+
         if (!Store.config().nama_ks) {
           this.showProfileSetup();
         } else {
@@ -197,7 +196,7 @@ const App = {
         Utils.toast(err.message || 'Gagal terhubung ke server', 'error');
       }
     };
-    
+
     btn.onclick = doLogin;
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
     setTimeout(() => input.focus(), 100);
@@ -283,16 +282,16 @@ const App = {
     screen.classList.remove('auth-split');
     screen.style.display = 'none';
     Utils.el('pinScreen').classList.remove('show');
-    
+
     Utils.el('app').style.display = 'block';
     const cfg = Store.config();
-    
+
     Shell.buildSidebar(NAV_KS, Router.current || 'dashboard', cfg, 'KS');
     Shell.buildHeader(cfg, 'KS');
     Shell.buildProfileMenu(cfg, 'KS', () => this.lock(), () => this.logout());
-    
+
     this.wireShell();
-    
+
     Router.register('dashboard', Dashboard);
     Router.register('guru', Guru);
     Router.register('profil', Profil);
@@ -303,7 +302,7 @@ const App = {
     Router.register('analisis', Analisis);
     Router.register('laporan', Laporan);
     Router.register('pengaturan', Pengaturan);
-    
+
     Router.navigate('dashboard');
   },
 
@@ -342,6 +341,192 @@ const App = {
       Auth.logout();
       location.reload();
     });
+  },
+
+  // ============================================
+  // CEK PENGAWAS — Fitur Klaim Pengawas
+  // ============================================
+  async cekpengawas() {
+    const cfg = Store.config();
+    if (!cfg.npsn) return Utils.toast('NPSN tidak ditemukan', 'error');
+    if (!Supabase.isReady()) return Utils.toast('Butuh internet untuk cek pengawas', 'error');
+
+    const btn = Utils.el('btnCekPengawas');
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = `${Icons.svg('refresh-cw', 16)} Memeriksa...`; }
+
+    try {
+      const klaim = await Supabase.getKlaimByNpsn(cfg.npsn);
+
+      // Case 1: Belum ada pengawas
+      if (!klaim || !klaim.pengawas_nip) {
+        Store.setConfig({
+          ...cfg,
+          pengawas_nip: null,
+          pengawas_nama: null,
+          pengawas_wilayah: null,
+          pengawas_status: null,
+          pengawas_last_check: new Date().toISOString()
+        });
+        Utils.toast('Belum ada pengawas yang mengklaim sekolah Anda', 'info');
+        Router.navigate('dashboard');
+        return;
+      }
+
+      // Case 2: Status pending → tampil modal konfirmasi
+      if (klaim.pengawas_status === 'pending') {
+        App._showKonfirmasiPengawas(klaim);
+        return;
+      }
+
+      // Case 3: Status confirmed
+      if (klaim.pengawas_status === 'confirmed') {
+        // Cek apakah sama dengan data lokal
+        if (cfg.pengawas_nip === klaim.pengawas_nip) {
+          Store.setConfig({
+            ...cfg,
+            pengawas_nip: klaim.pengawas_nip,
+            pengawas_nama: klaim.pengawas_nama,
+            pengawas_wilayah: klaim.pengawas_wilayah,
+            pengawas_status: 'confirmed',
+            pengawas_last_check: new Date().toISOString()
+          });
+          Utils.toast('Pengawas sudah terkonfirmasi', 'success');
+          Router.navigate('dashboard');
+        } else {
+          // Ada pengawas baru dari Dinas → tampil modal perubahan
+          App._showPerubahanPengawas(klaim, cfg);
+        }
+        return;
+      }
+
+      // Case 4: Status 'rejected' atau aneh → anggap belum ada
+      Store.setConfig({
+        ...cfg,
+        pengawas_nip: null,
+        pengawas_nama: null,
+        pengawas_wilayah: null,
+        pengawas_status: null,
+        pengawas_last_check: new Date().toISOString()
+      });
+      Utils.toast('Belum ada pengawas aktif', 'info');
+      Router.navigate('dashboard');
+    } catch (err) {
+      Utils.toast('Gagal: ' + err.message, 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+    }
+  },
+
+  _showKonfirmasiPengawas(klaim) {
+    Utils.modal('Konfirmasi Pengawas', `
+      <div style="text-align:center;padding:1rem 0 1.5rem">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--brand-50);color:var(--brand-700);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+          ${Icons.svg('user-check', 36)}
+        </div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--slate-900)">${Utils.esc(klaim.pengawas_nama || 'Pengawas')}</div>
+        <div style="font-size:.85rem;color:var(--slate-600);margin-top:.35rem">${Utils.esc(klaim.pengawas_wilayah || '—')}</div>
+        <div style="font-size:.8rem;color:var(--slate-500);font-family:monospace;margin-top:.25rem">NIP: ${Utils.esc(klaim.pengawas_nip)}</div>
+      </div>
+      <div style="padding:1rem;background:var(--brand-50);border-radius:8px;font-size:.85rem;color:var(--brand-700);line-height:1.6;margin-bottom:1rem">
+        Pengawas ini telah mengklaim sebagai pembina sekolah Anda. Konfirmasi jika benar.
+      </div>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-danger" id="btnTolakKlaim" style="flex:1">
+          ${Icons.svg('x', 16)} Tolak
+        </button>
+        <button class="btn btn-primary" id="btnKonfirmasiKlaim" style="flex:1">
+          ${Icons.svg('check', 16)} Konfirmasi
+        </button>
+      </div>
+    `, '');
+
+    Utils.el('btnKonfirmasiKlaim').onclick = async () => {
+      try {
+        await Supabase.konfirmasiKlaim(klaim.npsn);
+        const cfg = Store.config();
+        Store.setConfig({
+          ...cfg,
+          pengawas_nip: klaim.pengawas_nip,
+          pengawas_nama: klaim.pengawas_nama,
+          pengawas_wilayah: klaim.pengawas_wilayah,
+          pengawas_status: 'confirmed',
+          pengawas_last_check: new Date().toISOString()
+        });
+        Utils.closeModal();
+        Utils.toast('Pengawas terkonfirmasi', 'success');
+        Router.navigate('dashboard');
+      } catch (err) {
+        Utils.toast('Gagal konfirmasi: ' + err.message, 'error');
+      }
+    };
+
+    Utils.el('btnTolakKlaim').onclick = async () => {
+      try {
+        await Supabase.tolakKlaim(klaim.npsn);
+        const cfg = Store.config();
+        Store.setConfig({
+          ...cfg,
+          pengawas_nip: null,
+          pengawas_nama: null,
+          pengawas_wilayah: null,
+          pengawas_status: null,
+          pengawas_last_check: new Date().toISOString()
+        });
+        Utils.closeModal();
+        Utils.toast('Klaim pengawas ditolak', 'info');
+        Router.navigate('dashboard');
+      } catch (err) {
+        Utils.toast('Gagal tolak: ' + err.message, 'error');
+      }
+    };
+  },
+
+  _showPerubahanPengawas(klaim, cfgLama) {
+    Utils.modal('Pengawas Pembina Berubah', `
+      <div style="padding:1rem;background:#fef3c7;border-radius:8px;margin-bottom:1rem;font-size:.85rem;color:#92400e;line-height:1.6">
+        <strong>Perubahan terdeteksi:</strong> Dinas telah mengganti pengawas pembina Anda. Konfirmasi pengawas baru untuk melanjutkan.
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+        <div style="padding:.85rem;background:var(--slate-50);border-radius:8px">
+          <div style="font-size:.7rem;color:var(--slate-500);text-transform:uppercase;font-weight:600;margin-bottom:.35rem">Sebelumnya</div>
+          <div style="font-weight:600;color:var(--slate-900);font-size:.9rem">${Utils.esc(cfgLama.pengawas_nama || '—')}</div>
+          <div style="font-size:.75rem;color:var(--slate-500);margin-top:.15rem">${Utils.esc(cfgLama.pengawas_wilayah || '')}</div>
+        </div>
+        <div style="padding:.85rem;background:var(--brand-50);border-radius:8px;border:1px solid var(--brand-500)">
+          <div style="font-size:.7rem;color:var(--brand-700);text-transform:uppercase;font-weight:600;margin-bottom:.35rem">Menjadi</div>
+          <div style="font-weight:600;color:var(--brand-700);font-size:.9rem">${Utils.esc(klaim.pengawas_nama || '—')}</div>
+          <div style="font-size:.75rem;color:var(--brand-600);margin-top:.15rem">${Utils.esc(klaim.pengawas_wilayah || '')}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-secondary" onclick="Utils.closeModal()" style="flex:1">Batal</button>
+        <button class="btn btn-primary" id="btnKonfirmasiBaru" style="flex:1">
+          ${Icons.svg('check', 16)} Konfirmasi PS Baru
+        </button>
+      </div>
+    `, '');
+
+    Utils.el('btnKonfirmasiBaru').onclick = async () => {
+      try {
+        await Supabase.konfirmasiKlaim(klaim.npsn);
+        Store.setConfig({
+          ...cfgLama,
+          pengawas_nip: klaim.pengawas_nip,
+          pengawas_nama: klaim.pengawas_nama,
+          pengawas_wilayah: klaim.pengawas_wilayah,
+          pengawas_status: 'confirmed',
+          pengawas_last_check: new Date().toISOString()
+        });
+        Utils.closeModal();
+        Utils.toast('Pengawas baru dikonfirmasi', 'success');
+        Router.navigate('dashboard');
+      } catch (err) {
+        Utils.toast('Gagal: ' + err.message, 'error');
+      }
+    };
   }
 };
 
