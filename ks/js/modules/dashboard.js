@@ -1,6 +1,7 @@
 import { Store } from '../../storage.js';
 import { Utils } from '../../../shared/js/utils.js';
 import { Icons } from '../../../shared/js/icons.js';
+import { Router } from '../../../shared/js/router.js';
 
 const emptyState = (icon, title, sub, cta = '') => `
   <div class="empty-state">
@@ -38,9 +39,14 @@ export const Dashboard = {
     const akad = Store.get('akademik');
     const coach = Store.get('coaching');
     const cfg = Store.config();
+    
     const totalSesi = sup.length + akad.length + coach.length;
     const sudahDinilai = guru.filter(g => g.tipe).length;
     const belumDinilai = guru.length - sudahDinilai;
+    
+    // Deteksi supervisi yang belum selesai (draft)
+    const supBerjalan = sup.filter(s => s.status !== 'selesai').length;
+
     const tipeDist = { Dropout: 0, Unfocused: 0, Analytical: 0, Professional: 0 };
     guru.forEach(g => { if (g.tipe && tipeDist[g.tipe] !== undefined) tipeDist[g.tipe]++; });
 
@@ -50,12 +56,46 @@ export const Dashboard = {
       .sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''))
       .slice(0, 5);
 
+    // Hitung Perlu Perhatian
+    const perhatian = [];
+    if (guru.length === 0) {
+      perhatian.push({ icon: 'users', text: 'Belum ada data guru. Tambahkan guru terlebih dahulu.', href: 'guru', color: 'var(--brand-600)' });
+    } else if (belumDinilai > 0) {
+      perhatian.push({ icon: 'target', text: `${belumDinilai} guru belum dinilai tipe profilnya.`, href: 'profil', color: 'var(--warning)' });
+    }
+    if (supBerjalan > 0) {
+      perhatian.push({ icon: 'clipboard-list', text: `${supBerjalan} supervisi belum diselesaikan.`, href: 'supervisi', color: 'var(--brand-600)' });
+    }
+
     return `
       ${backupBanner()}
-      <div class="page-head">
-        <div>
-          <h2>Dashboard</h2>
-          <div class="page-sub">Selamat datang, ${Utils.esc(cfg.nama_ks || 'Kepala Sekolah')}</div>
+      
+      <!-- Kartu Profil KS -->
+      <div class="card" style="margin-bottom:1.5rem; overflow:hidden">
+        <div style="background:linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); padding:1.5rem; color:white">
+          <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap">
+            <div style="width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,.15); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:700; border:1px solid rgba(255,255,255,.25)">
+              ${(cfg.nama_ks || 'K').charAt(0).toUpperCase()}
+            </div>
+            <div style="flex:1; min-width:0">
+              <div style="font-size:0.75rem; color:#c7d2fe; text-transform:uppercase; letter-spacing:0.05em">Kepala Sekolah</div>
+              <div style="font-size:1.25rem; font-weight:700; margin-top:0.25rem">${Utils.esc(cfg.nama_ks || '—')}</div>
+              <div style="font-size:0.875rem; color:#e0e7ff; margin-top:0.125rem">${Utils.esc(cfg.nama_sekolah || '—')}</div>
+            </div>
+            <button class="btn" onclick="App.switchTab('pengaturan')" style="background:rgba(255,255,255,.15); color:white; border:1px solid rgba(255,255,255,.25)">
+              ${Icons.svg('settings', 16)} Edit Profil
+            </button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); border-top:1px solid var(--slate-100)">
+          <div style="padding:1rem">
+            <div style="font-size:0.75rem; color:var(--slate-500)">NPSN</div>
+            <div class="text-mono" style="font-size:0.875rem; font-weight:500; color:var(--slate-900); margin-top:0.25rem">${Utils.esc(cfg.npsn || '—')}</div>
+          </div>
+          <div style="padding:1rem; border-left:1px solid var(--slate-100)">
+            <div style="font-size:0.75rem; color:var(--slate-500)">NIP</div>
+            <div class="text-mono" style="font-size:0.875rem; font-weight:500; color:var(--slate-900); margin-top:0.25rem">${Utils.esc(cfg.nip_ks || '—')}</div>
+          </div>
         </div>
       </div>
 
@@ -70,23 +110,24 @@ export const Dashboard = {
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#fef3c7;color:#92400e">${Icons.svg('target', 22)}</div>
-          <div><div style="font-size:.75rem;color:var(--slate-500)">Sudah Dinilai</div><div style="font-size:1.5rem;font-weight:700">${sudahDinilai}</div></div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Sudah Dinilai</div><div style="font-size:1.5rem;font-weight:700">${sudahDinilai}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/${guru.length}</span></div></div>
         </div>
       </div>
 
-      ${belumDinilai > 0 ? `
-        <div class="card" style="border-left:3px solid var(--warning)">
-          <div class="card-body">
-            <div style="display:flex;gap:.75rem;align-items:center">
-              <span style="color:var(--warning)">${Icons.svg('alert-triangle', 24)}</span>
-              <div style="flex:1">
-                <div style="font-weight:600">Perlu Perhatian</div>
-                <div style="font-size:.85rem;color:var(--slate-600)">${belumDinilai} guru belum dinilai tipe profilnya.</div>
-              </div>
-              <button class="btn btn-secondary" id="btnGoProfil">Nilai Sekarang ${Icons.svg('chevron-right', 16)}</button>
-            </div>
+      ${perhatian.length > 0 ? `
+        <div class="card" style="margin-bottom:1.5rem">
+          <div class="card-header" style="color:var(--warning)">${Icons.svg('alert-circle', 18)} Perlu Perhatian</div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:.5rem">
+            ${perhatian.map(p => `
+              <button class="btn btn-secondary" style="justify-content:flex-start; padding:.75rem; text-align:left" onclick="App.switchTab('${p.href}')">
+                <span style="color:${p.color}; margin-right:.5rem">${Icons.svg(p.icon, 18)}</span>
+                <span style="flex:1; font-size:.85rem">${p.text}</span>
+                ${Icons.svg('chevron-right', 16)}
+              </button>
+            `).join('')}
           </div>
-        </div>` : ''}
+        </div>
+      ` : ''}
 
       ${guru.length === 0 ? `<div class="card"><div class="card-body">
         ${emptyState('users', 'Belum ada guru', 'Tambahkan data guru untuk memulai supervisi.',
@@ -103,17 +144,6 @@ export const Dashboard = {
                 <div style="font-size:.75rem;color:var(--slate-500);margin-top:.25rem">${t}</div>
               </div>`).join('')}
           </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">${Icons.svg('plus', 18)} Aksi Cepat</div>
-        <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem">
-          <button class="btn btn-secondary" style="justify-content:flex-start;padding:1rem" data-nav="guru">${Icons.svg('users', 18)} Tambah Guru</button>
-          <button class="btn btn-secondary" style="justify-content:flex-start;padding:1rem" data-nav="supervisi">${Icons.svg('clipboard-list', 18)} Supervisi 3 Tahap</button>
-          <button class="btn btn-secondary" style="justify-content:flex-start;padding:1rem" data-nav="akademik">${Icons.svg('laptop', 18)} Obs. Akademik</button>
-          <button class="btn btn-secondary" style="justify-content:flex-start;padding:1rem" data-nav="coaching">${Icons.svg('message-circle', 18)} Obs. Coaching</button>
-          <button class="btn btn-secondary" style="justify-content:flex-start;padding:1rem" data-nav="laporan">${Icons.svg('file-text', 18)} Laporan</button>
         </div>
       </div>
 
@@ -134,7 +164,6 @@ export const Dashboard = {
   },
 
   async bind() {
-    // Backup CTA
     const backupBtn = Utils.el('btnBackupNow');
     if (backupBtn) {
       backupBtn.onclick = async () => {
@@ -152,18 +181,6 @@ export const Dashboard = {
       };
     }
 
-    // Quick action nav
-    document.querySelectorAll('#main [data-nav]').forEach(btn => {
-      btn.onclick = async () => {
-        const { Router } = await import('../../../shared/js/router.js');
-        Router.navigate(btn.dataset.nav);
-      };
-    });
-    // Specific helpers
-    Utils.el('btnGoProfil')?.addEventListener('click', async () => {
-      const { Router } = await import('../../../shared/js/router.js');
-      Router.navigate('profil');
-    });
     Utils.el('btnAddGuru')?.addEventListener('click', async () => {
       const { Router } = await import('../../../shared/js/router.js');
       Router.navigate('guru');
