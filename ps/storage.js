@@ -56,7 +56,7 @@ export const Store = {
         return;
       }
     } catch {}
-    this._cache = { config: {}, sekolah: [] };
+    this._cache = { config: {}, sekolah: [], evaluasi: [] };
   },
 
   load() { return this._cache || { config: {}, sekolah: [] }; },
@@ -75,7 +75,7 @@ export const Store = {
   setConfig(c) { const d = { ...this.load() }; d.config = c; return this.save(d); },
 
   async reset() {
-    this._cache = { config: {}, sekolah: [] };
+    this._cache = { config: {}, sekolah: [], evaluasi: [] };
     try { await idb.set(this.KEY, null); } catch {}
     try { localStorage.removeItem(this.KEY); } catch {}
   }
