@@ -341,7 +341,7 @@ export const Sekolah = {
   // PICK FROM DB (tidak diubah)
   // ============================================
   async pickFromDB() {
-    Utils.modal('Pilih Sekolah dari Database', `<div style="text-align:center;padding:2rem;color:var(--slate-500)">Memuat...</div>`, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>', true);
+    Utils.modal('Pilih Sekolah dari Database', `<div style="text-align:center;padding:2rem;color:var(--slate-500)">Memuat data...</div>`, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>', true);
 
     try {
       const allSchools = await Supabase.getAllSekolah();
@@ -365,85 +365,121 @@ export const Sekolah = {
       const perPage = 10;
       const selected = new Set();
 
-      const draw = () => {
+      // 1. RENDER KERANGKA MODAL (Hanya Sekali)
+      Utils.modal('Pilih Sekolah dari Database', `
+        <div style="margin-bottom:1rem">
+          <input type="text" id="searchDB" class="input" placeholder="Cari NPSN atau nama sekolah...">
+        </div>
+        <div style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:.85rem;color:var(--slate-500)"><strong id="dbCount">${filtered.length}</strong> sekolah tersedia</span>
+          <button class="btn btn-secondary btn-sm" id="btnSelectAllPage">Pilih Semua di Halaman</button>
+        </div>
+        <div id="dbListContainer" style="max-height:45vh;overflow-y:auto;border:1px solid var(--slate-200);border-radius:8px"></div>
+        <div id="dbPagination"></div>
+      `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button><button class="btn btn-primary" id="btnSavePick">Klaim Sekolah</button>`, true);
+
+      // 2. FUNGSI RENDER LIST (Hanya mengupdate list dan pagination)
+      const renderList = () => {
         const totalPages = Math.ceil(filtered.length / perPage);
+        if (page > totalPages) page = Math.max(1, totalPages);
+        if (page < 1) page = 1;
+
         const start = (page - 1) * perPage;
         const data = filtered.slice(start, start + perPage);
 
-        const list = data.length === 0
-          ? '<div style="padding:2rem;text-align:center;color:var(--slate-400);font-size:.85rem">Tidak ada hasil</div>'
-          : data.map(s => `
-              <label style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border-bottom:1px solid var(--slate-100);cursor:pointer;background:${selected.has(s.npsn) ? 'var(--brand-50)' : 'transparent'}">
-                <input type="checkbox" class="db-cb" value="${s.npsn}" data-nama="${Utils.esc(s.nama_sekolah)}" ${selected.has(s.npsn) ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--brand-600)">
-                <div><div style="font-weight:600;font-size:.9rem">${Utils.esc(s.nama_sekolah)}</div><div style="font-size:.75rem;color:var(--slate-500);font-family:monospace">NPSN: ${s.npsn}</div></div>
-              </label>
-            `).join('');
+        // Update List Container
+        const listContainer = Utils.el('dbListContainer');
+        if (data.length === 0) {
+          listContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--slate-400);font-size:.85rem">Tidak ada hasil</div>';
+        } else {
+          listContainer.innerHTML = data.map(s => `
+            <label style="display:flex;align-items:center;gap:.75rem;padding:.75rem;border-bottom:1px solid var(--slate-100);cursor:pointer;background:${selected.has(s.npsn) ? 'var(--brand-50)' : 'transparent'}">
+              <input type="checkbox" class="db-cb" value="${s.npsn}" data-nama="${Utils.esc(s.nama_sekolah)}" ${selected.has(s.npsn) ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--brand-600)">
+              <div><div style="font-weight:600;font-size:.9rem">${Utils.esc(s.nama_sekolah)}</div><div style="font-size:.75rem;color:var(--slate-500);font-family:monospace">NPSN: ${s.npsn}</div></div>
+            </label>
+          `).join('');
+        }
 
-        const pagination = totalPages > 1 ? `
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--slate-200)">
-            <button class="btn btn-secondary btn-sm" id="prevPage" ${page === 1 ? 'disabled' : ''}>Prev</button>
-            <span style="font-size:.8rem;color:var(--slate-500)">${page} / ${totalPages}</span>
-            <button class="btn btn-secondary btn-sm" id="nextPage" ${page === totalPages ? 'disabled' : ''}>Next</button>
-          </div>` : '';
+        // Update Pagination Container
+        const pagContainer = Utils.el('dbPagination');
+        if (totalPages > 1) {
+          pagContainer.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--slate-200)">
+              <button class="btn btn-secondary btn-sm" id="prevPage" ${page === 1 ? 'disabled' : ''}>Prev</button>
+              <span style="font-size:.8rem;color:var(--slate-500)">Halaman ${page} dari ${totalPages}</span>
+              <button class="btn btn-secondary btn-sm" id="nextPage" ${page === totalPages ? 'disabled' : ''}>Next</button>
+            </div>
+          `;
+          Utils.el('prevPage').onclick = () => { page--; renderList(); };
+          Utils.el('nextPage').onclick = () => { page++; renderList(); };
+        } else {
+          pagContainer.innerHTML = '';
+        }
 
-        Utils.modal('Pilih Sekolah dari Database', `
-          <div style="margin-bottom:1rem"><input type="text" id="searchDB" class="input" placeholder="Cari NPSN atau nama sekolah..."></div>
-          <div style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:.85rem;color:var(--slate-500)"><strong>${filtered.length}</strong> sekolah tersedia</span>
-            <button class="btn btn-secondary btn-sm" id="btnSelectAllPage">Pilih Semua di Halaman</button>
-          </div>
-          <div style="max-height:45vh;overflow-y:auto;border:1px solid var(--slate-200);border-radius:8px">${list}</div>
-          ${pagination}
-        `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button><button class="btn btn-primary" id="btnSavePick">Klaim ${selected.size > 0 ? `(${selected.size})` : ''} Sekolah</button>`, true);
-
-        Utils.el('searchDB').addEventListener('input', Utils.debounce((e) => {
-          const q = e.target.value.toLowerCase().trim();
-          filtered = available.filter(s => s.nama_sekolah.toLowerCase().includes(q) || s.npsn.includes(q));
-          page = 1;
-          draw();
-        }, 200));
-        Utils.el('prevPage')?.addEventListener('click', () => { page--; draw(); });
-        Utils.el('nextPage')?.addEventListener('click', () => { page++; draw(); });
-        Utils.el('btnSelectAllPage').addEventListener('click', () => {
-          const allChecked = data.every(s => selected.has(s.npsn));
-          data.forEach(s => allChecked ? selected.delete(s.npsn) : selected.add(s.npsn));
-          draw();
-        });
+        // Update Text
+        Utils.el('dbCount').textContent = filtered.length;
+        Utils.el('btnSavePick').innerHTML = `Klaim ${selected.size > 0 ? `(${selected.size})` : ''} Sekolah`;
+        
+        // Bind Checkbox
         document.querySelectorAll('.db-cb').forEach(cb => {
-          cb.addEventListener('change', (e) => {
-            e.target.checked ? selected.add(e.target.value) : selected.delete(e.target.value);
-            draw();
-          });
-        });
-        Utils.el('btnSavePick').addEventListener('click', async () => {
-          if (selected.size === 0) return Utils.toast('Pilih minimal satu', 'warning');
-          const btn = Utils.el('btnSavePick');
-          btn.disabled = true;
-          btn.innerHTML = 'Memproses...';
-          try {
-            const newSk = [];
-            for (const npsn of selected) {
-              const sk = available.find(s => s.npsn === npsn);
-              await Supabase.claimSekolah(npsn, myNip);
-              newSk.push({
-                id: Utils.uid(), npsn, nama_sekolah: sk.nama_sekolah,
-                ks_nama: '', ks_nip: '',
-                imported_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-                guru: [], program: [], supervisi: [], akademik: [], coaching: []
-              });
-            }
-            await Store.set('sekolah', [...localSchools, ...newSk]);
-            Utils.closeModal();
-            Utils.toast(`${selected.size} sekolah diklaim`, 'success');
-            Router.navigate('sekolah');
-          } catch (err) {
-            btn.disabled = false;
-            btn.innerHTML = 'Klaim';
-            Utils.toast('Gagal: ' + err.message, 'error');
-          }
+          cb.onchange = (e) => {
+            if (e.target.checked) selected.add(e.target.value);
+            else selected.delete(e.target.value);
+            e.target.closest('label').style.background = e.target.checked ? 'var(--brand-50)' : 'transparent';
+            Utils.el('btnSavePick').innerHTML = `Klaim ${selected.size > 0 ? `(${selected.size})` : ''} Sekolah`;
+          };
         });
       };
-      draw();
+
+      // 3. BIND EVENT PENCARIAN
+      Utils.el('searchDB').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        filtered = available.filter(s => s.nama_sekolah.toLowerCase().includes(q) || s.npsn.includes(q));
+        page = 1;
+        renderList(); // Hanya render ulang list, input search tidak disentuh
+      });
+
+      // 4. BIND SELECT ALL PER HALAMAN
+      Utils.el('btnSelectAllPage').onclick = () => {
+        const start = (page - 1) * perPage;
+        const data = filtered.slice(start, start + perPage);
+        const allChecked = data.every(s => selected.has(s.npsn));
+        data.forEach(s => allChecked ? selected.delete(s.npsn) : selected.add(s.npsn));
+        renderList();
+      };
+
+      // 5. BIND TOMBOL SIMPAN
+      Utils.el('btnSavePick').onclick = async () => {
+        if (selected.size === 0) return Utils.toast('Pilih minimal satu', 'warning');
+        const btn = Utils.el('btnSavePick');
+        btn.disabled = true;
+        btn.innerHTML = 'Memproses...';
+        try {
+          const newSk = [];
+          for (const npsn of selected) {
+            const sk = available.find(s => s.npsn === npsn);
+            await Supabase.claimSekolah(npsn, myNip);
+            newSk.push({
+              id: Utils.uid(), npsn, nama_sekolah: sk.nama_sekolah,
+              ks_nama: '', ks_nip: '',
+              imported_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+              guru: [], program: [], supervisi: [], akademik: [], coaching: []
+            });
+          }
+          await Store.set('sekolah', [...localSchools, ...newSk]);
+          Utils.closeModal();
+          Utils.toast(`${selected.size} sekolah diklaim`, 'success');
+          Router.navigate('sekolah');
+        } catch (err) {
+          btn.disabled = false;
+          btn.innerHTML = 'Klaim';
+          Utils.toast('Gagal: ' + err.message, 'error');
+        }
+      };
+
+      // 6. RENDER PERTAMA KALI
+      renderList();
+
     } catch (err) {
       Utils.closeModal();
       Utils.toast(err.message, 'error');
