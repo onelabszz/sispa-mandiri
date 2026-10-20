@@ -8,6 +8,69 @@ import {
   REFLEKSI_7, FOKUS_LABELS, KESIAPAN_LABELS
 } from '../../../shared/js/constants.js';
 
+// Panduan pendekatan berdasarkan tipe guru (Modul 5)
+const APPROACH_GUIDE = {
+  'Dropout': {
+    kuadran: 'I',
+    pendekatan: 'Directive-Control',
+    title: 'Arahan Langsung & Kontrol Ketat',
+    tips: 'Beri tahu secara spesifik apa yang perlu diperbaiki. Berikan contoh konkret. Dampingi saat praktik. Kontrol ketat pada penerapan.',
+    color: '#991b1b', bg: '#fee2e2'
+  },
+  'Unfocused': {
+    kuadran: 'II',
+    pendekatan: 'Directive-Informational',
+    title: 'Beri Pilihan Terbatas',
+    tips: 'Sajikan 2–3 alternatif solusi. Biarkan guru memilih. Berikan contoh & dampingi praktik. Fokus pada membangun kesadaran.',
+    color: '#92400e', bg: '#fef3c7'
+  },
+  'Analytical': {
+    kuadran: 'III',
+    pendekatan: 'Collaborative',
+    title: 'Kolaborasi & Negosiasi',
+    tips: 'Gali ide guru dengan pertanyaan terbuka. Negosiasi solusi bersama. Bagi tugas untuk penerapan. Bangun komitmen melalui diskusi.',
+    color: '#4338ca', bg: '#e0e7ff'
+  },
+  'Professional': {
+    kuadran: 'IV',
+    pendekatan: 'Non-Directive',
+    title: 'Fasilitasi Refleksi Mandiri',
+    tips: 'Tahan diri untuk memberi jawaban. Gunakan pertanyaan coaching. Biarkan guru menemukan solusinya sendiri. Anda hanya memfasilitasi pemikiran.',
+    color: '#166534', bg: '#dcfce7'
+  }
+};
+
+const MODUL5_HINTS = {
+  pra: {
+    title: 'Panduan Modul 5 — Pra-Observasi',
+    tips: [
+      'Tanyakan: "Apa tujuan pembelajaran yang ingin dicapai hari ini?"',
+      'Tanyakan: "Bagaimana Anda menerapkan Prinsip Pembelajaran Mendalam?"',
+      'Tanyakan: "Apa aspek fokus yang ingin kita amati bersama?"',
+      'Sepakati bersama 1 aspek fokus (jangan banyak-banyak)'
+    ]
+  },
+  obs: {
+    title: 'Panduan Modul 5 — Observasi',
+    tips: [
+      'Catat FAKTA (apa yang dilihat & didengar), bukan opini atau penilaian',
+      'Contoh fakta: "Guru memberi waktu tunggu 5 detik sebelum murid menjawab"',
+      'Bukan fakta: "Guru kurang memberi waktu berpikir"',
+      'Fokus pada aspek yang sudah disepakati di pra-observasi'
+    ]
+  },
+  pasca: {
+    title: 'Panduan Modul 5 — Pasca-Observasi',
+    tips: [
+      'Ajukan 7 pertanyaan refleksi secara berurutan (jangan dilompati)',
+      'Jangan interupsi saat guru berbicara',
+      'Respons "Menanyakan" jika guru belum menyadari → bantu dengan pertanyaan lanjutan',
+      'Respons "Memberitahu" jika guru buntu → beri tahu fakta yang Anda amati',
+      'RTL harus spesifik: aksi konkret, waktu jelas, indikator terukur'
+    ]
+  }
+};
+
 let _cur = null;      // current supervisi object
 let _step = 1;        // current step (1, 2, 3)
 
@@ -163,11 +226,38 @@ export const Supervisi = {
   },
 
   _pra(s) {
+    // Dapatkan data guru untuk panduan pendekatan
+    const g = Store.get('guru').find(x => x.id === s.gid);
+    const approach = g && g.tipe ? APPROACH_GUIDE[g.tipe] : null;
+
     return `
+      <div style="padding:.85rem 1rem;background:var(--brand-50);border:1px solid var(--brand-100);border-radius:10px;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+          ${Icons.svg('info', 18)}
+          <strong style="color:var(--brand-700);font-size:.875rem">${MODUL5_HINTS.pra.title}</strong>
+        </div>
+        <ul style="margin:0;padding-left:1.5rem;font-size:.8rem;color:var(--brand-700);line-height:1.7">
+          ${MODUL5_HINTS.pra.tips.map(t => `<li>${t}</li>`).join('')}
+        </ul>
+      </div>
+
+      ${approach ? `
+        <div style="padding:.85rem 1rem;background:${approach.bg};border:1px solid ${approach.color}33;border-radius:10px;margin-bottom:1rem">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+            ${Icons.svg('target', 18)}
+            <strong style="color:${approach.color};font-size:.875rem">Pendekatan: ${approach.pendekatan} — Kuadran ${approach.kuadran}</strong>
+          </div>
+          <div style="font-size:.8rem;color:${approach.color};line-height:1.6">
+            <strong>${approach.title}</strong><br>
+            ${approach.tips}
+          </div>
+        </div>
+      ` : ''}
+
       <div class="card"><div class="card-body">
-        <div class="form-group"><label class="label">Tujuan Pembelajaran</label><textarea class="textarea" id="fTujuan" rows="2">${Utils.esc(s.tujuan || '')}</textarea></div>
-        <div class="form-group"><label class="label">Strategi / Praktik Pedagogis</label><textarea class="textarea" id="fStrategi" rows="2">${Utils.esc(s.strategi || '')}</textarea></div>
-        <div class="form-group"><label class="label">Rencana Asesmen</label><textarea class="textarea" id="fAsesmen" rows="2">${Utils.esc(s.asesmen || '')}</textarea></div>
+        <div class="form-group"><label class="label">Tujuan Pembelajaran</label><textarea class="textarea" id="fTujuan" rows="2" placeholder="Tanyakan: Apa tujuan pembelajaran yang ingin dicapai hari ini?">${Utils.esc(s.tujuan || '')}</textarea></div>
+        <div class="form-group"><label class="label">Strategi / Praktik Pedagogis</label><textarea class="textarea" id="fStrategi" rows="2" placeholder="Tanyakan: Bagaimana Anda menerapkan PM?">${Utils.esc(s.strategi || '')}</textarea></div>
+        <div class="form-group"><label class="label">Rencana Asesmen</label><textarea class="textarea" id="fAsesmen" rows="2" placeholder="Tanyakan: Bagaimana Anda merencanakan asesmen?">${Utils.esc(s.asesmen || '')}</textarea></div>
       </div></div>
 
       <div class="card"><div class="card-header">${Icons.svg('target', 18)} Prinsip Pembelajaran Mendalam</div><div class="card-body">
@@ -232,12 +322,19 @@ export const Supervisi = {
 
   _obs(s) {
     return `
-      <div class="card"><div class="card-body">
-        <div style="padding:.75rem;background:var(--brand-50);border-left:3px solid var(--brand-500);border-radius:4px;font-size:.8rem;color:var(--brand-700);margin-bottom:1rem">
-          Catat aktivitas faktual (bukan opini) yang dilihat & didengar.
+      <div style="padding:.85rem 1rem;background:var(--brand-50);border:1px solid var(--brand-100);border-radius:10px;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+          ${Icons.svg('info', 18)}
+          <strong style="color:var(--brand-700);font-size:.875rem">${MODUL5_HINTS.obs.title}</strong>
         </div>
-        <div class="form-group"><label class="label">Aktivitas Guru</label><textarea class="textarea" id="fObsGuru" rows="4">${Utils.esc(s.obs_guru || '')}</textarea></div>
-        <div class="form-group"><label class="label">Aktivitas Murid</label><textarea class="textarea" id="fObsMurid" rows="4">${Utils.esc(s.obs_murid || '')}</textarea></div>
+        <ul style="margin:0;padding-left:1.5rem;font-size:.8rem;color:var(--brand-700);line-height:1.7">
+          ${MODUL5_HINTS.obs.tips.map(t => `<li>${t}</li>`).join('')}
+        </ul>
+      </div>
+
+      <div class="card"><div class="card-body">
+        <div class="form-group"><label class="label">Aktivitas Guru</label><textarea class="textarea" id="fObsGuru" rows="4" placeholder="Contoh:&#10;- Guru membuka dengan apersepsi tentang...&#10;- Memberi waktu tunggu 5 detik...">${Utils.esc(s.obs_guru || '')}</textarea></div>
+        <div class="form-group"><label class="label">Aktivitas Murid</label><textarea class="textarea" id="fObsMurid" rows="4" placeholder="Contoh:&#10;- 8 dari 10 murid aktif berdiskusi...&#10;- Murid bertanya tentang...">${Utils.esc(s.obs_murid || '')}</textarea></div>
       </div></div>
 
       <div class="card"><div class="card-header">${Icons.svg('target', 18)} Momen Pembelajaran Mendalam</div><div class="card-body">
@@ -251,19 +348,45 @@ export const Supervisi = {
       </div></div>
 
       <div class="card"><div class="card-body">
-        <div class="form-group"><label class="label">Integrasi Koding / AI (KKA)</label><textarea class="textarea" id="fKKA" rows="2">${Utils.esc(s.kka || '')}</textarea></div>
+        <div class="form-group"><label class="label">Integrasi Koding / AI (KKA)</label><textarea class="textarea" id="fKKA" rows="2" placeholder="Kosongkan jika tidak ada integrasi KKA">${Utils.esc(s.kka || '')}</textarea></div>
         <div class="form-group"><label class="label">Durasi Observasi (menit)</label><input type="number" class="input" id="fDur" value="${s.durasi || ''}"></div>
       </div></div>`;
   },
 
   _pasca(s) {
+    const g = Store.get('guru').find(x => x.id === s.gid);
+    const approach = g && g.tipe ? APPROACH_GUIDE[g.tipe] : null;
+
     return `
+      <div style="padding:.85rem 1rem;background:var(--brand-50);border:1px solid var(--brand-100);border-radius:10px;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+          ${Icons.svg('info', 18)}
+          <strong style="color:var(--brand-700);font-size:.875rem">${MODUL5_HINTS.pasca.title}</strong>
+        </div>
+        <ul style="margin:0;padding-left:1.5rem;font-size:.8rem;color:var(--brand-700);line-height:1.7">
+          ${MODUL5_HINTS.pasca.tips.map(t => `<li>${t}</li>`).join('')}
+        </ul>
+      </div>
+
+      ${approach ? `
+        <div style="padding:.85rem 1rem;background:${approach.bg};border:1px solid ${approach.color}33;border-radius:10px;margin-bottom:1rem">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+            ${Icons.svg('message-circle', 18)}
+            <strong style="color:${approach.color};font-size:.875rem">Pendekatan untuk ${g.tipe}: ${approach.pendekatan}</strong>
+          </div>
+          <div style="font-size:.8rem;color:${approach.color};line-height:1.6">
+            <strong>${approach.title}</strong><br>
+            ${approach.tips}
+          </div>
+        </div>
+      ` : ''}
+
       <div class="card"><div class="card-header">${Icons.svg('message-circle', 18)} 7 Pertanyaan Refleksi</div><div class="card-body">
         ${REFLEKSI_7.map((r, i) => {
           const curResp = (s.respon || {})[r.key];
           return `<div style="padding:.75rem;border:1px solid var(--slate-200);border-radius:8px;margin-bottom:.65rem">
             <div style="font-weight:600;font-size:.85rem;margin-bottom:.35rem">${i + 1}. ${r.q}</div>
-            <textarea class="textarea" id="rf_${r.key}" rows="2" style="margin-bottom:.5rem;font-size:.8rem">${Utils.esc((s.refleksi || {})[r.key] || '')}</textarea>
+            <textarea class="textarea" id="rf_${r.key}" rows="2" style="margin-bottom:.5rem;font-size:.8rem" placeholder="Jawaban/refleksi guru...">${Utils.esc((s.refleksi || {})[r.key] || '')}</textarea>
             <div style="font-size:.7rem;color:var(--slate-500);margin-bottom:.25rem">Respons supervisor:</div>
             <div style="display:flex;gap:.4rem">
               <button type="button" class="btn btn-sm ${curResp === 'menanyakan' ? 'btn-primary' : 'btn-secondary'}" data-respon="menanyakan" data-key="${r.key}" style="flex:1">Menanyakan</button>
@@ -274,13 +397,13 @@ export const Supervisi = {
       </div></div>
 
       <div class="card"><div class="card-header">${Icons.svg('file-text', 18)} RTL (Rencana Tindak Lanjut)</div><div class="card-body">
-        <div class="form-group"><label class="label">Rencana Aksi</label><textarea class="textarea" id="fRtlAksi" rows="2">${Utils.esc((s.rtl || {}).aksi || '')}</textarea></div>
+        <div class="form-group"><label class="label">Rencana Aksi</label><textarea class="textarea" id="fRtlAksi" rows="2" placeholder="Spesifik & konkret">${Utils.esc((s.rtl || {}).aksi || '')}</textarea></div>
         <div class="row">
           <div class="form-group"><label class="label">Waktu Pelaksanaan</label><input class="input" id="fRtlWaktu" value="${Utils.esc((s.rtl || {}).waktu || '')}" placeholder="Kamis, 20 Okt"></div>
-          <div class="form-group"><label class="label">Dukungan</label><input class="input" id="fRtlDuk" value="${Utils.esc((s.rtl || {}).dukungan || '')}"></div>
+          <div class="form-group"><label class="label">Dukungan</label><input class="input" id="fRtlDuk" value="${Utils.esc((s.rtl || {}).dukungan || '')}" placeholder="Dukungan yang diperlukan"></div>
         </div>
-        <div class="form-group"><label class="label">Indikator Keberhasilan</label><input class="input" id="fRtlInd" value="${Utils.esc((s.rtl || {}).indikator || '')}"></div>
-        <div class="form-group"><label class="label">Link Dokumentasi</label><input class="input" id="fLinkDok" value="${Utils.esc(s.link_dok || '')}"></div>
+        <div class="form-group"><label class="label">Indikator Keberhasilan</label><input class="input" id="fRtlInd" value="${Utils.esc((s.rtl || {}).indikator || '')}" placeholder="Terukur, misal: 80% murid aktif"></div>
+        <div class="form-group"><label class="label">Link Dokumentasi</label><input class="input" id="fLinkDok" value="${Utils.esc(s.link_dok || '')}" placeholder="https://..."></div>
       </div></div>`;
   },
 
