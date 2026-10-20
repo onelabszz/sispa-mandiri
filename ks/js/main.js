@@ -171,6 +171,28 @@ const App = {
           return Utils.toast('Akun sekolah ini dinonaktifkan (Suspend). Hubungi Admin.', 'error');
         }
 
+        // ============================================
+        // CEK: Apakah device ini sudah punya data sekolah LAIN?
+        // ============================================
+        const cfg = Store.config();
+        const hasDifferentSchool = cfg.npsn && cfg.npsn !== data.npsn;
+        const hasExistingData = (Store.get('guru') || []).length > 0
+          || (Store.get('supervisi') || []).length > 0
+          || (Store.get('akademik') || []).length > 0
+          || (Store.get('coaching') || []).length > 0
+          || (Store.get('program') || []).length > 0;
+
+        if (hasDifferentSchool && hasExistingData) {
+          // Tampilkan modal blocker — JANGAN login dulu
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          this._showConflictModal(cfg, data);
+          return;
+        }
+
+        // ============================================
+        // Lanjut login (tidak ada konflik data)
+        // ============================================
         Auth.saveSession({
           role: 'KS',
           npsn: data.npsn,
@@ -178,7 +200,6 @@ const App = {
           logged_in_at: new Date().toISOString()
         });
 
-        const cfg = Store.config();
         Store.setConfig({ ...cfg, npsn: data.npsn, nama_sekolah: data.nama_sekolah });
 
         if (!Store.config().nama_ks) {
@@ -275,6 +296,121 @@ const App = {
       s.style.display = 'none';
       setTimeout(() => this.boot(), 300);
     };
+  },
+
+  _showConflictModal(oldCfg, newSchoolData) {
+    const guruCount = (Store.get('guru') || []).length;
+    const supCount = (Store.get('supervisi') || []).length;
+    const akadCount = (Store.get('akademik') || []).length;
+    const coachCount = (Store.get('coaching') || []).length;
+    const progCount = (Store.get('program') || []).length;
+
+    Utils.modal('⚠️ Perangkat Sudah Punya Data', `
+      <div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1rem">
+        <div style="display:flex;gap:.75rem;align-items:flex-start">
+          <span style="color:#dc2626;flex-shrink:0">${Icons.svg('alert-triangle', 24)}</span>
+          <div style="flex:1">
+            <div style="font-weight:700;color:#991b1b;font-size:.95rem">Data Lama Akan Hilang!</div>
+            <div style="font-size:.85rem;color:#7f1d1d;margin-top:.35rem;line-height:1.6">
+              Perangkat ini <strong>sudah menyimpan data</strong> untuk sekolah lain. 
+              Jika Anda login sebagai <strong>${Utils.esc(newSchoolData.nama_sekolah)}</strong>, 
+              semua data sekolah lama akan <strong>DIHAPUS PERMANEN</strong> dan tidak bisa dipulihkan.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+        <div style="padding:.85rem;background:#fef2f2;border-radius:8px;border:1px solid #fecaca">
+          <div style="font-size:.7rem;color:#991b1b;text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Sekolah Saat Ini</div>
+          <div style="font-weight:700;color:#991b1b;font-size:.9rem">${Utils.esc(oldCfg.nama_sekolah || '—')}</div>
+          <div style="font-size:.75rem;color:#7f1d1d;margin-top:.15rem;font-family:monospace">NPSN ${Utils.esc(oldCfg.npsn || '—')}</div>
+          <div style="font-size:.75rem;color:#991b1b;margin-top:.35rem">
+            ${guruCount} guru · ${supCount + akadCount + coachCount} sesi · ${progCount} program
+          </div>
+        </div>
+        <div style="padding:.85rem;background:var(--brand-50);border-radius:8px;border:1px solid var(--brand-500)">
+          <div style="font-size:.7rem;color:var(--brand-700);text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Akan Login Sebagai</div>
+          <div style="font-weight:700;color:var(--brand-700);font-size:.9rem">${Utils.esc(newSchoolData.nama_sekolah)}</div>
+          <div style="font-size:.75rem;color:var(--brand-600);margin-top:.15rem;font-family:monospace">NPSN ${Utils.esc(newSchoolData.npsn)}</div>
+        </div>
+      </div>
+
+      <div style="padding:.75rem;background:var(--brand-50);border-radius:8px;font-size:.8rem;color:var(--brand-700);line-height:1.6">
+        <strong>💡 Rekomendasi:</strong> Ekspor backup JSON terlebih dahulu agar data sekolah lama bisa dipulihkan jika diperlukan.
+      </div>
+    `, `
+      <button class="btn btn-secondary" id="btnConflictCancel">Batal</button>
+      <button class="btn btn-secondary" id="btnConflictExport" style="color:var(--success);border-color:var(--success)">${Icons.svg('download', 14)} Ekspor Dulu</button>
+      <button class="btn btn-danger" id="btnConflictForce">Lanjut (Timpa)</button>
+    `);
+
+    Utils.el('btnConflictCancel').onclick = () => {
+      Utils.closeModal();
+      const screen = Utils.el('setupScreen');
+      const inp = Utils.el('loginNpsn');
+      if (inp) { inp.value = ''; inp.focus(); }
+    };
+
+    Utils.el('btnConflictExport').onclick = () => {
+      // Ekspor backup
+      const data = Store.load();
+      data.version = '2.0.0';
+      data.app = 'sispa-standalone';
+      data.exported_at = new Date().toISOString();
+      
+      const sanitize = (str) => String(str || '')
+        .replace(/[\\/:*?"<>|]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 60);
+      const filename = `SISPA_Backup_${sanitize(oldCfg.npsn)}_${sanitize(oldCfg.nama_sekolah)}_${new Date().toISOString().slice(0,10)}.json`;
+      
+      Utils.downloadJSON(data, filename);
+      Utils.toast('Backup diekspor. Klik "Lanjut (Timpa)" untuk login.', 'success');
+      
+      // Ubah tombol Export jadi trigger lanjut (opsional)
+      Utils.el('btnConflictExport').innerHTML = `${Icons.svg('check', 14)} Backup OK`;
+      Utils.el('btnConflictExport').disabled = true;
+    };
+
+    Utils.el('btnConflictForce').onclick = () => {
+      Utils.confirm(
+        'Yakin Timpa Data?',
+        `Semua data ${oldCfg.nama_sekolah} (${guruCount} guru, ${supCount + akadCount + coachCount} sesi) akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`,
+        () => {
+          this._wipeAndLogin(newSchoolData);
+        }
+      );
+    };
+  },
+
+  async _wipeAndLogin(newSchoolData) {
+    // Wipe semua data supervisi, KEEP session (session akan di-overwrite)
+    await Store.reset();  // Reset ke state kosong
+    
+    // Login sebagai sekolah baru
+    Auth.saveSession({
+      role: 'KS',
+      npsn: newSchoolData.npsn,
+      nama_sekolah: newSchoolData.nama_sekolah,
+      logged_in_at: new Date().toISOString()
+    });
+
+    Store.setConfig({
+      nama_sekolah: newSchoolData.nama_sekolah,
+      npsn: newSchoolData.npsn,
+      nama_ks: '',
+      nip_ks: '',
+      pin: ''
+    });
+
+    Utils.closeModal();
+    Utils.toast(`Data lama dihapus. Login sebagai ${newSchoolData.nama_sekolah}.`, 'success');
+    
+    // Buka profile setup (karena config fresh = tanpa nama_ks)
+    setTimeout(() => this.showProfileSetup(), 300);
   },
 
   boot() {
