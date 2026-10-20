@@ -168,6 +168,20 @@ const App = {
         }
         
         // Simpan session
+        // Cek konflik data
+        const cfg = Store.config();
+        const hasDifferentPengawas = cfg.nip_pengawas && cfg.nip_pengawas !== data.nip;
+        const hasExistingData = (Store.get('sekolah') || []).length > 0
+          || (Store.get('evaluasi') || []).length > 0;
+
+        if (hasDifferentPengawas && hasExistingData) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          this._showConflictModal(cfg, data);
+          return;
+        }
+
+        // Login normal
         Auth.saveSession({
           role: 'PS',
           nip: data.nip,
@@ -176,8 +190,6 @@ const App = {
           logged_in_at: new Date().toISOString()
         });
         
-        // Update config lokal LANGSUNG dari data Supabase
-        const cfg = Store.config();
         Store.setConfig({ 
           ...cfg, 
           nip_pengawas: data.nip, 
@@ -185,7 +197,6 @@ const App = {
           wilayah: data.wilayah || '' 
         });
         
-        // LANGSUNG MASUK DASHBOARD
         Utils.toast('Berhasil masuk!', 'success');
         const screen = Utils.el('setupScreen');
         screen.classList.remove('auth-split');
@@ -273,11 +284,117 @@ const App = {
 
   logout() {
     Utils.confirm('Keluar Aplikasi?', 'Anda akan keluar dari sesi ini. Data supervisi dan profil tetap tersimpan di perangkat ini.', () => {
-      Auth.logout();
+      Auth.logout('PS');
       location.reload();
     });
+  },
+
+  // ============================================
+  // CONFLICT HANDLER — Device Sharing Protection
+  // ============================================
+  _showConflictModal(oldCfg, newPengawasData) {
+    const sekolahCount = (Store.get('sekolah') || []).length;
+    const evaluasiCount = (Store.get('evaluasi') || []).length;
+
+    Utils.modal('⚠️ Perangkat Sudah Punya Data', `
+      <div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1rem">
+        <div style="display:flex;gap:.75rem;align-items:flex-start">
+          <span style="color:#dc2626;flex-shrink:0">${Icons.svg('alert-triangle', 24)}</span>
+          <div style="flex:1">
+            <div style="font-weight:700;color:#991b1b;font-size:.95rem">Data Lama Akan Hilang!</div>
+            <div style="font-size:.85rem;color:#7f1d1d;margin-top:.35rem;line-height:1.6">
+              Perangkat ini <strong>sudah menyimpan data</strong> untuk pengawas lain. 
+              Jika Anda login sebagai <strong>${Utils.esc(newPengawasData.nama_pengawas)}</strong>, 
+              semua data pengawas lama akan <strong>DIHAPUS PERMANEN</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+        <div style="padding:.85rem;background:#fef2f2;border-radius:8px;border:1px solid #fecaca">
+          <div style="font-size:.7rem;color:#991b1b;text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Pengawas Saat Ini</div>
+          <div style="font-weight:700;color:#991b1b;font-size:.9rem">${Utils.esc(oldCfg.nama_pengawas || '—')}</div>
+          <div style="font-size:.75rem;color:#7f1d1d;margin-top:.15rem;font-family:monospace">NIP ${Utils.esc(oldCfg.nip_pengawas || '—')}</div>
+          <div style="font-size:.75rem;color:#991b1b;margin-top:.35rem">
+            ${sekolahCount} sekolah binaan · ${evaluasiCount} evaluasi
+          </div>
+        </div>
+        <div style="padding:.85rem;background:var(--brand-50);border-radius:8px;border:1px solid var(--brand-500)">
+          <div style="font-size:.7rem;color:var(--brand-700);text-transform:uppercase;font-weight:700;margin-bottom:.35rem">Akan Login Sebagai</div>
+          <div style="font-weight:700;color:var(--brand-700);font-size:.9rem">${Utils.esc(newPengawasData.nama_pengawas)}</div>
+          <div style="font-size:.75rem;color:var(--brand-600);margin-top:.15rem;font-family:monospace">NIP ${Utils.esc(newPengawasData.nip)}</div>
+          <div style="font-size:.75rem;color:var(--brand-600);margin-top:.15rem">${Utils.esc(newPengawasData.wilayah || '')}</div>
+        </div>
+      </div>
+
+      <div style="padding:.75rem;background:var(--brand-50);border-radius:8px;font-size:.8rem;color:var(--brand-700);line-height:1.6">
+        <strong>💡 Rekomendasi:</strong> Ekspor backup JSON terlebih dahulu agar data pengawas lama bisa dipulihkan jika diperlukan.
+      </div>
+    `, `
+      <button class="btn btn-secondary" id="btnConflictCancel">Batal</button>
+      <button class="btn btn-secondary" id="btnConflictExport" style="color:var(--success);border-color:var(--success)">${Icons.svg('download', 14)} Ekspor Dulu</button>
+      <button class="btn btn-danger" id="btnConflictForce">Lanjut (Timpa)</button>
+    `);
+
+    Utils.el('btnConflictCancel').onclick = () => {
+      Utils.closeModal();
+      const inp = Utils.el('loginNip');
+      if (inp) { inp.value = ''; inp.focus(); }
+    };
+
+    Utils.el('btnConflictExport').onclick = () => {
+      const data = Store.load();
+      data.version = '2.0.0';
+      data.app = 'sispa-pengawas';
+      data.exported_at = new Date().toISOString();
+      
+      const sanitize = (str) => String(str || '')
+        .replace(/[\\/:*?"<>|]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 60);
+      const filename = `SISPA_Pengawas_${sanitize(oldCfg.nip_pengawas)}_${new Date().toISOString().slice(0,10)}.json`;
+      
+      Utils.downloadJSON(data, filename);
+      Utils.toast('Backup diekspor. Klik "Lanjut (Timpa)" untuk login.', 'success');
+      Utils.el('btnConflictExport').innerHTML = `${Icons.svg('check', 14)} Backup OK`;
+      Utils.el('btnConflictExport').disabled = true;
+    };
+
+    Utils.el('btnConflictForce').onclick = () => {
+      Utils.confirm(
+        'Yakin Timpa Data?',
+        `Semua data ${oldCfg.nama_pengawas} (${sekolahCount} sekolah, ${evaluasiCount} evaluasi) akan dihapus permanen.`,
+        () => this._wipeAndLogin(newPengawasData)
+      );
+    };
+  },
+
+  async _wipeAndLogin(newPengawasData) {
+    await Store.reset();
+    
+    Auth.saveSession({
+      role: 'PS',
+      nip: newPengawasData.nip,
+      nama_pengawas: newPengawasData.nama_pengawas,
+      wilayah: newPengawasData.wilayah || '',
+      logged_in_at: new Date().toISOString()
+    });
+
+    Store.setConfig({
+      nip_pengawas: newPengawasData.nip,
+      nama_pengawas: newPengawasData.nama_pengawas,
+      wilayah: newPengawasData.wilayah || '',
+      pin: ''
+    });
+
+    Utils.closeModal();
+    Utils.toast(`Data lama dihapus. Login sebagai ${newPengawasData.nama_pengawas}.`, 'success');
+    setTimeout(() => this.boot(), 300);
   }
-};
+};  ← INI TETAP PENUTUP OBJECT App
 
 window.App = App;
 
