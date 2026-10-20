@@ -31,6 +31,7 @@ export const Sekolah = {
           <div class="page-sub">${list.length} sekolah terdaftar di perangkat ini</div>
         </div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-secondary" id="btnRefreshStatus" title="Cek status klaim dari KS">${Icons.svg('refresh-cw', 16)} Refresh Status</button>
           <button class="btn btn-secondary" id="btnPickDB">${Icons.svg('server', 16)} Pilih dari DB</button>
           <button class="btn btn-primary" id="btnImportJSON">${Icons.svg('file-json', 16)} Import JSON KS</button>
         </div>
@@ -49,6 +50,7 @@ export const Sekolah = {
             <th style="text-align:center">Guru</th>
             <th style="text-align:center">Sesi</th>
             <th style="text-align:center">Coverage</th>
+            <th style="text-align:center">Klaim KS</th>
             <th>Terakhir Sync</th>
             <th style="text-align:right">Aksi</th>
           </tr></thead>
@@ -62,6 +64,16 @@ export const Sekolah = {
             const covColor = coverage >= 80 ? 'success' : coverage >= 50 ? 'warning' : 'danger';
             const days = Utils.daysAgo(sk.updated_at);
             const stale = days === null || days > 30;
+            
+            // Status klaim
+            const statusKlaim = (() => {
+              const st = sk.pengawas_status;
+              if (st === 'confirmed') return `<span class="badge badge-success" style="font-size:.7rem">${Icons.svg('check-circle', 12)} Dikonfirmasi</span>`;
+              if (st === 'pending') return `<span class="badge badge-warning" style="font-size:.7rem">${Icons.svg('clock', 12)} Menunggu</span>`;
+              if (st === 'rejected') return `<span class="badge badge-danger" style="font-size:.7rem">${Icons.svg('x-circle', 12)} Ditolak</span>`;
+              return `<span style="font-size:.7rem;color:var(--slate-400)">—</span>`;
+            })();
+            
             return `<tr>
               <td>
                 <div style="font-weight:600">${Utils.esc(sk.nama_sekolah)}</div>
@@ -70,6 +82,7 @@ export const Sekolah = {
               <td style="text-align:center;font-weight:600">${totalGuru}</td>
               <td style="text-align:center;font-weight:600">${sesi}</td>
               <td style="text-align:center"><span class="badge badge-${covColor}">${coverage}%</span></td>
+              <td style="text-align:center">${statusKlaim}</td>
               <td><span class="badge ${stale ? 'badge-warning' : 'badge-success'}">${Utils.relTime(sk.updated_at)}</span></td>
               <td style="text-align:right;white-space:nowrap">
                 <button class="btn btn-primary btn-sm" data-open="${sk.id}">${Icons.svg('eye', 14)} Detail</button>
@@ -83,6 +96,7 @@ export const Sekolah = {
   },
 
   async _bindList() {
+    Utils.el('btnRefreshStatus')?.addEventListener('click', () => this.refreshStatusKlaim());
     Utils.el('btnImportJSON')?.addEventListener('click', () => this.startImportJSON());
     Utils.el('btnEmptyImportJSON')?.addEventListener('click', () => this.startImportJSON());
     Utils.el('btnPickDB')?.addEventListener('click', () => this.pickFromDB());
@@ -255,7 +269,6 @@ export const Sekolah = {
       return `<div class="card"><div class="card-body">${emptyState('users', 'Belum ada guru', 'Data guru belum tersedia.')}</div></div>`;
     }
 
-    // Hitung summary
     let tot3 = 0, totAk = 0, totCo = 0;
     const matrix = guru.map(g => {
       const has3 = (sk.supervisi || []).some(s => s.gid === g.id);
@@ -322,6 +335,7 @@ export const Sekolah = {
       ['SISPA — Rekap Sekolah', sk.nama_sekolah],
       ['NPSN', sk.npsn || ''],
       ['KS', sk.ks_nama || ''],
+      ['Status Klaim', sk.pengawas_status || 'Belum'],
       ['Terakhir Sync', Utils.date(sk.updated_at)],
       [],
       ['Nama Guru', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Abstraksi', 'Komitmen', 'Tipe Glickman', 'Supervisi 3T', 'Akademik', 'Coaching']
@@ -338,7 +352,7 @@ export const Sekolah = {
   },
 
   // ============================================
-  // PICK FROM DB (tidak diubah)
+  // PILIH DARI DB
   // ============================================
   async pickFromDB() {
     Utils.modal('Pilih Sekolah dari Database', `<div style="text-align:center;padding:2rem;color:var(--slate-500)">Memuat data...</div>`, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>', true);
@@ -365,7 +379,6 @@ export const Sekolah = {
       const perPage = 10;
       const selected = new Set();
 
-      // 1. RENDER KERANGKA MODAL (Hanya Sekali)
       Utils.modal('Pilih Sekolah dari Database', `
         <div style="margin-bottom:1rem">
           <input type="text" id="searchDB" class="input" placeholder="Cari NPSN atau nama sekolah...">
@@ -378,7 +391,6 @@ export const Sekolah = {
         <div id="dbPagination"></div>
       `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button><button class="btn btn-primary" id="btnSavePick">Klaim Sekolah</button>`, true);
 
-      // 2. FUNGSI RENDER LIST (Hanya mengupdate list dan pagination)
       const renderList = () => {
         const totalPages = Math.ceil(filtered.length / perPage);
         if (page > totalPages) page = Math.max(1, totalPages);
@@ -387,7 +399,6 @@ export const Sekolah = {
         const start = (page - 1) * perPage;
         const data = filtered.slice(start, start + perPage);
 
-        // Update List Container
         const listContainer = Utils.el('dbListContainer');
         if (data.length === 0) {
           listContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--slate-400);font-size:.85rem">Tidak ada hasil</div>';
@@ -400,7 +411,6 @@ export const Sekolah = {
           `).join('');
         }
 
-        // Update Pagination Container
         const pagContainer = Utils.el('dbPagination');
         if (totalPages > 1) {
           pagContainer.innerHTML = `
@@ -416,11 +426,9 @@ export const Sekolah = {
           pagContainer.innerHTML = '';
         }
 
-        // Update Text
         Utils.el('dbCount').textContent = filtered.length;
         Utils.el('btnSavePick').innerHTML = `Klaim ${selected.size > 0 ? `(${selected.size})` : ''} Sekolah`;
-        
-        // Bind Checkbox
+
         document.querySelectorAll('.db-cb').forEach(cb => {
           cb.onchange = (e) => {
             if (e.target.checked) selected.add(e.target.value);
@@ -431,15 +439,13 @@ export const Sekolah = {
         });
       };
 
-      // 3. BIND EVENT PENCARIAN
       Utils.el('searchDB').addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase().trim();
         filtered = available.filter(s => s.nama_sekolah.toLowerCase().includes(q) || s.npsn.includes(q));
         page = 1;
-        renderList(); // Hanya render ulang list, input search tidak disentuh
+        renderList();
       });
 
-      // 4. BIND SELECT ALL PER HALAMAN
       Utils.el('btnSelectAllPage').onclick = () => {
         const start = (page - 1) * perPage;
         const data = filtered.slice(start, start + perPage);
@@ -448,7 +454,6 @@ export const Sekolah = {
         renderList();
       };
 
-      // 5. BIND TOMBOL SIMPAN
       Utils.el('btnSavePick').onclick = async () => {
         if (selected.size === 0) return Utils.toast('Pilih minimal satu', 'warning');
         const btn = Utils.el('btnSavePick');
@@ -462,13 +467,14 @@ export const Sekolah = {
             newSk.push({
               id: Utils.uid(), npsn, nama_sekolah: sk.nama_sekolah,
               ks_nama: '', ks_nip: '',
+              pengawas_status: 'pending',
               imported_at: new Date().toISOString(), updated_at: new Date().toISOString(),
               guru: [], program: [], supervisi: [], akademik: [], coaching: []
             });
           }
           await Store.set('sekolah', [...localSchools, ...newSk]);
           Utils.closeModal();
-          Utils.toast(`${selected.size} sekolah diklaim`, 'success');
+          Utils.toast(`${selected.size} sekolah diklaim (menunggu konfirmasi KS)`, 'success');
           Router.navigate('sekolah');
         } catch (err) {
           btn.disabled = false;
@@ -477,9 +483,7 @@ export const Sekolah = {
         }
       };
 
-      // 6. RENDER PERTAMA KALI
       renderList();
-
     } catch (err) {
       Utils.closeModal();
       Utils.toast(err.message, 'error');
@@ -487,11 +491,11 @@ export const Sekolah = {
   },
 
   // ============================================
-  // IMPORT JSON (tidak diubah)
+  // IMPORT JSON
   // ============================================
   startImportJSON() {
     Utils.modal('Import JSON dari KS', `
-      ${infoBanner('info', 'info', 'Pilih file JSON hasil ekspor dari SISPA-Offline (KS). Sistem akan memvalidasi NPSN terhadap binaan Anda.')}
+      ${infoBanner('info', 'info', 'Pilih file JSON hasil ekspor dari SISPA-Offline (KS). Sistem akan memvalidasi NPSN dan pengawas penerima.')}
       <div class="form-group" style="margin-top:1rem">
         <label class="label">File JSON</label>
         <input type="file" id="jsonFile" accept=".json,application/json" class="input" style="padding:.5rem">
@@ -515,6 +519,18 @@ export const Sekolah = {
               ${infoBanner('danger', 'alert-triangle', `<strong>Bukan Binaan Anda!</strong><br>File dari <strong>${Utils.esc(data.config.nama_sekolah)}</strong> (NPSN: ${npsn}) belum terdaftar. Tambahkan via "Pilih dari DB" dulu.`)}
             `, '<button class="btn btn-primary" onclick="Utils.closeModal()">Tutup</button>');
           }
+
+          const myNip = Store.config().nip_pengawas;
+          const filePengawasNip = data.config.pengawas_nip;
+          if (filePengawasNip && filePengawasNip !== myNip) {
+            return Utils.modal('File Bukan Untuk Anda', `
+              ${infoBanner('danger', 'alert-triangle', `
+                <strong>File ini ditujukan ke Pengawas lain!</strong><br><br>
+                File dari <strong>${Utils.esc(data.config.nama_sekolah)}</strong> mencantumkan pengawas NIP <code>${Utils.esc(filePengawasNip)}</code>, bukan Anda (<code>${Utils.esc(myNip)}</code>).
+              `)}
+            `, '<button class="btn btn-primary" onclick="Utils.closeModal()">Tutup</button>');
+          }
+
           this.processImport(data);
         } catch { Utils.toast('File JSON tidak valid', 'error'); }
       };
@@ -594,6 +610,46 @@ export const Sekolah = {
     };
   },
 
+  // ============================================
+  // REFRESH STATUS KLAIM
+  // ============================================
+  async refreshStatusKlaim() {
+    const myNip = Store.config().nip_pengawas;
+    if (!myNip) return Utils.toast('NIP pengawas tidak ditemukan', 'error');
+    if (!Supabase.isReady()) return Utils.toast('Butuh internet untuk refresh status', 'error');
+
+    const btn = Utils.el('btnRefreshStatus');
+    const orig = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.innerHTML = `${Icons.svg('refresh-cw', 14)} Memeriksa...`; }
+
+    try {
+      const klaimList = await Supabase.getAllKlaimByNip(myNip);
+      const klaimMap = {};
+      klaimList.forEach(k => { klaimMap[k.npsn] = k.pengawas_status; });
+
+      const list = Store.get('sekolah');
+      let updated = 0;
+      list.forEach(sk => {
+        const st = klaimMap[sk.npsn] || null;
+        if (sk.pengawas_status !== st) {
+          sk.pengawas_status = st;
+          updated++;
+        }
+      });
+      await Store.set('sekolah', list);
+
+      Utils.toast(updated > 0 ? `${updated} status klaim diperbarui` : 'Tidak ada perubahan status', 'success');
+      Router.navigate('sekolah');
+    } catch (err) {
+      Utils.toast('Gagal: ' + err.message, 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+    }
+  },
+
+  // ============================================
+  // HAPUS
+  // ============================================
   async hapus(id) {
     const sk = Store.get('sekolah').find(x => x.id === id);
     if (!sk) return;
