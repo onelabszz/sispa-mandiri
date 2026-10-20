@@ -222,6 +222,33 @@
   </div>
 </div>
 
+<!-- MODAL IMPORT CSV -->
+<div class="modal" id="importModal">
+  <div class="modal-content" style="max-width:500px;">
+    <h3 style="margin:0 0 1rem;display:flex;align-items:center;gap:.5rem;" id="importTitle">
+      <i data-lucide="file-spreadsheet" style="width:20px;height:20px;color:var(--brand-600)"></i> Import Data
+    </h3>
+    
+    <div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+      <div style="font-weight:600;font-size:.85rem;margin-bottom:.5rem;color:var(--slate-900)">Langkah 1: Download Template</div>
+      <p style="font-size:.8rem;color:var(--slate-600);margin:0 0 .75rem;">Gunakan template ini agar format kolom sesuai dengan sistem.</p>
+      <button class="btn btn-secondary btn-sm" id="btnDownloadTemplate" style="width:100%;justify-content:center;">
+        <i data-lucide="download" style="width:14px;height:14px;"></i> Download Template CSV
+      </button>
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-weight:600;font-size:.85rem;margin-bottom:.5rem;color:var(--slate-900)">Langkah 2: Upload File</div>
+      <input type="file" id="importFileInput" accept=".csv" class="input" style="padding:.5rem;">
+    </div>
+
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="document.getElementById('importModal').classList.remove('show')">Batal</button>
+      <button class="btn btn-primary" id="btnProcessImport" onclick="processImportData()">Mulai Import</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"><span id="toastMsg"></span></div>
 
