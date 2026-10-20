@@ -23,27 +23,24 @@ window.Icons = Icons;
 const App = {
   async init() {
     await Store.init();
-    
-    // 1. Cek Session (Auto Login)
+
     const session = Auth.getSessionFor('PS');
     if (session) {
       const cfg = Store.config();
-      // Selalu sinkronkan identitas dari session ke config lokal
-      Store.setConfig({ 
-        ...cfg, 
-        nip_pengawas: session.nip, 
-        nama_pengawas: session.nama_pengawas, 
-        wilayah: session.wilayah 
+      Store.setConfig({
+        ...cfg,
+        nip_pengawas: session.nip,
+        nama_pengawas: session.nama_pengawas,
+        wilayah: session.wilayah
       });
-      
+
       if (cfg.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
         PinLock.show(cfg, 'PS', () => this.boot());
         return;
       }
       return this.boot();
     }
-    
-    // 2. Belum Login -> Tampil Layar Login NIP
+
     this.showLogin();
   },
 
@@ -57,7 +54,6 @@ const App = {
         <div class="auth-brand-shape" style="width:260px;height:260px;top:-80px;right:-80px"></div>
         <div class="auth-brand-shape" style="width:130px;height:130px;bottom:15%;right:10%"></div>
         <div class="auth-brand-shape" style="width:80px;height:80px;top:45%;left:-30px"></div>
-
         <div style="display:flex;flex-direction:column;justify-content:space-between;height:100%;position:relative;z-index:2;gap:1.5rem">
           <div class="auth-brand-header">
             <div class="logo-badge">${Icons.svg('user', 24)}</div>
@@ -66,7 +62,6 @@ const App = {
               <div class="brand-tagline">Dashboard multi-sekolah binaan</div>
             </div>
           </div>
-
           <div>
             <h1 class="auth-hero-title">
               Kelola banyak sekolah<br>
@@ -76,7 +71,6 @@ const App = {
               Terima data dari banyak KS, analisis kinerja, evaluasi kepala sekolah, dan cetak rekap untuk
               <strong style="color:#e0e7ff">Dinas Pendidikan</strong>.
             </p>
-
             <div class="auth-feature-list">
               <div class="auth-feature-item">
                 <div class="auth-fi-icon">${Icons.svg('upload', 15)}</div>
@@ -92,7 +86,6 @@ const App = {
               </div>
             </div>
           </div>
-
           <div class="auth-brand-footer">
             <div style="display:flex;align-items:center;gap:.6rem">
               <img src="../shared/icons/wonogiri.svg" alt="Lambang Wonogiri" style="width:32px;height:32px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.25))">
@@ -105,7 +98,6 @@ const App = {
           </div>
         </div>
       </aside>
-
       <main class="auth-form-side">
         <div class="auth-form-card">
           <div class="auth-mobile-brand">
@@ -115,21 +107,17 @@ const App = {
               <div style="font-size:.7rem;color:#64748b">Kabupaten Wonogiri</div>
             </div>
           </div>
-
           <div class="auth-step-pill">Login Pengawas</div>
           <h1 class="auth-heading">Selamat datang 👋</h1>
           <p class="auth-sub">Masukkan NIP Anda untuk masuk ke aplikasi. Identitas akan diambil dari database.</p>
-
           <div class="form-group">
             <label class="label">NIP Pengawas</label>
             <input type="text" id="loginNip" class="input" placeholder="Contoh: 197001012000031001" maxlength="18" inputmode="numeric" autocomplete="off">
           </div>
-
           <button class="btn btn-primary btn-lg" style="margin-top:.75rem" id="btnLogin">
             ${Icons.svg('chevron-right', 18)}
             Lanjutkan
           </button>
-
           <div class="auth-footer-note">
             <span style="flex-shrink:0;color:#4f46e5">${Icons.svg('info', 16)}</span>
             <span>Butuh internet pada verifikasi NIP. Setelah itu bisa offline.</span>
@@ -137,21 +125,21 @@ const App = {
         </div>
       </main>
     `;
-    
+
     const input = Utils.el('loginNip');
     const btn = Utils.el('btnLogin');
-    
+
     const doLogin = async () => {
       const nip = input.value.trim();
       if (!nip) return Utils.toast('NIP wajib diisi', 'error');
       if (nip.length < 8) return Utils.toast('NIP tidak valid', 'error');
-      
+
       if (!Supabase.isReady()) return Utils.toast('Butuh internet untuk verifikasi', 'error');
-      
+
       const originalHtml = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = `<span>Memverifikasi...</span>`;
-      
+
       try {
         const data = await Supabase.findPengawas(nip);
         if (!data) {
@@ -160,28 +148,31 @@ const App = {
           return Utils.toast('NIP tidak terdaftar. Hubungi Dinas Pendidikan.', 'error');
         }
 
-        // --- Cek Status Suspend ---
         if (data.is_active === false) {
           btn.disabled = false;
           btn.innerHTML = originalHtml;
           return Utils.toast('Akun pengawas ini dinonaktifkan (Suspend). Hubungi Admin.', 'error');
         }
-        
-        // Simpan session
-        // Cek konflik data
+
+        // ============================================
+        // CEK: Apakah device ini sudah punya data pengawas LAIN?
+        // ============================================
         const cfg = Store.config();
         const hasDifferentPengawas = cfg.nip_pengawas && cfg.nip_pengawas !== data.nip;
         const hasExistingData = (Store.get('sekolah') || []).length > 0
           || (Store.get('evaluasi') || []).length > 0;
 
         if (hasDifferentPengawas && hasExistingData) {
+          // Tampilkan modal blocker — JANGAN login dulu
           btn.disabled = false;
           btn.innerHTML = originalHtml;
           this._showConflictModal(cfg, data);
           return;
         }
 
-        // Login normal
+        // ============================================
+        // Login normal (tidak ada konflik data)
+        // ============================================
         Auth.saveSession({
           role: 'PS',
           nip: data.nip,
@@ -189,27 +180,26 @@ const App = {
           wilayah: data.wilayah || '',
           logged_in_at: new Date().toISOString()
         });
-        
-        Store.setConfig({ 
-          ...cfg, 
-          nip_pengawas: data.nip, 
-          nama_pengawas: data.nama_pengawas, 
-          wilayah: data.wilayah || '' 
+
+        Store.setConfig({
+          ...cfg,
+          nip_pengawas: data.nip,
+          nama_pengawas: data.nama_pengawas,
+          wilayah: data.wilayah || ''
         });
-        
+
         Utils.toast('Berhasil masuk!', 'success');
         const screen = Utils.el('setupScreen');
         screen.classList.remove('auth-split');
         screen.style.display = 'none';
         setTimeout(() => this.boot(), 300);
-        
       } catch (err) {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
         Utils.toast(err.message || 'Gagal terhubung ke server', 'error');
       }
     };
-    
+
     btn.onclick = doLogin;
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
     setTimeout(() => input.focus(), 100);
@@ -220,16 +210,16 @@ const App = {
     screen.classList.remove('auth-split');
     screen.style.display = 'none';
     Utils.el('pinScreen').classList.remove('show');
-    
+
     Utils.el('app').style.display = 'block';
     const cfg = Store.config();
-    
+
     Shell.buildSidebar(NAV_PS, Router.current || 'dashboard', cfg, 'PS');
     Shell.buildHeader(cfg, 'PS');
     Shell.buildProfileMenu(cfg, 'PS', () => this.lock(), () => this.logout());
-    
+
     this.wireShell();
-    
+
     Router.register('dashboard', Dashboard);
     Router.register('sekolah', Sekolah);
     Router.register('guru', Guru);
@@ -238,7 +228,7 @@ const App = {
     Router.register('evaluasi', Evaluasi);
     Router.register('laporan', Laporan);
     Router.register('pengaturan', Pengaturan);
-    
+
     Router.navigate('dashboard');
   },
 
@@ -253,20 +243,15 @@ const App = {
       if (m && b && !m.contains(e.target) && !b.contains(e.target)) Shell.closeProfileMenu();
     });
     Utils.el('modalCloseBtn')?.addEventListener('click', () => Utils.closeModal());
-    
-    // --- PERUBAHAN ADA DI SINI ---
     Utils.el('sidebar')?.addEventListener('click', e => {
       const btn = e.target.closest('.nav-item[data-tab]');
       if (btn) {
-        // Reset detail state saat pindah menu
         if (btn.dataset.tab === 'sekolah') {
           import('./modules/sekolah.js').then(({ Sekolah }) => { Sekolah._detailId = null; });
         }
         Router.navigate(btn.dataset.tab);
       }
     });
-    // -----------------------------
-
     window.addEventListener('resize', () => {
       const btn = Utils.el('sidebarClose');
       if (btn) btn.style.display = window.innerWidth < 1024 ? 'inline-flex' : 'none';
@@ -289,9 +274,6 @@ const App = {
     });
   },
 
-  // ============================================
-  // CONFLICT HANDLER — Device Sharing Protection
-  // ============================================
   _showConflictModal(oldCfg, newPengawasData) {
     const sekolahCount = (Store.get('sekolah') || []).length;
     const evaluasiCount = (Store.get('evaluasi') || []).length;
@@ -348,7 +330,7 @@ const App = {
       data.version = '2.0.0';
       data.app = 'sispa-pengawas';
       data.exported_at = new Date().toISOString();
-      
+
       const sanitize = (str) => String(str || '')
         .replace(/[\\/:*?"<>|]/g, '')
         .replace(/\s+/g, '_')
@@ -356,7 +338,7 @@ const App = {
         .replace(/^_+|_+$/g, '')
         .slice(0, 60);
       const filename = `SISPA_Pengawas_${sanitize(oldCfg.nip_pengawas)}_${new Date().toISOString().slice(0,10)}.json`;
-      
+
       Utils.downloadJSON(data, filename);
       Utils.toast('Backup diekspor. Klik "Lanjut (Timpa)" untuk login.', 'success');
       Utils.el('btnConflictExport').innerHTML = `${Icons.svg('check', 14)} Backup OK`;
@@ -374,7 +356,7 @@ const App = {
 
   async _wipeAndLogin(newPengawasData) {
     await Store.reset();
-    
+
     Auth.saveSession({
       role: 'PS',
       nip: newPengawasData.nip,
@@ -394,7 +376,7 @@ const App = {
     Utils.toast(`Data lama dihapus. Login sebagai ${newPengawasData.nama_pengawas}.`, 'success');
     setTimeout(() => this.boot(), 300);
   }
-};  ← INI TETAP PENUTUP OBJECT App
+};
 
 window.App = App;
 
