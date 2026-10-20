@@ -44,7 +44,103 @@ export const Supabase = {
   },
 
   // ============================================
-  // CRUD ADMIN: SEKOLAH
+  // KLAIM PENGAWAS
+  // ============================================
+  async claimSekolah(npsn, nip) {
+    const { error } = await ensureClient()
+      .from('sekolah')
+      .update({
+        pengawas_nip: nip,
+        pengawas_status: 'pending',
+        pengawas_confirmed_at: null
+      })
+      .eq('npsn', npsn);
+    if (error) throw error;
+  },
+
+  async unclaimSekolah(npsn) {
+    const { error } = await ensureClient()
+      .from('sekolah')
+      .update({
+        pengawas_nip: null,
+        pengawas_status: null,
+        pengawas_confirmed_at: null
+      })
+      .eq('npsn', npsn);
+    if (error) throw error;
+  },
+
+  async getKlaimByNpsn(npsn) {
+    const client = ensureClient();
+    const { data: sk, error } = await client
+      .from('sekolah')
+      .select('npsn, nama_sekolah, pengawas_nip, pengawas_status, pengawas_confirmed_at')
+      .eq('npsn', String(npsn).trim())
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!sk) return null;
+    if (!sk.pengawas_nip) return { ...sk, pengawas_nama: null, pengawas_wilayah: null };
+
+    const { data: pg, error: errPg } = await client
+      .from('pengawas')
+      .select('nip, nama_pengawas, wilayah')
+      .eq('nip', sk.pengawas_nip)
+      .maybeSingle();
+
+    if (errPg) throw errPg;
+
+    return {
+      ...sk,
+      pengawas_nama: pg?.nama_pengawas || null,
+      pengawas_wilayah: pg?.wilayah || null
+    };
+  },
+
+  async konfirmasiKlaim(npsn) {
+    const { error } = await ensureClient()
+      .from('sekolah')
+      .update({
+        pengawas_status: 'confirmed',
+        pengawas_confirmed_at: new Date().toISOString()
+      })
+      .eq('npsn', npsn);
+    if (error) throw error;
+  },
+
+  async tolakKlaim(npsn) {
+    const { error } = await ensureClient()
+      .from('sekolah')
+      .update({
+        pengawas_nip: null,
+        pengawas_status: null,
+        pengawas_confirmed_at: null
+      })
+      .eq('npsn', npsn);
+    if (error) throw error;
+  },
+
+  async getPendingKlaimByNip(nip) {
+    const { data, error } = await ensureClient()
+      .from('sekolah')
+      .select('npsn, nama_sekolah, pengawas_status')
+      .eq('pengawas_nip', nip)
+      .eq('pengawas_status', 'pending');
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getAllKlaimByNip(nip) {
+    const { data, error } = await ensureClient()
+      .from('sekolah')
+      .select('npsn, pengawas_status')
+      .eq('pengawas_nip', nip);
+    if (error) throw error;
+    return data || [];
+  },
+
+  // ============================================
+  // CRUD ADMIN
   // ============================================
   async getAllSekolah() {
     const { data, error } = await ensureClient().from('sekolah').select('*').order('nama_sekolah');
@@ -64,9 +160,6 @@ export const Supabase = {
     if (error) throw error;
   },
 
-  // ============================================
-  // CRUD ADMIN: PENGAWAS
-  // ============================================
   async getAllPengawas() {
     const { data, error } = await ensureClient().from('pengawas').select('*').order('nama_pengawas');
     if (error) throw error;
@@ -84,13 +177,6 @@ export const Supabase = {
     const { error } = await ensureClient().from('pengawas').update({ is_active: status }).eq('nip', nip);
     if (error) throw error;
   },
-  async claimSekolah(npsn, nip) {
-    const { error } = await ensureClient().from('sekolah').update({ pengawas_nip: nip }).eq('npsn', npsn);
-    if (error) throw error;
-  },
-  async unclaimSekolah(npsn) {
-    const { error } = await ensureClient().from('sekolah').update({ pengawas_nip: null }).eq('npsn', npsn);
-    if (error) throw error;
-  },
+
   isReady() { return !!window.supabase; }
 };
