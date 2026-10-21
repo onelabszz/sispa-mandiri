@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panduan Admin — SISPA Mandiri</title>
+<link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
+<link rel="stylesheet" href="../shared/css/guide.css">
+</head>
+<body class="role-admin">
+
+<header class="guide-header">
+  <a href="index.html" class="brand">
+    <div class="brand-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Panduan Admin</div>
+      <div class="brand-sub">SISPA Mandiri · v2.0.0</div>
+    </div>
+  </a>
+  <div class="spacer"></div>
+  <button onclick="window.print()"><span style="font-size:14px">🖨</span> <span class="btn-text">Cetak</span></button>
+  <a href="index.html" class="btn-link btn-primary">← <span class="btn-text">Kembali</span></a>
+</header>
+
+<div class="guide-layout">
+  <aside class="toc">
+    <div class="toc-title">Daftar Isi</div>
+    <a href="#intro">1. Pengenalan</a>
+    <a href="#login">2. Login</a>
+    <a href="#dashboard">3. Dashboard</a>
+    <a href="#sekolah">4. Data Sekolah</a>
+    <a href="#assign">5. Assign Pengawas</a>
+    <a href="#reset">6. Reset Klaim</a>
+    <a href="#pengawas">7. Data Pengawas</a>
+    <a href="#import">8. Import CSV</a>
+    <a href="#alur">9. Alur Klaim</a>
+    <a href="#faq">10. FAQ</a>
+  </aside>
+
+  <main class="guide-content">
+    <h1>Panduan Admin Dinas</h1>
+    <p class="lead">
+      Panduan untuk Admin Dinas Pendidikan — kelola akun sekolah & pengawas, monitor status klaim, assign pengawas manual, dan reset klaim saat ada konflik.
+    </p>
+
+    <h2 id="intro">1. Pengenalan</h2>
+    <p><strong>Panel Admin</strong> adalah aplikasi web untuk Dinas Pendidikan mengelola akun yang bisa login di aplikasi KS & PS. Admin dapat:</p>
+    <ul>
+      <li>Tambah/edit/hapus akun sekolah & pengawas</li>
+      <li>Monitor status klaim (sekolah mana yang sudah punya pengawas)</li>
+      <li>Assign pengawas manual (bypass konfirmasi KS)</li>
+      <li>Reset klaim saat ada konflik</li>
+      <li>Suspend akun yang bermasalah</li>
+    </ul>
+
+    <div class="callout info"><span class="icon">ℹ️</span><div><strong>URL Akses</strong>Panel Admin: <code>https://onelabszz.github.io/sispa-mandiri/admin/</code>. URL tidak dipublikasi ke KS/PS — hanya Dinas yang tahu.</div></div>
+
+    <h2 id="login">2. Login</h2>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Buka URL Admin</div><div class="step-desc">Buka <code>https://onelabszz.github.io/sispa-mandiri/admin/</code></div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Masukkan Kunci Admin</div><div class="step-desc">Ketik kunci admin (default: <code>admin123</code>). Tekan Enter atau klik "Masuk ke Panel".</div></div></div>
+    </div>
+
+    <div class="callout danger"><span class="icon">⚠️</span><div><strong>GANTI KUNCI!</strong>Kunci default <code>admin123</code> WAJIB diganti sebelum distribusi. Edit file <code>admin/index.html</code>, cari baris <code>const ADMIN_KEY = 'admin123';</code>, ganti dengan kunci rahasia Anda.</div></div>
+
+    <h2 id="dashboard">3. Dashboard</h2>
+    <p>Setelah login, Dashboard menampilkan 5 stat cards:</p>
+    <table>
+      <thead><tr><th>Card</th><th>Arti</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Total Sekolah</strong></td><td>Semua akun sekolah terdaftar</td></tr>
+        <tr><td><strong>Total Pengawas</strong></td><td>Semua akun pengawas aktif</td></tr>
+        <tr><td><strong>Terkonfirmasi</strong></td><td>Sekolah dengan pengawas yang sudah dikonfirmasi KS</td></tr>
+        <tr><td><strong>Pending Klaim</strong></td><td>Sekolah di-klaim PS tapi belum dikonfirmasi KS</td></tr>
+        <tr><td><strong>Belum Ada PS</strong></td><td>Sekolah tanpa pengawas pembina (perlu assign)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Warning Interaktif</h3>
+    <p>Di bawah stat cards muncul warning jika ada masalah:</p>
+    <ul>
+      <li><strong>"X sekolah belum punya pengawas"</strong> → klik "Lihat →" untuk filter sekolah tanpa PS</li>
+      <li><strong>"X klaim menunggu konfirmasi"</strong> → klik "Lihat →" untuk lihat pending</li>
+      <li><strong>"X pengawas belum punya binaan"</strong> → klik "Lihat →" untuk lihat pengawas kosong</li>
+    </ul>
+
+    <h2 id="sekolah">4. Data Sekolah</h2>
+    <p>Menu <strong>Data Sekolah</strong> menampilkan tabel semua akun sekolah.</p>
+
+    <h3>Kolom Tabel</h3>
+    <ul>
+      <li><strong>NPSN</strong></li>
+      <li><strong>Nama Sekolah</strong></li>
+      <li><strong>Pengawas Pembina</strong> — nama + wilayah (jika sudah ada)</li>
+      <li><strong>Klaim</strong> — status (✓ Terkonfirmasi / ⏳ Pending / ✕ Ditolak / —)</li>
+      <li><strong>Status</strong> — Aktif / Suspend</li>
+      <li><strong>Aksi</strong> — Edit, Toggle Aktif</li>
+    </ul>
+
+    <h3>Filter & Pencarian</h3>
+    <ul>
+      <li><strong>Cari</strong> — NPSN/nama sekolah/pengawas</li>
+      <li><strong>Klaim</strong> — Semua/Terkonfirmasi/Pending/Belum Ada</li>
+      <li><strong>Pengawas</strong> — filter per pengawas</li>
+      <li><strong>Pagination</strong> — 50 sekolah per halaman</li>
+    </ul>
+
+    <h3>Tambah Sekolah</h3>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Klik + Tambah Sekolah</div><div class="step-desc">Isi NPSN (8 digit), Nama Sekolah, dan opsional Assign Pengawas.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Pilih Pengawas (Opsional)</div><div class="step-desc">Kalau dipilih, langsung assign + konfirmasi (bypass KS). Kalau kosong, PS akan klaim nanti.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Klik Simpan</div><div class="step-desc">Sekolah ditambahkan ke sistem. KS bisa langsung login dengan NPSN tersebut.</div></div></div>
+    </div>
+
+    <h3>Edit Sekolah</h3>
+    <p>Klik tombol <strong>Edit</strong> di baris sekolah → modal muncul:</p>
+    <ul>
+      <li>NPSN (readonly)</li>
+      <li>Nama Sekolah</li>
+      <li>Status (Aktif/Suspend)</li>
+      <li><strong>Pengawas Pembina</strong> — dropdown pilih pengawas</li>
+      <li>Tombol <strong>Reset Klaim</strong> (jika sudah ada pengawas)</li>
+    </ul>
+
+    <h2 id="assign">5. Assign Pengawas Manual</h2>
+    <p>Gunakan ini jika:</p>
+    <ul>
+      <li>KS tidak kunjung konfirmasi klaim PS</li>
+      <li>PS klaim sekolah yang salah (bukan wilayahnya)</li>
+      <li>Dinas mau override pilihan pengawas</li>
+    </ul>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Klik Edit di sekolah</div><div class="step-desc">Modal edit terbuka.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Pilih Pengawas Baru</div><div class="step-desc">Di dropdown "Assign / Ganti Pengawas", pilih pengawas yang dituju.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Klik Simpan</div><div class="step-desc">Modal konfirmasi muncul "Ganti Pengawas?" → klik "Ya, Ganti Pengawas".</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Status Otomatis Confirmed</div><div class="step-desc">Pengawas baru langsung dapat akses. Status = <strong>Terkonfirmasi</strong> (bypass KS).</div></div></div>
+    </div>
+
+    <div class="callout info"><span class="icon">ℹ️</span><div><strong>PS Lama Otomatis Dilepas</strong>Saat admin override, pengawas lama kehilangan akses (di sistem, data lokal PS lama tetap aman). PS baru dapat notifikasi di "Refresh Status".</div></div>
+
+    <h2 id="reset">6. Reset Klaim</h2>
+    <p>Gunakan ini jika:</p>
+    <ul>
+      <li>KS menolak klaim PS terus-menerus</li>
+      <li>Klaim deadlock (tidak ada yang konfirmasi)</li>
+      <li>Perlu reset status agar PS lain bisa klaim</li>
+    </ul>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Klik Edit di sekolah yang ada pengawasnya</div><div class="step-desc">Tombol "Reset Klaim Pengawas" muncul di bagian bawah.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Klik Reset Klaim</div><div class="step-desc">Modal konfirmasi muncul dengan warning merah.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Ketik "RESET"</div><div class="step-desc">Di input field, ketik <code>RESET</code> (kapital) untuk mengaktifkan tombol.</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Klik "Reset Klaim"</div><div class="step-desc">Klaim terhapus dari database. Sekolah kembali "belum ada pengawas". PS lain bisa klaim.</div></div></div>
+    </div>
+
+    <div class="callout danger"><span class="icon">⚠️</span><div><strong>Data Lokal PS Tidak Terpengaruh</strong>Reset ini hanya menghapus klaim di database. Data lokal PS lama (IndexedDB) tetap ada di laptop PS tersebut. Tapi PS tidak bisa lagi kirim/validasi JSON untuk sekolah ini.</div></div>
+
+    <h2 id="pengawas">7. Data Pengawas</h2>
+    <p>Menu <strong>Data Pengawas</strong> untuk mengelola akun pengawas.</p>
+
+    <h3>Kolom Tabel</h3>
+    <ul>
+      <li><strong>NIP</strong></li>
+      <li><strong>Nama Pengawas</strong></li>
+      <li><strong>Wilayah</strong></li>
+      <li><strong>Binaan</strong> — jumlah sekolah yang di-klaim</li>
+      <li><strong>Status</strong> — Aktif / Suspend</li>
+    </ul>
+
+    <h3>Filter & Sort</h3>
+    <ul>
+      <li><strong>Sort</strong> — Nama A-Z / Binaan Terbanyak / Binaan Sedikit</li>
+      <li><strong>Checkbox "Hanya Belum Punya Binaan"</strong> — untuk lihat pengawas yang butuh tugas</li>
+      <li><strong>Cari</strong> — NIP/nama/wilayah</li>
+    </ul>
+
+    <h3>Tambah Pengawas</h3>
+    <p>Klik <strong>+ Tambah Pengawas</strong> → isi NIP (wajib), Nama (wajib), Wilayah. Setelah simpan, pengawas bisa login di aplikasi PS.</p>
+
+    <h3>Suspend Pengawas</h3>
+    <p>Klik tombol <strong>Power</strong> di baris pengawas → konfirmasi. Pengawas yang di-suspend tidak bisa login.</p>
+
+    <h2 id="import">8. Import CSV Bulk</h2>
+    <p>Untuk tambah banyak akun sekaligus (misal 100 sekolah baru).</p>
+
+    <h3>Format CSV Sekolah</h3>
+    <pre style="background:var(--slate-100);padding:12px;border-radius:8px;font-size:12px;overflow-x:auto"><code>npsn;nama_sekolah
+20311457;SD Negeri 1 Pule
+20311458;SD Negeri 2 Pule
+20311459;SD Negeri 3 Pule</code></pre>
+
+    <h3>Format CSV Pengawas</h3>
+    <pre style="background:var(--slate-100);padding:12px;border-radius:8px;font-size:12px;overflow-x:auto"><code>nip;nama_pengawas;wilayah
+197001012000031001;Dr. Ahmad Suryadi, M.Pd;Kecamatan Pule
+197502022006041002;Dra. Siti Aminah, M.Pd;Kecamatan Pule</code></pre>
+
+    <div class="callout info"><span class="icon">ℹ️</span><div><strong>Cara Import</strong>Klik tombol "Import CSV" → modal dengan template download → isi di Excel → Save As CSV UTF-8 → upload → preview → konfirmasi. Duplikat (NPSN/NIP sudah ada) otomatis dilewati.</div></div>
+
+    <h2 id="alur">9. Alur Klaim Pengawas</h2>
+    <p>Pemahaman lengkap alur klaim antara PS & KS:</p>
+
+    <table>
+      <thead><tr><th>Step</th><th>Aktor</th><th>Aksi</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Admin</td><td>Input sekolah & pengawas ke sistem</td><td>—</td></tr>
+        <tr><td>2</td><td>PS</td><td>Login → Pilih DB → Klaim sekolah</td><td>Pending</td></tr>
+        <tr><td>3</td><td>KS</td><td>Login → Cek Pengawas → Konfirmasi</td><td>Terkonfirmasi</td></tr>
+        <tr><td>4</td><td>PS</td><td>Refresh Status → lihat badge ✓</td><td>Terkonfirmasi</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Jika Ada Konflik</h3>
+    <ul>
+      <li><strong>KS menolak klaim</strong> → status kembali null, PS lain bisa klaim</li>
+      <li><strong>PS keliru klaim</strong> → Admin Reset Klaim → PS lain klaim</li>
+      <li><strong>PS di-suspend</strong> → klaim otomatis hangus, KS dapat notifikasi</li>
+      <li><strong>Dinas mau ganti PS</strong> → Admin Assign Pengawas → otomatis confirmed</li>
+    </ul>
+
+    <h2 id="faq">10. FAQ</h2>
+
+    <details class="faq"><summary>Bagaimana kalau ada sekolah yang NPSN-nya salah input?</summary><div class="faq-answer">Hapus sekolah lama (klik Edit → tidak ada tombol hapus di modal. Untuk hapus, buka menu Data Sekolah → kalau ada tombol hapus). Atau edit nama sekolah, NPSN tidak bisa diedit. Kalau NPSN salah, hapus & input ulang.</div></details>
+
+    <details class="faq"><summary>Kalau ada PS baru masuk, apakah klaim sekolah sebelumnya hilang?</summary><div class="faq-answer">Tidak. Klaim sekolah yang sudah confirmed oleh PS lama tetap. PS baru harus klaim sekolah sendiri atau admin assign manual.</div></details>
+
+    <details class="faq"><summary>Bisa 1 sekolah dipegang 2 pengawas?</summary><div class="faq-answer">Tidak. 1 sekolah = 1 pengawas. Kalau perlu backup, assign manual ke pengawas lain akan menggantikan pengawas lama.</div></details>
+
+    <details class="faq"><summary>Kenapa PS tidak bisa login?</summary><div class="faq-answer">Cek: (1) NIP sudah terdaftar, (2) Status aktif (bukan suspend), (3) Koneksi internet PS stabil, (4) URL Supabase di config.js benar.</div></details>
+
+    <details class="faq"><summary>Bagaimana kalau saya lupa kunci admin?</summary><div class="faq-answer">Lupa kunci admin = tidak bisa akses panel. Solusi: buka file <code>admin/index.html</code>, cari <code>const ADMIN_KEY = '...';</code> dan baca kuncinya. Kalau tidak bisa buka file, minta developer reset.</div></details>
+
+    <details class="faq"><summary>Apakah admin bisa lihat data supervisi KS?</summary><div class="faq-answer">Tidak. Admin hanya kelola akun (NPSN, pengawas). Data supervisi tetap di laptop KS masing-masing — tidak sampai ke server.</div></details>
+
+    <details class="faq"><summary>Bagaimana cara backup data admin?</summary><div class="faq-answer">Panel admin tidak punya fitur backup (data di Supabase, sudah di-backup otomatis oleh Supabase). Untuk ekspor manual, buka Supabase Dashboard → Table Editor → Export CSV.</div></details>
+
+    <details class="faq"><summary>Bagaimana kalau Supabase ter-pause?</summary><div class="faq-answer">GitHub Actions sudah otomatis ping setiap 3 hari. Kalau tetap paused, buka Supabase Dashboard → klik "Restore Project" → tunggu 2 menit.</div></details>
+
+    <p style="margin-top:48px;padding-top:24px;border-top:1px solid var(--slate-200);text-align:center;font-size:13px;color:var(--slate-500)">
+      Butuh bantuan? Hubungi <strong>Pengembang SISPA</strong>.<br>
+      <span style="font-size:11px;color:var(--slate-400)">SISPA Mandiri v2.0.0 · Panduan Admin · © 2025</span>
+    </p>
+  </main>
+</div>
+
+<button class="back-top" id="backTop">↑</button>
+
+<script>
+(function() {
+  const btn = document.getElementById('backTop');
+  window.addEventListener('scroll', () => btn.classList.toggle('show', window.scrollY > 600));
+  btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const sections = document.querySelectorAll('.guide-content h2[id], .guide-content h3[id]');
+  const tocLinks = document.querySelectorAll('.toc a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id));
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => observer.observe(s));
+
+  tocLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
