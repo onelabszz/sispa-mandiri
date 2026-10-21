@@ -2,529 +2,17 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Panduan Kepala Sekolah — SISPA Mandiri</title>
-<meta name="description" content="Panduan lengkap penggunaan SISPA Mandiri untuk Kepala Sekolah — alur supervisi akademik, panduan fitur, dan troubleshooting.">
 <link rel="icon" type="image/svg+xml" href="../shared/icons/icon.svg">
-<meta name="theme-color" content="#4f46e5">
-<style>
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    background: #f8fafc;
-    color: #0f172a;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ============ HEADER ============ */
-  .guide-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: rgba(255,255,255,.92);
-    backdrop-filter: saturate(180%) blur(12px);
-    border-bottom: 1px solid #e2e8f0;
-    padding: .85rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 1px 3px rgba(15,23,42,.04);
-  }
-  .guide-header .brand {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    text-decoration: none;
-    color: inherit;
-  }
-  .guide-header .brand-logo {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #6366f1, #4338ca);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    flex-shrink: 0;
-  }
-  .guide-header .brand-name {
-    font-weight: 800;
-    font-size: .95rem;
-    letter-spacing: -.01em;
-    line-height: 1.1;
-  }
-  .guide-header .brand-sub {
-    font-size: .68rem;
-    color: #64748b;
-    margin-top: .15rem;
-  }
-  .guide-header .spacer { flex: 1; }
-  .guide-header .hdr-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .5rem .9rem;
-    font-size: .8rem;
-    font-weight: 600;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    color: #334155;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all .15s;
-    font-family: inherit;
-  }
-  .guide-header .hdr-btn:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
-  .guide-header .hdr-btn.primary {
-    background: linear-gradient(180deg, #5b54e8, #4f46e5);
-    color: #fff;
-    border-color: transparent;
-    box-shadow: 0 1px 2px rgba(15,23,42,.1);
-  }
-  .guide-header .hdr-btn.primary:hover {
-    background: linear-gradient(180deg, #4f46e5, #4338ca);
-    box-shadow: 0 4px 12px -2px rgba(79,70,229,.4);
-  }
-  @media (max-width: 640px) {
-    .guide-header { padding: .7rem 1rem; }
-    .guide-header .hdr-btn .hdr-text { display: none; }
-    .guide-header .brand-sub { display: none; }
-  }
-
-  /* ============ LAYOUT ============ */
-  .guide-layout {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    max-width: 1280px;
-    margin: 0 auto;
-    gap: 2rem;
-    padding: 2rem 1.5rem 4rem;
-  }
-  @media (max-width: 900px) {
-    .guide-layout { grid-template-columns: 1fr; padding: 1.25rem 1rem 3rem; }
-  }
-
-  /* ============ SIDEBAR TOC ============ */
-  .toc {
-    position: sticky;
-    top: 4.5rem;
-    align-self: start;
-    max-height: calc(100vh - 5.5rem);
-    overflow-y: auto;
-    padding-right: .5rem;
-    scrollbar-width: thin;
-  }
-  .toc::-webkit-scrollbar { width: 6px; }
-  .toc::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-  .toc-title {
-    font-size: .68rem;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: #64748b;
-    font-weight: 700;
-    margin-bottom: .75rem;
-    padding-left: .5rem;
-  }
-  .toc a {
-    display: block;
-    padding: .45rem .75rem;
-    font-size: .82rem;
-    color: #475569;
-    text-decoration: none;
-    border-radius: 8px;
-    border-left: 2px solid transparent;
-    margin-bottom: 2px;
-    transition: all .12s;
-    line-height: 1.4;
-  }
-  .toc a:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-  }
-  .toc a.sub {
-    padding-left: 1.5rem;
-    font-size: .78rem;
-    color: #64748b;
-  }
-  .toc a.active {
-    background: #eef2ff;
-    color: #4338ca;
-    border-left-color: #4f46e5;
-    font-weight: 600;
-  }
-  @media (max-width: 900px) {
-    .toc {
-      position: relative;
-      top: 0;
-      max-height: none;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .toc a.sub { display: none; }
-  }
-
-  /* ============ CONTENT ============ */
-  .guide-content {
-    max-width: 760px;
-    min-width: 0;
-  }
-  .guide-content h1 {
-    font-size: 2.25rem;
-    font-weight: 800;
-    letter-spacing: -.02em;
-    line-height: 1.15;
-    margin: 0 0 .75rem;
-    color: #0f172a;
-  }
-  .guide-content .lead {
-    font-size: 1rem;
-    color: #475569;
-    line-height: 1.7;
-    margin: 0 0 2.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .guide-content h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -.01em;
-    margin: 3rem 0 1rem;
-    color: #0f172a;
-    scroll-margin-top: 5rem;
-    padding-bottom: .35rem;
-    border-bottom: 2px solid #e2e8f0;
-  }
-  .guide-content h2:first-of-type { margin-top: 1rem; }
-  .guide-content h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 2rem 0 .75rem;
-    color: #0f172a;
-    scroll-margin-top: 5rem;
-  }
-  .guide-content h4 {
-    font-size: .95rem;
-    font-weight: 600;
-    margin: 1.5rem 0 .5rem;
-    color: #334155;
-  }
-  .guide-content p {
-    font-size: .92rem;
-    color: #334155;
-    margin: 0 0 1rem;
-    line-height: 1.7;
-  }
-  .guide-content ul,
-  .guide-content ol {
-    font-size: .92rem;
-    color: #334155;
-    line-height: 1.75;
-    margin: 0 0 1.25rem;
-    padding-left: 1.5rem;
-  }
-  .guide-content li { margin-bottom: .35rem; }
-  .guide-content strong { color: #0f172a; font-weight: 600; }
-  .guide-content code {
-    background: #f1f5f9;
-    color: #4338ca;
-    padding: .15rem .4rem;
-    border-radius: 4px;
-    font-size: .85em;
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-    font-weight: 500;
-  }
-
-  /* ============ CALLOUT BOXES ============ */
-  .callout {
-    padding: 1rem 1.15rem;
-    border-radius: 12px;
-    margin: 1.25rem 0;
-    font-size: .88rem;
-    line-height: 1.65;
-    display: flex;
-    gap: .75rem;
-    align-items: flex-start;
-  }
-  .callout .callout-icon {
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .callout .callout-title {
-    font-weight: 700;
-    display: block;
-    margin-bottom: .15rem;
-  }
-  .callout.info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-  .callout.warn { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-  .callout.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-  .callout.danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-  .callout.tip { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
-
-  /* ============ STEP CARDS ============ */
-  .steps {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin: 1.5rem 0 2rem;
-  }
-  .step-card {
-    display: flex;
-    gap: 1rem;
-    padding: 1.15rem 1.25rem;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    align-items: flex-start;
-    transition: box-shadow .15s, transform .15s;
-  }
-  .step-card:hover {
-    box-shadow: 0 4px 12px -2px rgba(15,23,42,.08);
-    transform: translateY(-1px);
-  }
-  .step-num {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #6366f1, #4338ca);
-    color: #fff;
-    font-weight: 800;
-    font-size: .95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 2px 6px -1px rgba(79,70,229,.4);
-  }
-  .step-content { flex: 1; min-width: 0; }
-  .step-title {
-    font-size: .95rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 .25rem;
-  }
-  .step-desc {
-    font-size: .85rem;
-    color: #475569;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  /* ============ FEATURE GRID ============ */
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: .85rem;
-    margin: 1.25rem 0 2rem;
-  }
-  .feature-box {
-    padding: 1rem 1.15rem;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .feature-box:hover {
-    border-color: #c7d2fe;
-    box-shadow: 0 4px 10px -3px rgba(99,102,241,.15);
-  }
-  .feature-box .fb-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: #eef2ff;
-    color: #4338ca;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: .7rem;
-  }
-  .feature-box .fb-title {
-    font-size: .88rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 .25rem;
-  }
-  .feature-box .fb-desc {
-    font-size: .78rem;
-    color: #64748b;
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  /* ============ WORKFLOW DIAGRAM ============ */
-  .workflow {
-    display: flex;
-    flex-direction: column;
-    gap: .65rem;
-    margin: 1.5rem 0 2rem;
-  }
-  .workflow-step {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: .85rem 1.15rem;
-    background: linear-gradient(90deg, #eef2ff 0%, #f8fafc 100%);
-    border: 1px solid #c7d2fe;
-    border-radius: 12px;
-    position: relative;
-  }
-  .workflow-step .wf-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: #fff;
-    color: #4338ca;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(79,70,229,.15);
-  }
-  .workflow-step .wf-text {
-    flex: 1;
-    font-size: .88rem;
-    color: #334155;
-    line-height: 1.5;
-  }
-  .workflow-step .wf-text strong { color: #0f172a; }
-
-  /* ============ FAQ ============ */
-  .faq-item {
-    padding: 1rem 1.15rem;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    margin-bottom: .65rem;
-    cursor: pointer;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .faq-item:hover { border-color: #c7d2fe; }
-  .faq-item[open] {
-    border-color: #c7d2fe;
-    box-shadow: 0 4px 12px -2px rgba(99,102,241,.1);
-  }
-  .faq-item summary {
-    font-size: .92rem;
-    font-weight: 600;
-    color: #0f172a;
-    list-style: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-  }
-  .faq-item summary::-webkit-details-marker { display: none; }
-  .faq-item summary::after {
-    content: '+';
-    font-size: 1.25rem;
-    color: #64748b;
-    font-weight: 300;
-    transition: transform .2s;
-    flex-shrink: 0;
-  }
-  .faq-item[open] summary::after { transform: rotate(45deg); }
-  .faq-item .faq-answer {
-    margin-top: .75rem;
-    padding-top: .75rem;
-    border-top: 1px solid #f1f5f9;
-    font-size: .88rem;
-    color: #475569;
-    line-height: 1.7;
-  }
-
-  /* ============ TABLE ============ */
-  .guide-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.25rem 0 2rem;
-    font-size: .85rem;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(15,23,42,.05);
-  }
-  .guide-content thead th {
-    background: #f8fafc;
-    padding: .7rem .85rem;
-    text-align: left;
-    font-weight: 600;
-    color: #475569;
-    font-size: .72rem;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .guide-content tbody td {
-    padding: .75rem .85rem;
-    border-bottom: 1px solid #f1f5f9;
-    color: #334155;
-    vertical-align: top;
-  }
-  .guide-content tbody tr:last-child td { border-bottom: none; }
-
-  /* ============ BACK TO TOP ============ */
-  .back-top {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #5b54e8, #4f46e5);
-    color: #fff;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 8px 20px -4px rgba(79,70,229,.5);
-    border: none;
-    z-index: 40;
-    transition: transform .15s;
-  }
-  .back-top:hover { transform: translateY(-2px); }
-  .back-top.show { display: flex; }
-
-  /* ============ PRINT STYLES ============ */
-  @media print {
-    body { background: #fff; font-size: 10pt; }
-    .guide-header { position: static; box-shadow: none; border: none; padding: 0 0 1rem; }
-    .guide-header .hdr-btn { display: none; }
-    .guide-layout { display: block; max-width: 100%; padding: 0; }
-    .toc { display: none; }
-    .guide-content { max-width: 100%; }
-    .guide-content h1 { font-size: 20pt; }
-    .guide-content h2 { font-size: 14pt; page-break-before: auto; }
-    .guide-content h3 { font-size: 11pt; page-break-after: avoid; }
-    .back-top { display: none !important; }
-    .step-card, .feature-box, .callout, .faq-item { break-inside: avoid; }
-    .guide-content table { box-shadow: none; border: 1px solid #cbd5e1; }
-    a { color: #4338ca; text-decoration: none; }
-    a[href]::after { content: ""; }
-  }
-</style>
+<link rel="stylesheet" href="../shared/css/guide.css">
 </head>
-<body>
+<body class="role-ks">
 
-<!-- HEADER -->
 <header class="guide-header">
   <a href="index.html" class="brand">
     <div class="brand-logo">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/>
-        <path d="M22 10v6"/>
-        <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>
-      </svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
     </div>
     <div>
       <div class="brand-name">Panduan Kepala Sekolah</div>
@@ -532,1011 +20,349 @@
     </div>
   </a>
   <div class="spacer"></div>
-  <button class="hdr-btn" onclick="window.print()" title="Cetak atau simpan PDF">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6 9 6 2 18 2 18 9"/>
-      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-      <rect width="12" height="8" x="6" y="14"/>
-    </svg>
-    <span class="hdr-text">Cetak</span>
-  </button>
-  <a href="index.html" class="hdr-btn primary">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m15 18-6-6 6-6"/>
-    </svg>
-    <span class="hdr-text">Kembali ke Aplikasi</span>
-  </a>
+  <button onclick="window.print()"><span style="font-size:14px">🖨</span> <span class="btn-text">Cetak</span></button>
+  <a href="index.html" class="btn-link btn-primary">← <span class="btn-text">Kembali</span></a>
 </header>
 
 <div class="guide-layout">
-
-  <!-- SIDEBAR TOC -->
-  <aside class="toc" id="toc">
+  <aside class="toc">
     <div class="toc-title">Daftar Isi</div>
-    <a href="#intro">Pengenalan</a>
-    <a href="#install">Pasang & Akses Aplikasi</a>
-    <a href="#setup">Setup Awal</a>
-    <a href="#alur">Alur Supervisi Lengkap</a>
-    <a href="#alur-1" class="sub">1. Data Guru</a>
-    <a href="#alur-2" class="sub">2. Profil Tipe</a>
-    <a href="#alur-3" class="sub">3. Program</a>
-    <a href="#alur-4" class="sub">4. Supervisi 3 Tahap</a>
-    <a href="#alur-5" class="sub">5. Observasi</a>
-    <a href="#alur-6" class="sub">6. Analisis</a>
-    <a href="#alur-7" class="sub">7. Laporan</a>
-    <a href="#fitur">Detail Fitur</a>
-    <a href="#backup">Backup & Sinkronisasi</a>
-    <a href="#pin">PIN & Keamanan</a>
-    <a href="#faq">FAQ & Troubleshooting</a>
-    <a href="#tips">Tips Profesional</a>
+    <a href="#intro">1. Pengenalan</a>
+    <a href="#install">2. Pasang Aplikasi</a>
+    <a href="#login">3. Login & Profil</a>
+    <a href="#dashboard">4. Dashboard</a>
+    <a href="#guru">5. Data Guru</a>
+    <a href="#profil">6. Profil Tipe Guru</a>
+    <a href="#program">7. Program Supervisi</a>
+    <a href="#supervisi">8. Supervisi 3 Tahap</a>
+    <a href="#akademik">9. Obs. Akademik</a>
+    <a href="#coaching">10. Obs. Coaching</a>
+    <a href="#analisis">11. Analisis</a>
+    <a href="#laporan">12. Laporan & Cetak</a>
+    <a href="#pengaturan">13. Pengaturan</a>
+    <a href="#faq">14. FAQ</a>
+    <a href="#tips">15. Tips Profesional</a>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="guide-content">
-
     <h1>Panduan Kepala Sekolah</h1>
     <p class="lead">
       Panduan lengkap penggunaan aplikasi <strong>SISPA Mandiri</strong> untuk Kepala Sekolah —
-      dari instalasi awal, setup identitas sekolah, alur supervisi akademik, hingga backup data.
+      dari instalasi awal, setup identitas, alur supervisi akademik, hingga backup data.
     </p>
 
-    <!-- ============ PENGENALAN ============ -->
-    <h2 id="intro">Pengenalan</h2>
-    <p>
-      <strong>SISPA Mandiri</strong> adalah aplikasi semi-online untuk Kepala Sekolah dalam melakukan
-      supervisi akademik secara mandiri. Aplikasi ini <strong>100% gratis</strong> dan bekerja tanpa
-      server cloud — semua data tersimpan di laptop atau HP Anda.
-    </p>
-
-    <div class="callout info">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Tanpa Internet, Tanpa Server</span>
-        Setelah install sekali, aplikasi bisa dipakai sepenuhnya offline. Data disimpan di browser
-        laptop Anda (localStorage). Anda hanya butuh internet saat pertama kali buka dan saat kirim
-        file ke Pengawas.
-      </div>
-    </div>
+    <h2 id="intro">1. Pengenalan</h2>
+    <p><strong>SISPA Mandiri</strong> adalah aplikasi semi-online untuk Kepala Sekolah dalam melakukan supervisi akademik secara mandiri. Aplikasi ini berbasis Modul 5 (Supervisi Akademik pada Pembelajaran Mendalam termasuk Koding & Kecerdasan Artifisial).</p>
+    <div class="callout info"><span class="icon">ℹ️</span><div><strong>Tanpa Server</strong>Setelah install sekali, aplikasi bisa dipakai sepenuhnya offline. Data tersimpan di browser laptop Anda.</div></div>
 
     <h3>Yang Bisa Anda Lakukan</h3>
     <div class="feature-grid">
-      <div class="feature-box">
-        <div class="fb-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
-            <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
-          </svg>
-        </div>
-        <div class="fb-title">Dashboard</div>
-        <div class="fb-desc">Ringkasan guru, supervisi, dan peringatan.</div>
-      </div>
-      <div class="feature-box">
-        <div class="fb-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-        </div>
-        <div class="fb-title">Data Guru</div>
-        <div class="fb-desc">Kelola data guru, bisa impor dari CSV.</div>
-      </div>
-      <div class="feature-box">
-        <div class="fb-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-          </svg>
-        </div>
-        <div class="fb-title">Profil Tipe</div>
-        <div class="fb-desc">Klasifikasi Glickman untuk pendekatan.</div>
-      </div>
-      <div class="feature-box">
-        <div class="fb-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="8" height="4" x="8" y="2" rx="1"/>
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-            <path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>
-          </svg>
-        </div>
-        <div class="fb-title">Supervisi 3 Tahap</div>
-        <div class="fb-desc">Pra-observasi, observasi, pasca-observasi.</div>
-      </div>
-      <div class="feature-box">
-        <div class="fb-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>
-          </svg>
-        </div>
-        <div class="fb-title">Observasi Akademik</div>
-        <div class="fb-desc">19 indikator pembelajaran digital.</div>
-      </div>
-      <div class="feature-box">
-        <div class="fb-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
-          </svg>
-        </div>
-        <div class="fb-title">Observasi Coaching</div>
-        <div class="fb-desc">8 indikator STAR-GROW.</div>
-      </div>
+      <div class="feature"><div class="feature-icon">📊</div><div class="feature-title">Dashboard</div><div class="feature-desc">Ringkasan guru, supervisi, peringatan.</div></div>
+      <div class="feature"><div class="feature-icon">👥</div><div class="feature-title">Data Guru</div><div class="feature-desc">Kelola guru, impor dari CSV.</div></div>
+      <div class="feature"><div class="feature-icon">🎯</div><div class="feature-title">Profil Tipe</div><div class="feature-desc">Klasifikasi Glickman untuk pendekatan.</div></div>
+      <div class="feature"><div class="feature-icon">📝</div><div class="feature-title">Supervisi 3 Tahap</div><div class="feature-desc">Pra, observasi, pasca dengan Modul 5.</div></div>
+      <div class="feature"><div class="feature-icon">💻</div><div class="feature-title">Obs. Akademik</div><div class="feature-desc">19 indikator pembelajaran digital.</div></div>
+      <div class="feature"><div class="feature-icon">💬</div><div class="feature-title">Obs. Coaching</div><div class="feature-desc">8 indikator STAR-GROW.</div></div>
     </div>
 
-    <!-- ============ INSTALL ============ -->
-    <h2 id="install">Pasang & Akses Aplikasi</h2>
-    <p>
-      Aplikasi ini berbentuk web app (<em>PWA</em>) yang bisa dipasang seperti aplikasi desktop atau HP.
-      Setelah dipasang, aplikasi <strong>jalan penuh tanpa internet</strong>.
-    </p>
+    <h2 id="install">2. Pasang Aplikasi (PWA)</h2>
+    <p>Aplikasi berbentuk web app yang bisa dipasang seperti aplikasi desktop/HP. Setelah dipasang, bisa dipakai <strong>tanpa internet</strong>.</p>
 
-    <div class="callout warn">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
-          <path d="M12 9v4"/><path d="M12 17h.01"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Gunakan Chrome atau Edge</span>
-        Aplikasi optimal di Chrome atau Edge versi terbaru. Firefox dan Safari bisa dipakai tapi
-        fitur install mungkin berbeda. Hindari mode Incognito (data akan hilang saat tab ditutup).
-      </div>
-    </div>
-
-    <h3>Cara Memasang di Laptop (Chrome/Edge)</h3>
+    <h3>Di Laptop (Chrome/Edge)</h3>
     <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Buka URL aplikasi</div>
-          <div class="step-desc">Kunjungi link yang diberikan Dinas atau Pengawas. Contoh: <code>https://username.github.io/sispa-mandiri/ks/</code></div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Klik ikon Install di address bar</div>
-          <div class="step-desc">Muncul ikon kecil (kotak dengan panah atau tulisan "Install") di sebelah kanan address bar. Klik ikon tersebut.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Klik "Install"</div>
-          <div class="step-desc">Dialog konfirmasi muncul. Klik <strong>Install</strong>. Aplikasi akan ditambahkan ke desktop dan Start Menu.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">Buka dari desktop</div>
-          <div class="step-desc">Ikon SISPA muncul di desktop. Klik untuk membuka. Aplikasi akan tampil fullscreen tanpa address bar browser.</div>
-        </div>
-      </div>
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Buka URL aplikasi</div><div class="step-desc">Kunjungi <code>https://onelabszz.github.io/sispa-mandiri/ks/</code></div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Klik ikon Install di address bar</div><div class="step-desc">Ikon kecil (kotak dengan panah) muncul di sebelah kanan URL bar.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Klik "Install"</div><div class="step-desc">Aplikasi ditambahkan ke desktop dan Start Menu.</div></div></div>
     </div>
 
-    <h3>Cara Memasang di HP Android</h3>
-    <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Buka URL di Chrome HP</div>
-          <div class="step-desc">Sama seperti di laptop. Ketik atau tempel URL di Chrome.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Ketuk menu ⋮ (titik tiga)</div>
-          <div class="step-desc">Di pojok kanan atas Chrome.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Pilih "Install app" atau "Tambahkan ke Home Screen"</div>
-          <div class="step-desc">Aplikasi akan muncul sebagai ikon di home screen.</div>
-        </div>
-      </div>
-    </div>
+    <h3>Di HP Android</h3>
+    <p>Buka URL di Chrome → ketuk menu <strong>⋮</strong> (titik tiga) → pilih <strong>"Install app"</strong>.</p>
 
-    <h3>Untuk iPhone/iPad (Safari)</h3>
-    <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Buka URL di Safari</div>
-          <div class="step-desc">Wajib pakai Safari, bukan Chrome iOS.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Ketuk tombol Share</div>
-          <div class="step-desc">Ikon kotak dengan panah ke atas di bagian bawah browser.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Pilih "Add to Home Screen"</div>
-          <div class="step-desc">Ikon SISPA akan muncul di home screen iPhone.</div>
-        </div>
-      </div>
-    </div>
+    <h3>Di iPhone/iPad (Safari)</h3>
+    <p>Buka URL di Safari → ketuk ikon <strong>Share</strong> → pilih <strong>"Add to Home Screen"</strong>.</p>
 
-    <!-- ============ SETUP ============ -->
-    <h2 id="setup">Setup Awal</h2>
-    <p>
-      Saat pertama kali membuka aplikasi, Anda akan diminta mengisi identitas sekolah. Ini hanya
-      perlu dilakukan sekali.
-    </p>
+    <div class="callout tip"><span class="icon">💡</span><div><strong>Gunakan Chrome/Edge</strong>Aplikasi optimal di Chrome atau Edge versi terbaru. Hindari mode Incognito (data akan hilang saat tab ditutup).</div></div>
+
+    <h2 id="login">3. Login & Setup Profil</h2>
+    <p>Saat pertama membuka aplikasi, Anda akan diminta memasukkan NPSN sekolah. Data akun dikelola oleh Dinas Pendidikan.</p>
 
     <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Isi Nama Sekolah</div>
-          <div class="step-desc">Nama lengkap sekolah Anda. Contoh: <strong>SDN 1 Sukamaju</strong>. Wajib diisi.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Isi NPSN</div>
-          <div class="step-desc">8 digit NPSN sekolah Anda. Bisa dilihat di profil sekolah atau tanyakan operator. <strong>Wajib diisi</strong> — dipakai Pengawas untuk mengelompokkan data.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Isi Nama Kepala Sekolah dan NIP</div>
-          <div class="step-desc">Nama lengkap dengan gelar. Contoh: <strong>Dra. Siti Aminah, M.Pd</strong>. NIP wajib diisi untuk tanda tangan laporan.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">Klik "Simpan & Mulai"</div>
-          <div class="step-desc">Anda akan diarahkan ke Dashboard.</div>
-        </div>
-      </div>
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Masukkan NPSN</div><div class="step-desc">8 digit NPSN sekolah Anda. Contoh: <code>20311457</code>. Sistem akan memverifikasi ke database Dinas.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Lengkapi Profil</div><div class="step-desc">Setelah NPSN terverifikasi, isi Nama Lengkap & Gelar (wajib) dan NIP (opsional). Data ini dipakai untuk tanda tangan laporan.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Masuk Dashboard</div><div class="step-desc">Anda akan diarahkan ke Dashboard. Klik "Simpan & Masuk".</div></div></div>
     </div>
 
-    <div class="callout tip">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Aktifkan PIN setelah setup</span>
-        Setelah masuk Dashboard, buka <strong>Pengaturan</strong> → set PIN 4 digit. PIN melindungi
-        data jika laptop Anda dipinjam orang lain.
-      </div>
-    </div>
+    <div class="callout warn"><span class="icon">⚠️</span><div><strong>Perangkat Dipakai KS Lain?</strong>Jika laptop Anda pernah dipakai KS lain, akan muncul peringatan "Perangkat Sudah Punya Data". Pilih <strong>Ekspor Dulu</strong> untuk backup data lama, atau <strong>Batal</strong> untuk login dengan NPSN yang benar.</div></div>
 
-    <!-- ============ ALUR SUPERVISI ============ -->
-    <h2 id="alur">Alur Supervisi Lengkap</h2>
-    <p>
-      Alur kerja yang direkomendasikan dari awal hingga akhir semester. Ikuti urutan ini untuk
-      hasil terbaik.
-    </p>
+    <h2 id="dashboard">4. Dashboard</h2>
+    <p>Halaman utama setelah login. Berisi:</p>
+    <ul>
+      <li><strong>Kartu Profil KS</strong> — nama, NPSN, NIP (klik "Edit Profil" untuk ubah)</li>
+      <li><strong>Widget Pengawas Pembina</strong> — status pengawas Anda, tombol "Cek Pengawas"</li>
+      <li><strong>Stat Cards</strong> — Total Guru, Total Supervisi, Sudah Dinilai</li>
+      <li><strong>Papan Supervisi</strong> — progress bar 3T, Akademik, Coaching + warning guru belum disupervisi</li>
+      <li><strong>Perlu Perhatian</strong> — warning interaktif (klik untuk navigasi)</li>
+      <li><strong>Distribusi Tipe Guru</strong> — kuadran Glickman</li>
+      <li><strong>Aktivitas Terakhir</strong> — 5 sesi terbaru</li>
+    </ul>
 
-    <div class="workflow">
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>1. Input Data Guru</strong> — Masukkan semua guru di sekolah Anda. Bisa manual atau impor CSV.</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>2. Nilai Profil Tipe Guru</strong> — Tentukan tipe Glickman (Dropout/Unfocused/Analytical/Professional).</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>3. Susun Program</strong> — Rencanakan jadwal supervisi per periode.</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="8" height="4" x="8" y="2" rx="1"/>
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>4. Lakukan Supervisi 3 Tahap</strong> — Pra-observasi, observasi, pasca-observasi.</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>5. Observasi (opsional)</strong> — Akademik atau Coaching untuk guru tertentu.</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>6. Analisis Data</strong> — Lihat grafik PM, pengalaman belajar, DPL, KKA.</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>7. Cetak Laporan</strong> — Print PDF untuk arsip dan laporan ke Dinas.</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
-          </svg>
-        </div>
-        <div class="wf-text"><strong>8. Backup & Kirim ke Pengawas</strong> — Ekspor JSON, kirim via WhatsApp.</div>
-      </div>
-    </div>
+    <div class="callout info"><span class="icon">ℹ️</span><div><strong>Backup Reminder</strong>Jika belum backup &gt;7 hari, akan muncul banner kuning "Waktunya Backup" di atas Dashboard. Klik "Ekspor Sekarang" untuk backup.</div></div>
 
-    <h3 id="alur-1">1. Input Data Guru</h3>
-    <p>
-      Menu <strong>Data Guru</strong> di sidebar kiri. Anda bisa menambah guru satu per satu atau
-      mengimpor dari file CSV untuk efisiensi.
-    </p>
+    <h2 id="guru">5. Data Guru</h2>
+    <p>Menu <strong>Data Guru</strong> untuk mengelola daftar guru di sekolah Anda.</p>
 
-    <h4>Tambah Manual</h4>
+    <h3>Tambah Manual</h3>
+    <p>Klik <strong>+ Tambah Guru</strong> → isi Nama (wajib), NIP, Mapel, Kelas, Status Kepegawaian (PNS/PPPK/Non ASN).</p>
+
+    <h3>Import CSV (Bulk)</h3>
     <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Klik "+ Tambah Guru"</div>
-          <div class="step-desc">Tombol biru di kanan atas.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Isi form</div>
-          <div class="step-desc">Nama lengkap (wajib), NIP, mata pelajaran, kelas, dan status kepegawaian (PNS/PPPK/Non ASN).</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Klik Simpan</div>
-          <div class="step-desc">Guru muncul di tabel. Ulangi untuk guru lain.</div>
-        </div>
-      </div>
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Klik 📥 Impor CSV</div><div class="step-desc">Muncul modal dengan 2 tab: <strong>Upload File</strong> dan <strong>Paste CSV</strong>.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Pilih Metode</div><div class="step-desc"><strong>Upload File:</strong> Download template → isi di Excel → Save As CSV UTF-8 → upload.<br><strong>Paste CSV:</strong> Copy dari Excel → paste ke textarea → klik Lanjut Preview.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Review Preview</div><div class="step-desc">Sistem menampilkan preview per baris (✓ valid, ⚠ duplikat, ✗ error). Klik "Impor" untuk konfirmasi.</div></div></div>
     </div>
 
-    <h4>Impor dari CSV (Banyak Guru Sekaligus)</h4>
-    <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Klik "Impor CSV"</div>
-          <div class="step-desc">Tombol abu-abu di kanan atas.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Download template</div>
-          <div class="step-desc">Klik "Download Template CSV". File <code>template_guru_sispa.csv</code> akan terunduh.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Buka di Excel dan isi data</div>
-          <div class="step-desc">Format kolom: <code>nama; nip; mapel; kelas; peg</code>. Hapus baris contoh, isi dengan data guru Anda.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <div class="step-title">Save As → CSV UTF-8</div>
-          <div class="step-desc">Penting: pilih <strong>CSV UTF-8</strong> saat save agar karakter khusus tetap terbaca.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">5</div>
-        <div class="step-content">
-          <div class="step-title">Upload file</div>
-          <div class="step-desc">Klik "Pilih File", pilih CSV yang sudah diisi. Sistem akan menampilkan preview per baris — valid, duplikat, atau error.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">6</div>
-        <div class="step-content">
-          <div class="step-title">Klik "Impor"</div>
-          <div class="step-desc">Semua guru valid langsung masuk. Duplikat (nama + NIP sama) otomatis dilewati.</div>
-        </div>
-      </div>
-    </div>
+    <div class="callout info"><span class="icon">ℹ️</span><div><strong>Format Kolom</strong>nama ; nip ; mapel ; kelas ; peg. Separator titik-koma. Duplikat (nama + NIP sama) otomatis dilewati.</div></div>
 
-    <h3 id="alur-2">2. Nilai Profil Tipe Guru</h3>
-    <p>
-      Menu <strong>Profil Tipe Guru</strong>. Anda menentukan level <strong>abstraksi</strong>
-      (kemampuan analisis) dan <strong>komitmen</strong> (kesediaan waktu) setiap guru. Sistem
-      akan otomatis mengklasifikasikan tipe Glickman dan merekomendasikan pendekatan supervisi.
-    </p>
+    <h2 id="profil">6. Profil Tipe Guru</h2>
+    <p>Menu <strong>Profil Tipe Guru</strong> untuk menilai level komitmen & abstraksi guru. Menentukan tipe Glickman & rekomendasi pendekatan.</p>
 
+    <h3>Peta Kuadran Interaktif</h3>
+    <p>Klik salah satu kuadran untuk memfilter daftar guru:</p>
     <table>
-      <thead>
-        <tr>
-          <th>Abstraksi</th>
-          <th>Komitmen</th>
-          <th>Tipe</th>
-          <th>Pendekatan</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Abstraksi</th><th>Komitmen</th><th>Tipe</th><th>Pendekatan</th></tr></thead>
       <tbody>
-        <tr>
-          <td>Rendah</td>
-          <td>Rendah</td>
-          <td><strong>Dropout</strong></td>
-          <td>Directive-Control (Mentoring)</td>
-        </tr>
-        <tr>
-          <td>Rendah</td>
-          <td>Tinggi</td>
-          <td><strong>Unfocused</strong></td>
-          <td>Directive-Informational (Mentoring)</td>
-        </tr>
-        <tr>
-          <td>Tinggi</td>
-          <td>Rendah</td>
-          <td><strong>Analytical</strong></td>
-          <td>Collaborative (Coaching)</td>
-        </tr>
-        <tr>
-          <td>Tinggi</td>
-          <td>Tinggi</td>
-          <td><strong>Professional</strong></td>
-          <td>Non-Directive (Coaching)</td>
-        </tr>
+        <tr><td>Rendah</td><td>Rendah</td><td><strong>Dropout</strong></td><td>Directive-Control (Mentoring)</td></tr>
+        <tr><td>Rendah</td><td>Tinggi</td><td><strong>Unfocused</strong></td><td>Directive-Informational (Mentoring)</td></tr>
+        <tr><td>Tinggi</td><td>Rendah</td><td><strong>Analytical</strong></td><td>Collaborative (Coaching)</td></tr>
+        <tr><td>Tinggi</td><td>Tinggi</td><td><strong>Professional</strong></td><td>Non-Directive (Coaching)</td></tr>
       </tbody>
     </table>
 
-    <div class="callout tip">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Bagaimana menilai abstraksi & komitmen?</span>
-        <strong>Abstraksi rendah</strong>: guru cenderung bingung saat ada masalah pembelajaran, tidak tahu harus mulai dari mana.
-        <strong>Abstraksi tinggi</strong>: guru mampu menganalisis masalah sendiri dan mencari solusi.
-        <strong>Komitmen rendah</strong>: guru enggan meluangkan waktu untuk perubahan.
-        <strong>Komitmen tinggi</strong>: guru bersedia berkorban waktu untuk perbaikan.
-      </div>
-    </div>
+    <h3>Form Penilaian</h3>
+    <p>Klik <strong>Nilai</strong> pada guru → isi:</p>
+    <ul>
+      <li><strong>Periode</strong> — default semester berjalan</li>
+      <li><strong>Catatan Observasi</strong> — kesenjangan yang terlihat</li>
+      <li><strong>Level Abstraksi</strong> — Rendah/Tinggi + catatan bukti</li>
+      <li><strong>Level Komitmen</strong> — Rendah/Tinggi + catatan bukti</li>
+    </ul>
+    <p>Preview hasil kuadran muncul otomatis di bawah form.</p>
 
-    <h3 id="alur-3">3. Susun Program Supervisi</h3>
-    <p>
-      Menu <strong>Program Supervisi</strong>. Rencanakan jadwal supervisi per periode (misal
-      semester ganjil 2025/2026). Ini adalah rencana, bukan jadwal wajib.
-    </p>
+    <div class="callout tip"><span class="icon">💡</span><div><strong>Cara Menilai</strong><strong>Abstraksi rendah:</strong> guru bingung saat ada masalah, tidak tahu mulai dari mana.<br><strong>Komitmen rendah:</strong> guru enggan meluangkan waktu untuk perubahan.</div></div>
 
+    <h2 id="program">7. Program Supervisi</h2>
+    <p>Menu <strong>Program Supervisi</strong> untuk merencanakan jadwal per periode.</p>
+    <ul>
+      <li>Klik <strong>+ Tambah Program</strong> → pilih guru → periode otomatis → waktu rencana (opsional)</li>
+      <li>Dropdown guru menampilkan tipe (contoh: "Budi — Professional")</li>
+      <li>Filter periode di kanan atas untuk melihat per semester</li>
+      <li>Duplikat (guru + periode sama) otomatis ditolak</li>
+    </ul>
+
+    <h2 id="supervisi">8. Supervisi 3 Tahap</h2>
+    <p>Menu <strong>Supervisi 3 Tahap</strong> — fitur utama SISPA. Wizard 3 tahap dengan panduan Modul 5.</p>
+
+    <h3>Mulai Supervisi</h3>
+    <p>Klik <strong>+ Mulai Supervisi</strong> → pilih guru → isi tanggal → mulai wizard.</p>
+
+    <h3>Tahap 1 — Pra-Observasi</h3>
+    <p><strong>Panduan Modul 5:</strong></p>
+    <ul>
+      <li>Tanyakan: "Apa tujuan pembelajaran yang ingin dicapai hari ini?"</li>
+      <li>Tanyakan: "Bagaimana Anda menerapkan Prinsip Pembelajaran Mendalam?"</li>
+      <li>Tanyakan: "Apa aspek fokus yang ingin kita amati bersama?"</li>
+      <li>Sepakati bersama 1 aspek fokus</li>
+    </ul>
+    <p>Isi: Tujuan, Strategi, Asesmen, Prinsip PM, Pengalaman Belajar, 8 DPL, Aspek Fokus, Kesiapan Guru, Link Dokumen.</p>
+    <p>Jika guru sudah dinilai tipe, muncul kartu <strong>Panduan Pendekatan</strong> sesuai tipe (Directive untuk Dropout, Non-Directive untuk Professional).</p>
+
+    <h3>Tahap 2 — Observasi</h3>
+    <p><strong>Panduan Modul 5:</strong></p>
+    <ul>
+      <li>Catat <strong>FAKTA</strong> (apa dilihat & didengar), bukan opini</li>
+      <li>Contoh fakta: "Guru memberi waktu tunggu 5 detik sebelum murid menjawab"</li>
+      <li>Bukan fakta: "Guru kurang memberi waktu berpikir"</li>
+    </ul>
+    <p>Isi: Aktivitas Guru, Aktivitas Murid, Momen PM, Integrasi KKA, Durasi, Link Video/Foto.</p>
+
+    <h3>Tahap 3 — Pasca-Observasi</h3>
+    <p><strong>Panduan Modul 5:</strong></p>
+    <ul>
+      <li>Ajukan 7 pertanyaan refleksi secara berurutan</li>
+      <li>Jangan interupsi saat guru berbicara</li>
+      <li>Respons "Menanyakan" jika guru belum menyadari</li>
+      <li>Respons "Memberitahu" jika guru buntu</li>
+    </ul>
+    <p>Isi: 7 pertanyaan refleksi + respons + RTL (Aksi, Waktu, Dukungan, Indikator).</p>
+
+    <div class="callout success"><span class="icon">✅</span><div><strong>Bisa Simpan Draft</strong>Klik "Simpan Draft" di step mana pun. Kembali kapan saja via menu Supervisi → tombol "Lanjut".</div></div>
+
+    <h2 id="akademik">9. Obs. Akademik</h2>
+    <p>Menu <strong>Obs. Akademik</strong> — 19 indikator pembelajaran digital dengan skor 1-4.</p>
+
+    <h3>Alur</h3>
+    <ol>
+      <li>Klik <strong>+ Mulai Akademik Baru</strong></li>
+      <li>Isi identitas: Guru, Tanggal, Mapel, Materi, Durasi</li>
+      <li>Beri skor per indikator (1-4): <strong>1</strong>=Belum, <strong>2</strong>=Mulai, <strong>3</strong>=Berkembang, <strong>4</strong>=Mahir</li>
+      <li>Isi catatan per indikator + catatan tambahan + kekuatan + area pengembangan + RTL</li>
+      <li>Pilih: <strong>Simpan Draft</strong> (bisa lanjut nanti) atau <strong>Selesaikan</strong> (final, readonly)</li>
+    </ol>
+
+    <h3>List & Status</h3>
+    <table>
+      <thead><tr><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>
+        <tr><td>⏳ Draft</td><td>Klik "Lanjut" untuk edit, "Hapus" untuk hapus</td></tr>
+        <tr><td>✓ Selesai</td><td>Klik "Lihat" (readonly), "Cetak" (PDF), "Hapus"</td></tr>
+      </tbody>
+    </table>
+
+    <p>Klik <strong>🖨 Cetak Rekap</strong> di kanan atas untuk cetak semua sesi dalam 1 halaman.</p>
+
+    <h2 id="coaching">10. Obs. Coaching</h2>
+    <p>Menu <strong>Obs. Coaching</strong> — 8 indikator STAR-GROW untuk percakapan coaching pasca-observasi.</p>
+
+    <h3>Indikator</h3>
+    <ul>
+      <li><strong>S</strong> — Situation (gali konteks)</li>
+      <li><strong>T</strong> — Target (gali tujuan)</li>
+      <li><strong>A</strong> — Action (gali langkah)</li>
+      <li><strong>R</strong> — Result (gali dampak)</li>
+      <li><strong>G</strong> — Goal (rumuskan tujuan pengembangan)</li>
+      <li><strong>R</strong> — Reality (identifikasi kondisi nyata)</li>
+      <li><strong>O</strong> — Options (dorong alternatif)</li>
+      <li><strong>W</strong> — Will (komitmen tindak lanjut)</li>
+    </ul>
+
+    <p>Alur sama seperti Akademik: draft/selesai, RTL multi-baris (klik <strong>+ Tambah Baris RTL</strong>), cetak, hapus.</p>
+
+    <h2 id="analisis">11. Analisis</h2>
+    <p>Menu <strong>Analisis PM & KKA</strong> menampilkan visualisasi dari semua sesi:</p>
+    <ul>
+      <li><strong>KPI Cards</strong> — Total Sesi, Selesai 3T, KKA %</li>
+      <li><strong>Grafik Tren Bulanan</strong> — jumlah sesi per bulan (12 bulan terakhir)</li>
+      <li><strong>Insight Otomatis</strong> — analisis cerdas dari data (prinsip dominan, area lemah, dll)</li>
+      <li><strong>Chart Prinsip PM</strong> — 3 bar (Berkesadaran, Bermakna, Menggembirakan)</li>
+      <li><strong>Chart Pengalaman</strong> — 3 bar (Memahami, Mengaplikasi, Merefleksi)</li>
+      <li><strong>8 DPL</strong> — bar horizontal</li>
+    </ul>
+
+    <h2 id="laporan">12. Laporan & Cetak</h2>
+    <p>Menu <strong>Laporan & Riwayat</strong> — semua sesi dengan filter lanjutan.</p>
+
+    <h3>Filter</h3>
+    <ul>
+      <li>Cari nama guru</li>
+      <li>Jenis: 3 Tahap / Akademik / Coaching</li>
+      <li>Status: Selesai / Draft</li>
+      <li>Bulan tertentu</li>
+    </ul>
+
+    <h3>Cetak Rekap Semester</h3>
+    <p>Klik <strong>🖨 Cetak Rekap Semester</strong> di kanan atas untuk cetak laporan agregat 6 bulan terakhir:</p>
+    <ul>
+      <li>Ringkasan (Total Guru, Sesi, Coverage, Rata-rata Skor)</li>
+      <li>Distribusi tipe guru (Glickman)</li>
+      <li>Tabel per guru dengan count sesi</li>
+      <li>Tanda tangan Kepala Sekolah + Pengawas</li>
+    </ul>
+
+    <h3>Cetak Individual</h3>
+    <p>Klik <strong>Cetak</strong> per baris untuk cetak laporan satu sesi (format resmi A4, dengan TTD ganda KS + Guru).</p>
+
+    <h2 id="pengaturan">13. Pengaturan</h2>
+
+    <h3>Identitas Sekolah & KS</h3>
+    <p>Edit nama sekolah, NPSN, nama KS, NIP, PIN. Klik <strong>Simpan Pengaturan</strong>.</p>
+
+    <h3>Pengawas Pembina Saya</h3>
     <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Klik "+ Tambah Program"</div>
-          <div class="step-desc">Isi form: pilih guru, periode (default 2025/2026-Ganjil), tanggal rencana.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Ulangi untuk setiap guru</div>
-          <div class="step-desc">Idealnya setiap guru punya minimal 1 program supervisi per semester.</div>
-        </div>
-      </div>
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Klik 🔄 Cek Pengawas Dabin</div><div class="step-desc">Sistem cek ke database apakah pengawas sudah klaim sekolah Anda.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Konfirmasi Pengawas</div><div class="step-desc">Jika ada pengawas klaim, muncul modal konfirmasi. Klik "Konfirmasi" jika benar, "Tolak" jika salah.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Status Terkonfirmasi</div><div class="step-desc">Setelah konfirmasi, kartu hijau menampilkan nama pengawas + tombol "Cek Perubahan" untuk deteksi kalau Dinas mengganti pengawas.</div></div></div>
     </div>
 
-    <h3 id="alur-4">4. Lakukan Supervisi 3 Tahap</h3>
-    <p>
-      Menu <strong>Supervisi 3 Tahap</strong>. Ini adalah fitur utama SISPA. Anda memandu guru
-      melalui tiga tahap pembelajaran bermakna.
-    </p>
-
-    <h4>Tahap 1 — Pra-Observasi</h4>
-    <p>Percakapan sebelum observasi kelas. Fokus pada perencanaan pembelajaran.</p>
+    <h3>Backup & Transfer</h3>
     <ul>
-      <li><strong>Tujuan pembelajaran</strong> — apa yang ingin dicapai guru?</li>
-      <li><strong>Strategi pedagogis</strong> — bagaimana cara mencapainya?</li>
-      <li><strong>Rencana asesmen</strong> — bagaimana mengukur ketercapaian?</li>
-      <li><strong>Prinsip PM</strong> — centang yang sesuai: Berkesadaran, Bermakna, Menggembirakan</li>
-      <li><strong>Pengalaman belajar</strong> — Memahami, Mengaplikasi, Merefleksi</li>
-      <li><strong>8 Dimensi Profil Lulusan</strong> — centang yang akan dikembangkan</li>
-      <li><strong>Aspek fokus observasi</strong> — pilih satu fokus utama (misal: teknik bertanya)</li>
-      <li><strong>Kesiapan guru</strong> — siap, ragu, atau belum siap?</li>
+      <li><strong>Ekspor JSON</strong> — download file <code>[NPSN]_[Sekolah]_[Tgl].json</code></li>
+      <li><strong>Impor JSON</strong> — restore semua data dari file backup</li>
+      <li><strong>Hapus Semua Data</strong> — reset total (klik konfirmasi, hati-hati!)</li>
     </ul>
 
-    <h4>Tahap 2 — Observasi Kelas</h4>
-    <p>Anda masuk kelas, mengamati pembelajaran, dan mencatat fakta.</p>
-    <ul>
-      <li><strong>Aktivitas guru</strong> — apa yang dilakukan guru? (fakta, bukan opini)</li>
-      <li><strong>Aktivitas murid</strong> — bagaimana respons murid?</li>
-      <li><strong>Momen Pembelajaran Mendalam</strong> — centang momen yang terjadi</li>
-      <li><strong>Integrasi Koding/AI (KKA)</strong> — apakah guru menggunakan?</li>
-      <li><strong>Durasi observasi</strong> — berapa menit?</li>
-    </ul>
+    <div class="callout danger"><span class="icon">⚠️</span><div><strong>WAJIB: Backup Mingguan</strong>Data disimpan di browser laptop. Jika clear browsing data, uninstall Chrome, atau laptop rusak, data bisa hilang. Backup JSON mingguan adalah satu-satunya cara aman.</div></div>
 
-    <h4>Tahap 3 — Pasca-Observasi</h4>
-    <p>Percakapan refleksi setelah observasi. Guru merefleksi, Anda memandu.</p>
-    <ul>
-      <li><strong>7 pertanyaan refleksi</strong> — guru menjawab, Anda menandai respons (menanyakan/memberitahu)</li>
-      <li><strong>RTL (Rencana Tindak Lanjut)</strong> — aksi konkret, waktu, dukungan, indikator keberhasilan</li>
-    </ul>
+    <h2 id="faq">14. FAQ</h2>
 
-    <div class="callout success">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Bisa disimpan sebagai draft</span>
-        Anda tidak perlu menyelesaikan ketiga tahap sekaligus. Klik <strong>Simpan Draft</strong>
-        di step mana pun. Kembali kapan saja melalui menu Supervisi.
-      </div>
-    </div>
+    <details class="faq"><summary>Data saya hilang setelah clear browsing data, bagaimana?</summary><div class="faq-answer">Data tidak bisa dipulihkan kecuali ada backup JSON. Ini alasan mengapa backup mingguan sangat penting. Ke depannya: backup rutin ke Google Drive, dan jangan pernah clear browsing data tanpa backup dulu.</div></details>
 
-    <div class="callout warn">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
-          <path d="M12 9v4"/><path d="M12 17h.01"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Warning guru sudah disupervisi</span>
-        Jika guru sudah pernah disupervisi di periode yang sama, akan muncul tanda peringatan kuning.
-        Ini bukan larangan — Anda tetap bisa supervisi ulang untuk pembinaan intensif.
-      </div>
-    </div>
+    <details class="faq"><summary>Bisa dipakai di HP dan laptop bersamaan?</summary><div class="faq-answer">Bisa, tapi data tidak tersinkron otomatis. Setiap device punya data sendiri. Untuk memindah: ekspor JSON di device lama → impor di device baru.</div></details>
 
-    <h3 id="alur-5">5. Observasi Akademik / Coaching</h3>
-    <p>
-      Dua fitur tambahan untuk melengkapi supervisi 3 tahap. Bersifat opsional, gunakan sesuai kebutuhan.
+    <details class="faq"><summary>Bagaimana cara kirim data ke Pengawas?</summary><div class="faq-answer">Pengaturan → Ekspor JSON → file terunduh → kirim ke Pengawas via WhatsApp atau Email. Pengawas akan impor file tersebut di aplikasi PS.</div></details>
+
+    <details class="faq"><summary>Lupa PIN?</summary><div class="faq-answer">Tidak ada recovery otomatis. Jika lupa, Anda harus reset aplikasi (data hilang) lalu impor backup JSON. Catat PIN di tempat aman.</div></details>
+
+    <details class="faq"><summary>Laptop dipinjam KS lain, muncul warning?</summary><div class="faq-answer">Iya, sistem akan memperingatkan "Perangkat Sudah Punya Data". Pilih "Ekspor Dulu" untuk backup data lama, atau "Batal" untuk login NPSN yang benar.</div></details>
+
+    <details class="faq"><summary>Aplikasi lemot, kenapa?</summary><div class="faq-answer">Tutup tab lain, restart browser, cek penyimpanan laptop (minimal 100 MB free), pastikan Chrome versi terbaru. Jika masih lemot, kemungkinan sudah terlalu banyak data (>1000 sesi).</div></details>
+
+    <details class="faq"><summary>Bisa edit sesi yang sudah "Selesai"?</summary><div class="faq-answer">Tidak bisa. Setelah finalisasi, data readonly. Jika perlu revisi, hubungi Pengawas atau hapus & buat sesi baru.</div></details>
+
+    <details class="faq"><summary>Apakah aplikasi ini gratis?</summary><div class="faq-answer">Ya, 100% gratis. Tidak ada biaya bulanan, tidak ada iklan, tidak ada data yang dikirim ke server manapun.</div></details>
+
+    <h2 id="tips">15. Tips Profesional</h2>
+
+    <div class="callout tip"><span class="icon">💾</span><div><strong>Backup Mingguan</strong>Setiap Jumat atau Senin, ekspor JSON dan simpan ke Google Drive. Beri nama dengan tanggal (misal <code>SISPA_Backup_2025-10-20.json</code>) agar mudah dicari.</div></div>
+
+    <div class="callout tip"><span class="icon">📝</span><div><strong>Catat Fakta, Bukan Opini</strong>Saat observasi, tulis apa yang dilihat dan didengar (misal "guru bertanya kepada 5 murid berbeda"), bukan interpretasi ("guru kurang memeratakan perhatian").</div></div>
+
+    <div class="callout tip"><span class="icon">🎯</span><div><strong>Supervisi = Membantu, Bukan Menilai</strong>Fokus pada pertumbuhan guru. Refleksi dengan pertanyaan terbuka ("Bagaimana perasaan Anda setelah mengajar?"), bukan penilaian ("Anda kurang baik dalam X").</div></div>
+
+    <div class="callout tip"><span class="icon">📅</span><div><strong>Jadwalkan Supervisi Teratur</strong>Idealnya setiap guru disupervisi minimal 1x per semester. Buat program di awal semester dan konsisten menjalankannya.</div></div>
+
+    <div class="callout tip"><span class="icon">📤</span><div><strong>Kirim ke Pengawas Rutin</strong>Jangan tunggu akhir semester. Kirim JSON ke Pengawas setiap bulan atau 2 minggu agar Pengawas bisa beri feedback cepat.</div></div>
+
+    <p style="margin-top:48px;padding-top:24px;border-top:1px solid var(--slate-200);text-align:center;font-size:13px;color:var(--slate-500)">
+      Butuh bantuan? Hubungi <strong>Pengawas Pembina</strong> atau Dinas Pendidikan Kabupaten Wonogiri.<br>
+      <span style="font-size:11px;color:var(--slate-400)">SISPA Mandiri v2.0.0 · Panduan KS · © 2025</span>
     </p>
-
-    <h4>Observasi Akademik (19 Indikator)</h4>
-    <p>Fokus pada pembelajaran berbasis digital. Setiap indikator diberi skor 1-4:</p>
-    <ul>
-      <li><strong>1</strong> = Belum terlihat</li>
-      <li><strong>2</strong> = Mulai terlihat</li>
-      <li><strong>3</strong> = Berkembang</li>
-      <li><strong>4</strong> = Mahir</li>
-    </ul>
-    <p>Indikator dibagi 6 kategori: Perencanaan, Pemanfaatan Media, Interaksi Murid, Literasi & Etika, Asesmen Digital, Pengelolaan Kelas. Setiap indikator bisa diberi catatan bukti.</p>
-
-    <h4>Observasi Coaching (8 Indikator STAR-GROW)</h4>
-    <p>Fokus pada percakapan coaching pasca-observasi. Mengukur kualitas pertanyaan supervisor:</p>
-    <ul>
-      <li><strong>S</strong> — Situation: menggali konteks</li>
-      <li><strong>T</strong> — Target: menggali tujuan</li>
-      <li><strong>A</strong> — Action: menggali langkah konkret</li>
-      <li><strong>R</strong> — Result: menggali dampak</li>
-      <li><strong>G</strong> — Goal: membantu merumuskan tujuan pengembangan</li>
-      <li><strong>R</strong> — Reality: identifikasi kondisi nyata</li>
-      <li><strong>O</strong> — Options: dorong alternatif solusi</li>
-      <li><strong>W</strong> — Will: komitmen tindak lanjut</li>
-    </ul>
-
-    <h3 id="alur-6">6. Analisis Data</h3>
-    <p>
-      Menu <strong>Analisis PM & KKA</strong>. Setelah beberapa supervisi, Anda bisa melihat pola:
-    </p>
-    <ul>
-      <li>Grafik prinsip pembelajaran mendalam (berkesadaran, bermakna, menggembirakan)</li>
-      <li>Grafik pengalaman belajar (memahami, mengaplikasi, merefleksi)</li>
-      <li>Bar chart 8 Dimensi Profil Lulusan</li>
-      <li>Persentase integrasi Koding/AI (KKA)</li>
-    </ul>
-    <p>Data ini membantu Anda melihat kecenderungan sekolah dan menentukan fokus pembinaan guru.</p>
-
-    <h3 id="alur-7">7. Cetak Laporan</h3>
-    <p>
-      Menu <strong>Laporan & Riwayat</strong>. Semua sesi terkumpul di sini. Setiap sesi bisa
-      dicetak sebagai PDF profesional dengan tanda tangan ganda (KS dan Guru).
-    </p>
-    <p>
-      Klik <strong>Cetak</strong> → dialog print browser terbuka → pilih "Save as PDF" → simpan.
-      Template sudah dioptimalkan untuk kertas A4.
-    </p>
-
-    <!-- ============ FITUR ============ -->
-    <h2 id="fitur">Detail Fitur</h2>
-
-    <h3>Dashboard</h3>
-    <p>Ringkasan cepat: total guru, total sesi, distribusi tipe guru, peringatan guru belum dinilai, dan 5 aktivitas terakhir. Buka setiap hari untuk memantau progres.</p>
-
-    <h3>Pengaturan</h3>
-    <p>Ubah identitas sekolah & KS, ganti PIN, ekspor/impor backup, dan reset data. Semua di satu tempat.</p>
-
-    <!-- ============ BACKUP ============ -->
-    <h2 id="backup">Backup & Sinkronisasi</h2>
-
-    <div class="callout danger">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
-          <path d="M12 9v4"/><path d="M12 17h.01"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">WAJIB: Backup mingguan</span>
-        Data disimpan di browser laptop Anda. Jika Anda clear browsing data, uninstall Chrome,
-        atau laptop rusak, <strong>data bisa hilang</strong>. Backup JSON mingguan adalah satu-satunya
-        cara aman.
-      </div>
-    </div>
-
-    <h3>Cara Backup</h3>
-    <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Buka Pengaturan</div>
-          <div class="step-desc">Menu sidebar → Pengaturan.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Klik "Ekspor JSON"</div>
-          <div class="step-desc">File <code>SISPA_Backup_YYYY-MM-DD.json</code> akan terunduh.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Simpan ke Google Drive atau flashdisk</div>
-          <div class="step-desc">Jangan hanya di folder Downloads — bisa hilang saat reinstall.</div>
-        </div>
-      </div>
-    </div>
-
-    <h3>Cara Restore (Pindah Device)</h3>
-    <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Install aplikasi di device baru</div>
-          <div class="step-desc">Buka URL, install PWA seperti biasa.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Setup minimal</div>
-          <div class="step-desc">Isi identitas sekolah (bisa sementara, nanti akan ditimpa).</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Impor JSON</div>
-          <div class="step-desc">Pengaturan → Impor JSON → pilih file backup → konfirmasi. Semua data kembali.</div>
-        </div>
-      </div>
-    </div>
-
-    <h3>Kirim ke Pengawas</h3>
-    <p>
-      Secara berkala (mingguan atau akhir semester), kirim file JSON ke Pengawas via WhatsApp atau Email.
-      Pengawas akan mengimpor data Anda untuk analisis.
-    </p>
-
-    <div class="workflow">
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
-          </svg>
-        </div>
-        <div class="wf-text">Ekspor JSON dari <strong>Pengaturan</strong></div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
-          </svg>
-        </div>
-        <div class="wf-text">Kirim file ke Pengawas via <strong>WhatsApp</strong> atau Email</div>
-      </div>
-      <div class="workflow-step">
-        <div class="wf-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>
-          </svg>
-        </div>
-        <div class="wf-text">Pengawas impor → analisis → laporan ke Dinas</div>
-      </div>
-    </div>
-
-    <!-- ============ PIN ============ -->
-    <h2 id="pin">PIN & Keamanan</h2>
-    <p>
-      PIN adalah lapisan keamanan opsional. Sangat direkomendasikan jika laptop Anda kadang dipinjam
-      orang lain.
-    </p>
-
-    <h3>Set PIN</h3>
-    <div class="steps">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <div class="step-title">Buka Pengaturan</div>
-          <div class="step-desc">Menu sidebar → Pengaturan.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Isi field PIN</div>
-          <div class="step-desc">4 digit angka. Contoh: <code>1234</code>. Jangan gunakan PIN yang mudah ditebak.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Simpan</div>
-          <div class="step-desc">Setelah disimpan, buka aplikasi berikutnya akan diminta PIN.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="callout warn">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
-          <path d="M12 9v4"/><path d="M12 17h.01"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Lupa PIN?</span>
-        Tidak ada recovery otomatis. Jika lupa, Anda harus reset aplikasi (data hilang) lalu
-        impor backup JSON. <strong>Catat PIN di tempat aman</strong> atau gunakan PIN yang tidak
-        akan lupa (tanggal lahir, nomor absen, dsb).
-      </div>
-    </div>
-
-    <h3>Kunci Manual</h3>
-    <p>
-      Klik avatar di kanan atas → <strong>Kunci Aplikasi</strong>. Layar PIN muncul. Siapa pun
-      yang mencoba membuka harus tahu PIN. Berguna saat meninggalkan laptop di ruang guru.
-    </p>
-
-    <!-- ============ FAQ ============ -->
-    <h2 id="faq">FAQ & Troubleshooting</h2>
-
-    <details class="faq-item">
-      <summary>Data saya hilang setelah clear browsing data, bagaimana?</summary>
-      <div class="faq-answer">
-        Sayangnya data tidak bisa dipulihkan jika tidak ada backup. Ini alasan mengapa <strong>backup
-        JSON mingguan sangat penting</strong>. Ke depannya: backup rutin ke Google Drive, dan jangan
-        pernah clear browsing data tanpa backup dulu.
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Bisa dipakai di HP dan laptop bersamaan?</summary>
-      <div class="faq-answer">
-        Bisa, tapi data tidak tersinkron otomatis. Setiap device punya data sendiri. Untuk memindah:
-        ekspor JSON di device lama → impor di device baru. Atau pakai hanya satu device untuk
-        menghindari kebingungan.
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Aplikasi lemot, kenapa?</summary>
-      <div class="faq-answer">
-        Coba: (1) tutup tab lain yang banyak, (2) restart browser, (3) cek penyimpanan laptop (minimal
-        100 MB free), (4) pastikan Chrome versi terbaru. Jika masih lemot, kemungkinan sudah terlalu
-        banyak data (&gt;1000 sesi) — hubungi Pengawas untuk panduan.
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Bisa edit sesi supervisi yang sudah "Selesai"?</summary>
-      <div class="faq-answer">
-        Ya. Buka menu Supervisi → klik <strong>Edit</strong> pada sesi. Anda bisa mengubah semua
-        isian. Klik "Selesaikan" lagi untuk menyimpan perubahan.
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Bagaimana cara hapus guru?</summary>
-      <div class="faq-answer">
-        Data Guru → klik tombol <strong>Hapus</strong> di baris guru. Sistem akan memperingatkan jika
-        guru punya riwayat supervisi. Jika tetap dihapus, riwayat tetap ada tapi nama tampil "?" di
-        laporan. Lebih baik arsipkan (tidak perlu dihapus).
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Format CSV impor gagal, kenapa?</summary>
-      <div class="faq-answer">
-        Pastikan: (1) separator titik-koma <code>;</code> bukan koma <code>,</code>, (2) Save As pilih
-        <strong>CSV UTF-8</strong>, (3) header kolom <code>nama;nip;mapel;kelas;peg</code> di baris
-        pertama, (4) tidak ada baris kosong di tengah.
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Apakah aplikasi ini benar-benar gratis?</summary>
-      <div class="faq-answer">
-        Ya, 100% gratis dan open source. Tidak ada biaya bulanan, tidak ada iklan, tidak ada data
-        yang dikirim ke server manapun. Anda hanya butuh laptop/HP dan koneksi internet sekali saat
-        pertama install.
-      </div>
-    </details>
-
-    <details class="faq-item">
-      <summary>Bisa dipakai 2 KS di satu laptop?</summary>
-      <div class="faq-answer">
-        Tidak direkomendasikan. Satu device = satu KS. Jika ada pergantian KS (rotasi jabatan), KS
-        baru harus ekspor backup dari KS lama, hapus semua data, setup ulang dengan identitas baru,
-        lalu impor kembali backup (data lama akan tercampur). Hubungi Pengawas untuk panduan rotasi.
-      </div>
-    </details>
-
-    <!-- ============ TIPS ============ -->
-    <h2 id="tips">Tips Profesional</h2>
-
-    <div class="callout tip">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Backup mingguan, wajib</span>
-        Setiap Jumat atau Senin, ekspor JSON dan simpan ke Google Drive. Beri nama file dengan
-        tanggal (misal <code>SISPA_Backup_2026-10-20.json</code>) agar mudah dicari.
-      </div>
-    </div>
-
-    <div class="callout tip">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Catat fakta, bukan opini</span>
-        Saat observasi, tulis apa yang <em>dilihat dan didengar</em> (misal "guru bertanya kepada
-        5 murid berbeda"), bukan interpretasi ("guru kurang memeratakan perhatian").
-      </div>
-    </div>
-
-    <div class="callout tip">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Supervisi = membantu, bukan menilai</span>
-        Fokus pada pertumbuhan guru. Refleksi dengan pertanyaan terbuka ("Bagaimana perasaan Anda
-        setelah mengajar?"), bukan penilaian ("Anda kurang baik dalam X").
-      </div>
-    </div>
-
-    <div class="callout tip">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Jadwalkan supervisi teratur</span>
-        Idealnya setiap guru disupervisi minimal 1x per semester. Buat program di awal semester dan
-        konsisten menjalankannya.
-      </div>
-    </div>
-
-    <div class="callout tip">
-      <span class="callout-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
-          <path d="M9 18h6"/><path d="M10 22h4"/>
-        </svg>
-      </span>
-      <div>
-        <span class="callout-title">Kirim ke Pengawas rutin</span>
-        Jangan tunggu akhir semester. Kirim JSON ke Pengawas setiap bulan atau setiap 2 minggu, agar
-        Pengawas bisa memberikan feedback cepat.
-      </div>
-    </div>
-
-    <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; text-align: center;">
-      <p style="font-size: .85rem; color: #64748b;">
-        Butuh bantuan lebih lanjut? Hubungi <strong>Pengawas Pembina</strong> atau admin Dinas Pendidikan setempat.
-      </p>
-      <p style="font-size: .75rem; color: #94a3b8; margin-top: .5rem;">
-        SISPA Mandiri v2.0.0 · Panduan KS · Terakhir diperbarui: 2026
-      </p>
-    </div>
-
   </main>
 </div>
 
-<!-- BACK TO TOP -->
-<button class="back-top" id="backTop" aria-label="Kembali ke atas">
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m18 15-6-6-6 6"/>
-  </svg>
-</button>
+<button class="back-top" id="backTop">↑</button>
 
 <script>
-  (function() {
-    // Back to top
-    const btn = document.getElementById('backTop');
-    window.addEventListener('scroll', () => {
-      btn.classList.toggle('show', window.scrollY > 600);
-    });
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+(function() {
+  const btn = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('show', window.scrollY > 600);
+  });
+  btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // TOC active highlighting
-    const sections = document.querySelectorAll('.guide-content h2[id], .guide-content h3[id]');
-    const tocLinks = document.querySelectorAll('.toc a');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id;
-          tocLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
-          });
-        }
-      });
-    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
-    sections.forEach(s => observer.observe(s));
-
-    // Smooth scroll for TOC links
-    tocLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        const target = document.querySelector(link.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          const top = target.getBoundingClientRect().top + window.scrollY - 80;
-          window.scrollTo({ top, behavior: 'smooth' });
-        }
-      });
+  const sections = document.querySelectorAll('.guide-content h2[id], .guide-content h3[id]');
+  const tocLinks = document.querySelectorAll('.toc a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
     });
-  })();
+  }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => observer.observe(s));
+
+  tocLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+})();
 </script>
-
 </body>
 </html>
