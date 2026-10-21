@@ -7,6 +7,7 @@ import { allGuru, allSesi, guruBySekolah, emptyState, infoBanner } from '../help
 
 export const Dashboard = {
   _pendingKlaimData: null,
+  _syncing: false,
 
   async render() {
     const sekolah = Store.get('sekolah');
@@ -14,6 +15,19 @@ export const Dashboard = {
     const sesi = allSesi();
     const totalGuru = guru.length;
     const totalSesi = sesi.length;
+
+    // Filter: hanya confirmed + semua yang sudah ada data
+    const confirmed = sekolah.filter(sk => sk.pengawas_status === 'confirmed');
+    const pending = sekolah.filter(sk => sk.pengawas_status === 'pending');
+    const noStatus = sekolah.filter(sk => !sk.pengawas_status);
+    
+    // Sekolah confirmed yang belum ada data (guru = 0 & sesi = 0)
+    const belumAdaData = confirmed.filter(sk => 
+      (sk.guru || []).length === 0 
+      && (sk.supervisi || []).length === 0
+      && (sk.akademik || []).length === 0
+      && (sk.coaching || []).length === 0
+    );
 
     const tipeDist = { Dropout: 0, Unfocused: 0, Analytical: 0, Professional: 0 };
     guru.forEach(g => { if (g.tipe && tipeDist[g.tipe] !== undefined) tipeDist[g.tipe]++; });
@@ -36,15 +50,24 @@ export const Dashboard = {
       <div class="page-head">
         <div>
           <h2>Dashboard Agregat</h2>
-          <div class="page-sub">${sekolah.length} sekolah binaan · ${totalGuru} guru · ${totalSesi} sesi</div>
+          <div class="page-sub">${confirmed.length} sekolah binaan (${pending.length} pending) · ${totalGuru} guru · ${totalSesi} sesi</div>
         </div>
-        <button class="btn btn-primary" id="btnImport">${Icons.svg('upload', 16)} Import JSON</button>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-secondary" id="btnSync" title="Sinkron dari database Dinas">
+            ${Icons.svg('refresh-cw', 16)} Sync Dabin
+          </button>
+          <button class="btn btn-primary" id="btnImport">${Icons.svg('upload', 16)} Import JSON</button>
+        </div>
       </div>
 
       <div class="grid-auto" style="margin-bottom:1.5rem">
         <div class="stat-card">
           <div class="stat-icon" style="background:linear-gradient(135deg,#e0e7ff,#c7d2fe);color:#4338ca">${Icons.svg('school', 22)}</div>
-          <div><div style="font-size:.75rem;color:var(--slate-500)">Sekolah</div><div style="font-size:1.5rem;font-weight:700">${sekolah.length}</div></div>
+          <div>
+            <div style="font-size:.75rem;color:var(--slate-500)">Sekolah Binaan</div>
+            <div style="font-size:1.5rem;font-weight:700">${confirmed.length}</div>
+            ${pending.length > 0 ? `<div style="font-size:.7rem;color:var(--warning);margin-top:.15rem">+${pending.length} pending</div>` : ''}
+          </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#166534">${Icons.svg('users', 22)}</div>
@@ -62,8 +85,23 @@ export const Dashboard = {
 
       ${this._pendingKlaimHtml()}
 
+      ${belumAdaData.length > 0 ? `
+        <div class="card" style="border-left:3px solid var(--info);margin-bottom:1rem">
+          <div class="card-body" style="padding:1rem 1.25rem">
+            <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+              <span style="color:var(--info)">${Icons.svg('clock', 28)}</span>
+              <div style="flex:1;min-width:200px">
+                <div style="font-weight:600;font-size:.9rem">${belumAdaData.length} Sekolah Belum Ada Data</div>
+                <div style="font-size:.8rem;color:var(--slate-600);margin-top:.15rem">Klaim sudah dikonfirmasi KS, tapi file JSON belum diterima.</div>
+              </div>
+              <button class="btn btn-secondary" id="btnLihatBelumData">Lihat Daftar →</button>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
       ${stale.length > 0 ? `
-        <div class="card" style="border-left:3px solid var(--warning)">
+        <div class="card" style="border-left:3px solid var(--warning);margin-bottom:1rem">
           <div class="card-body">
             ${infoBanner('warn', 'alert-triangle',
               `<strong>${stale.length} sekolah</strong> belum kirim data >30 hari.
@@ -75,8 +113,11 @@ export const Dashboard = {
 
       ${sekolah.length === 0 ? `<div class="card"><div class="card-body">
         ${emptyState('school', 'Belum ada sekolah binaan',
-          'Import file JSON dari KS untuk menambahkan sekolah.',
-          `<button class="btn btn-primary" id="btnEmptyImport">${Icons.svg('upload', 16)} Import Sekarang</button>`)}
+          'Klik "Sync Dabin" untuk menarik data dari Dinas, atau "Import JSON" jika KS sudah kirim file.',
+          `<div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem">
+            <button class="btn btn-secondary" id="btnEmptySync">${Icons.svg('refresh-cw', 16)} Sync Dabin</button>
+            <button class="btn btn-primary" id="btnEmptyImport">${Icons.svg('upload', 16)} Import JSON</button>
+          </div>`)}
       </div></div>` : `
         <div class="row">
           <div class="card">
@@ -159,22 +200,100 @@ export const Dashboard = {
     </div>`;
   },
 
-  async _loadPendingKlaim() {
+  // ============================================
+  // SYNC DABIN — pull dari Supabase ke lokal
+  // ============================================
+  async syncDabin(silent = false) {
+    const myNip = Store.config().nip_pengawas;
+    if (!myNip) return;
+    if (!Supabase.isReady()) {
+      if (!silent) Utils.toast('Butuh internet untuk sinkronisasi', 'error');
+      return;
+    }
+    if (this._syncing) return;
+    this._syncing = true;
+
     try {
-      const myNip = Store.config().nip_pengawas;
-      if (!myNip) return;
-      if (!Supabase.isReady()) return;
-      const data = await Supabase.getPendingKlaimByNip(myNip);
-      if (data && data.length > 0) {
-        this._pendingKlaimData = data;
+      const allSchools = await Supabase.getAllSekolah();
+      const mySchools = allSchools.filter(s => s.pengawas_nip === myNip);
+      
+      const local = Store.get('sekolah');
+      const localNpsns = new Set(local.map(s => s.npsn));
+      
+      // 1. Pull sekolah baru dari Supabase (admin assign / klaim PS lain)
+      const missing = mySchools.filter(s => !localNpsns.has(s.npsn));
+      let added = 0;
+      const newSk = missing.map(s => {
+        added++;
+        return {
+          id: Utils.uid(),
+          npsn: s.npsn,
+          nama_sekolah: s.nama_sekolah,
+          ks_nama: '', ks_nip: '',
+          pengawas_status: s.pengawas_status || 'pending',
+          imported_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          guru: [], program: [], supervisi: [], akademik: [], coaching: []
+        };
+      });
+      
+      // 2. Update status klaim untuk sekolah existing
+      let updated = 0;
+      local.forEach(sk => {
+        const remote = mySchools.find(s => s.npsn === sk.npsn);
+        if (remote && remote.pengawas_status !== sk.pengawas_status) {
+          sk.pengawas_status = remote.pengawas_status;
+          updated++;
+        }
+      });
+      
+      // 3. Hapus sekolah lokal yang sudah di-unclaim (tidak ada di remote)
+      //    (optional, karena mungkin PS simpan data untuk arsip)
+      // Kalau di-unclaim, lebih baik tetap simpan data tapi status null
+      const unclaimed = local.filter(sk => 
+        sk.pengawas_status && !mySchools.find(s => s.npsn === sk.npsn)
+      );
+      unclaimed.forEach(sk => {
+        sk.pengawas_status = null;
+        updated++;
+      });
+      
+      // Save
+      if (added > 0 || updated > 0) {
+        await Store.set('sekolah', [...local, ...newSk]);
+      }
+      
+      // Update _pendingKlaimData
+      this._pendingKlaimData = mySchools
+        .filter(s => s.pengawas_status === 'pending')
+        .map(s => ({ npsn: s.npsn, nama_sekolah: s.nama_sekolah, pengawas_status: 'pending' }));
+      
+      if (!silent) {
+        const msg = [];
+        if (added > 0) msg.push(`${added} sekolah baru`);
+        if (updated > 0) msg.push(`${updated} status diperbarui`);
+        Utils.toast(msg.length ? `Sync berhasil: ${msg.join(', ')}` : 'Semua data sudah sinkron', 'success');
         Router.navigate('dashboard');
+      } else {
+        // Silent sync — reload view kalau ada perubahan
+        if (added > 0 || updated > 0) {
+          Router.navigate('dashboard');
+        }
       }
     } catch (err) {
-      console.error('Gagal cek pending klaim:', err);
+      if (!silent) Utils.toast('Gagal sync: ' + err.message, 'error');
+      console.error('Sync error:', err);
+    } finally {
+      this._syncing = false;
     }
   },
 
   async bind() {
+    // Sync button
+    Utils.el('btnSync')?.addEventListener('click', () => this.syncDabin());
+    Utils.el('btnEmptySync')?.addEventListener('click', () => this.syncDabin());
+    
+    // Import
     const goImport = async () => {
       const { Sekolah } = await import('./sekolah.js');
       Sekolah.startImportJSON();
@@ -182,9 +301,21 @@ export const Dashboard = {
     Utils.el('btnImport')?.addEventListener('click', goImport);
     Utils.el('btnEmptyImport')?.addEventListener('click', goImport);
 
-    Utils.el('btnLihatPending')?.addEventListener('click', () => Router.navigate('sekolah'));
+    // Pending → filter ke sekolah
+    Utils.el('btnLihatPending')?.addEventListener('click', async () => {
+      const { Sekolah } = await import('./sekolah.js');
+      if (Sekolah._setFilter) Sekolah._setFilter('pending');
+      Router.navigate('sekolah');
+    });
 
-    // Load pending klaim otomatis (background, tidak block)
-    this._loadPendingKlaim();
+    // Belum ada data → filter ke sekolah
+    Utils.el('btnLihatBelumData')?.addEventListener('click', async () => {
+      const { Sekolah } = await import('./sekolah.js');
+      if (Sekolah._setFilter) Sekolah._setFilter('nodata');
+      Router.navigate('sekolah');
+    });
+
+    // Auto-sync silent saat buka dashboard (background)
+    setTimeout(() => this.syncDabin(true), 500);
   }
 };
