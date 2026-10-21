@@ -19,6 +19,11 @@ export const Sekolah = {
     return this._bindList();
   },
 
+  _setFilter(filterType) {
+    this._detailId = null;
+    sessionStorage.setItem('sispa_sekolah_filter', filterType);
+  },
+
   // ============================================
   // MODE LIST
   // ============================================
@@ -39,77 +44,207 @@ export const Sekolah = {
 
       ${list.length === 0 ? `<div class="card"><div class="card-body">
         ${emptyState('school', 'Belum ada sekolah', 'Tambahkan sekolah binaan dengan mengambil dari database atau impor file JSON dari KS.',
-          `<div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem">
+          `<div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap">
              <button class="btn btn-secondary" id="btnEmptyPickDB">${Icons.svg('server', 16)} Pilih dari DB</button>
              <button class="btn btn-primary" id="btnEmptyImportJSON">${Icons.svg('file-json', 16)} Import JSON</button>
            </div>`)}
       </div></div>` : `
-        <div class="card"><table>
-          <thead><tr>
-            <th>Sekolah</th>
-            <th style="text-align:center">Guru</th>
-            <th style="text-align:center">Sesi</th>
-            <th style="text-align:center">Coverage</th>
-            <th style="text-align:center">Klaim KS</th>
-            <th>Terakhir Sync</th>
-            <th style="text-align:right">Aksi</th>
-          </tr></thead>
-          <tbody>${list.map(sk => {
-            const sesi = (sk.supervisi || []).length + (sk.akademik || []).length + (sk.coaching || []).length;
-            const totalGuru = (sk.guru || []).length;
-            const gidsWithSesi = new Set();
-            [...(sk.supervisi || []), ...(sk.akademik || []), ...(sk.coaching || [])].forEach(s => gidsWithSesi.add(s.gid));
-            const covered = (sk.guru || []).filter(g => gidsWithSesi.has(g.id)).length;
-            const coverage = totalGuru > 0 ? Math.round(covered / totalGuru * 100) : 0;
-            const covColor = coverage >= 80 ? 'success' : coverage >= 50 ? 'warning' : 'danger';
-            const days = Utils.daysAgo(sk.updated_at);
-            const stale = days === null || days > 30;
-            
-            // Status klaim
-            const statusKlaim = (() => {
-              const st = sk.pengawas_status;
-              if (st === 'confirmed') return `<span class="badge badge-success" style="font-size:.7rem">${Icons.svg('check-circle', 12)} Dikonfirmasi</span>`;
-              if (st === 'pending') return `<span class="badge badge-warning" style="font-size:.7rem">${Icons.svg('clock', 12)} Menunggu</span>`;
-              if (st === 'rejected') return `<span class="badge badge-danger" style="font-size:.7rem">${Icons.svg('x-circle', 12)} Ditolak</span>`;
-              return `<span style="font-size:.7rem;color:var(--slate-400)">—</span>`;
-            })();
-            
-            return `<tr>
-              <td>
-                <div style="font-weight:600">${Utils.esc(sk.nama_sekolah)}</div>
-                <div style="font-size:.75rem;color:var(--slate-500);font-family:monospace">NPSN ${Utils.esc(sk.npsn || '-')}</div>
-              </td>
-              <td style="text-align:center;font-weight:600">${totalGuru}</td>
-              <td style="text-align:center;font-weight:600">${sesi}</td>
-              <td style="text-align:center"><span class="badge badge-${covColor}">${coverage}%</span></td>
-              <td style="text-align:center">${statusKlaim}</td>
-              <td><span class="badge ${stale ? 'badge-warning' : 'badge-success'}">${Utils.relTime(sk.updated_at)}</span></td>
-              <td style="text-align:right;white-space:nowrap">
-                <button class="btn btn-primary btn-sm" data-open="${sk.id}">${Icons.svg('eye', 14)} Detail</button>
-                <button class="btn btn-danger btn-sm" data-del="${sk.id}">${Icons.svg('trash-2', 14)}</button>
-              </td>
-            </tr>`;
-          }).join('')}</tbody>
-        </table></div>
+        <div class="card"><div class="card-body" style="padding:.75rem">
+          <div style="display:grid;grid-template-columns:2fr 1.5fr 1.5fr 2fr auto;gap:.5rem;align-items:end">
+            <div><label class="label">Sekolah</label><select class="select" id="filterSk">
+              <option value="">Semua Sekolah</option>
+              ${list.map(sk => `<option value="${sk.id}">${Utils.esc(sk.nama_sekolah)}</option>`).join('')}
+            </select></div>
+            <div><label class="label">Status Klaim</label><select class="select" id="filterKlaim">
+              <option value="">Semua Klaim</option>
+              <option value="confirmed">Terkonfirmasi</option>
+              <option value="pending">Pending</option>
+              <option value="nodata">Belum Ada Data</option>
+              <option value="none">Belum Diklaim</option>
+            </select></div>
+            <div><label class="label">Coverage</label><select class="select" id="filterCoverage">
+              <option value="">Semua</option>
+              <option value="low">Rendah (&lt;50%)</option>
+              <option value="mid">Sedang (50-79%)</option>
+              <option value="high">Tinggi (≥80%)</option>
+            </select></div>
+            <div><label class="label">Cari</label><input class="input" id="filterQ" placeholder="NPSN / Nama..."></div>
+            <div><button class="btn btn-ghost" id="btnResetFilter" title="Reset Filter">${Icons.svg('x', 14)}</button></div>
+          </div>
+        </div></div>
+        <div class="card"><div id="sekolahList"></div></div>
       `}
     `;
   },
 
   async _bindList() {
+    // ============================================
+    // Baca filter yang diminta dari Dashboard
+    // ============================================
+    const pendingFilter = sessionStorage.getItem('sispa_sekolah_filter');
+    if (pendingFilter) {
+      sessionStorage.removeItem('sispa_sekolah_filter');
+      if (['pending', 'nodata', 'confirmed', 'none'].includes(pendingFilter)) {
+        setTimeout(() => {
+          const filterSel = Utils.el('filterKlaim');
+          if (filterSel) {
+            filterSel.value = pendingFilter;
+            this._draw();
+          }
+        }, 50);
+      }
+    }
+
     Utils.el('btnRefreshStatus')?.addEventListener('click', () => this.refreshStatusKlaim());
-    Utils.el('btnImportJSON')?.addEventListener('click', () => this.startImportJSON());
-    Utils.el('btnEmptyImportJSON')?.addEventListener('click', () => this.startImportJSON());
     Utils.el('btnPickDB')?.addEventListener('click', () => this.pickFromDB());
     Utils.el('btnEmptyPickDB')?.addEventListener('click', () => this.pickFromDB());
+    Utils.el('btnImportJSON')?.addEventListener('click', () => this.startImportJSON());
+    Utils.el('btnEmptyImportJSON')?.addEventListener('click', () => this.startImportJSON());
 
-    document.querySelectorAll('[data-open]').forEach(b => {
+    // Filter events
+    Utils.el('filterSk')?.addEventListener('change', () => this._draw());
+    Utils.el('filterKlaim')?.addEventListener('change', () => this._draw());
+    Utils.el('filterCoverage')?.addEventListener('change', () => this._draw());
+    Utils.el('filterQ')?.addEventListener('input', Utils.debounce(() => this._draw(), 150));
+    Utils.el('btnResetFilter')?.addEventListener('click', () => {
+      Utils.el('filterSk').value = '';
+      Utils.el('filterKlaim').value = '';
+      Utils.el('filterCoverage').value = '';
+      Utils.el('filterQ').value = '';
+      this._draw();
+    });
+
+    // Initial draw
+    if (Store.get('sekolah').length > 0) {
+      this._draw();
+    }
+  },
+
+  _draw() {
+    const box = Utils.el('sekolahList');
+    if (!box) return;
+
+    const list = Store.get('sekolah');
+    const filterSk = Utils.el('filterSk')?.value || '';
+    const filterKlaim = Utils.el('filterKlaim')?.value || '';
+    const filterCoverage = Utils.el('filterCoverage')?.value || '';
+    const filterQ = Utils.el('filterQ')?.value?.toLowerCase().trim() || '';
+
+    let filtered = list.slice();
+
+    // Filter sekolah
+    if (filterSk) filtered = filtered.filter(sk => sk.id === filterSk);
+
+    // Filter klaim
+    if (filterKlaim === 'confirmed') {
+      filtered = filtered.filter(sk => sk.pengawas_status === 'confirmed');
+    } else if (filterKlaim === 'pending') {
+      filtered = filtered.filter(sk => sk.pengawas_status === 'pending');
+    } else if (filterKlaim === 'none') {
+      filtered = filtered.filter(sk => !sk.pengawas_status && !sk.pengawas_nip);
+    } else if (filterKlaim === 'nodata') {
+      filtered = filtered.filter(sk => {
+        const isConfirmed = sk.pengawas_status === 'confirmed' || !sk.pengawas_status;
+        const noData = (sk.guru || []).length === 0
+          && (sk.supervisi || []).length === 0
+          && (sk.akademik || []).length === 0
+          && (sk.coaching || []).length === 0;
+        return isConfirmed && noData;
+      });
+    }
+
+    // Filter coverage
+    if (filterCoverage) {
+      filtered = filtered.filter(sk => {
+        const totalGuru = (sk.guru || []).length;
+        const gidsWithSesi = new Set();
+        [...(sk.supervisi || []), ...(sk.akademik || []), ...(sk.coaching || [])].forEach(s => gidsWithSesi.add(s.gid));
+        const covered = (sk.guru || []).filter(g => gidsWithSesi.has(g.id)).length;
+        const cov = totalGuru > 0 ? Math.round(covered / totalGuru * 100) : 0;
+        if (filterCoverage === 'low') return cov < 50;
+        if (filterCoverage === 'mid') return cov >= 50 && cov < 80;
+        if (filterCoverage === 'high') return cov >= 80;
+        return true;
+      });
+    }
+
+    // Filter search
+    if (filterQ) {
+      filtered = filtered.filter(sk =>
+        (sk.nama_sekolah || '').toLowerCase().includes(filterQ) ||
+        (sk.npsn || '').toLowerCase().includes(filterQ)
+      );
+    }
+
+    if (filtered.length === 0) {
+      box.innerHTML = `<div style="padding:3rem 1rem;text-align:center;color:var(--slate-400);font-size:.85rem">Tidak ada sekolah yang cocok dengan filter</div>`;
+      return;
+    }
+
+    box.innerHTML = `<table>
+      <thead><tr>
+        <th>Sekolah</th>
+        <th style="text-align:center">Guru</th>
+        <th style="text-align:center">Sesi</th>
+        <th style="text-align:center">Coverage</th>
+        <th style="text-align:center">Klaim</th>
+        <th>Terakhir Sync</th>
+        <th style="text-align:right">Aksi</th>
+      </tr></thead>
+      <tbody>${filtered.map(sk => {
+        const sesi = (sk.supervisi || []).length + (sk.akademik || []).length + (sk.coaching || []).length;
+        const totalGuru = (sk.guru || []).length;
+        const gidsWithSesi = new Set();
+        [...(sk.supervisi || []), ...(sk.akademik || []), ...(sk.coaching || [])].forEach(s => gidsWithSesi.add(s.gid));
+        const covered = (sk.guru || []).filter(g => gidsWithSesi.has(g.id)).length;
+        const coverage = totalGuru > 0 ? Math.round(covered / totalGuru * 100) : 0;
+        const covColor = coverage >= 80 ? 'success' : coverage >= 50 ? 'warning' : 'danger';
+        const days = Utils.daysAgo(sk.updated_at);
+        const stale = days === null || days > 30;
+
+        let statusKlaim = `<span style="font-size:.7rem;color:var(--slate-400)">—</span>`;
+        if (sk.pengawas_status === 'confirmed') {
+          statusKlaim = `<span class="badge badge-success" style="font-size:.7rem">${Icons.svg('check-circle', 12)} Dikonfirmasi</span>`;
+        } else if (sk.pengawas_status === 'pending') {
+          statusKlaim = `<span class="badge badge-warning" style="font-size:.7rem">${Icons.svg('clock', 12)} Menunggu</span>`;
+        } else if (sk.pengawas_status === 'rejected') {
+          statusKlaim = `<span class="badge badge-danger" style="font-size:.7rem">${Icons.svg('x-circle', 12)} Ditolak</span>`;
+        }
+
+        const noData = totalGuru === 0 && sesi === 0;
+        const noDataBadge = noData ? `<div style="font-size:.65rem;color:var(--info);margin-top:.2rem">Belum ada data</div>` : '';
+
+        return `<tr>
+          <td>
+            <div style="font-weight:600">${Utils.esc(sk.nama_sekolah)}</div>
+            <div style="font-size:.75rem;color:var(--slate-500);font-family:monospace">NPSN ${Utils.esc(sk.npsn || '-')}</div>
+          </td>
+          <td style="text-align:center;font-weight:600">${totalGuru}</td>
+          <td style="text-align:center;font-weight:600">${sesi}</td>
+          <td style="text-align:center">
+            <span class="badge badge-${covColor}">${coverage}%</span>
+            ${noDataBadge}
+          </td>
+          <td style="text-align:center">${statusKlaim}</td>
+          <td><span class="badge ${stale ? 'badge-warning' : 'badge-success'}">${Utils.relTime(sk.updated_at)}</span></td>
+          <td style="text-align:right;white-space:nowrap">
+            <button class="btn btn-primary btn-sm" data-open="${sk.id}">${Icons.svg('eye', 14)} Detail</button>
+            <button class="btn btn-danger btn-sm" data-del="${sk.id}">${Icons.svg('trash-2', 14)}</button>
+          </td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+    box.querySelectorAll('[data-open]').forEach(b => {
       b.onclick = () => {
         this._detailId = b.dataset.open;
         this._activeTab = 'guru';
         Router.navigate('sekolah');
       };
     });
-    document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => this.hapus(b.dataset.del));
+    box.querySelectorAll('[data-del]').forEach(b => {
+      b.onclick = () => this.hapus(b.dataset.del);
+    });
   },
 
   // ============================================
@@ -274,7 +409,9 @@ export const Sekolah = {
       const has3 = (sk.supervisi || []).some(s => s.gid === g.id);
       const hasAk = (sk.akademik || []).some(s => s.gid === g.id);
       const hasCo = (sk.coaching || []).some(s => s.gid === g.id);
-      if (has3) tot3++; if (hasAk) totAk++; if (hasCo) totCo++;
+      if (has3) tot3++;
+      if (hasAk) totAk++;
+      if (hasCo) totCo++;
       return { guru: g, has3, hasAk, hasCo };
     });
 
