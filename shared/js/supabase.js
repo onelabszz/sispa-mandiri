@@ -170,12 +170,39 @@ export const Supabase = {
     if (error) throw error;
   },
   async deletePengawas(nip) {
-    const { error } = await ensureClient().from('pengawas').delete().eq('nip', nip);
-    if (error) throw error;
+    const client = ensureClient();
+    // 1) Unclaim semua sekolah binaannya (biar tidak orphan)
+    const { error: e1 } = await client
+      .from('sekolah')
+      .update({
+        pengawas_nip: null,
+        pengawas_status: null,
+        pengawas_confirmed_at: null
+      })
+      .eq('pengawas_nip', nip);
+    if (e1) throw e1;
+
+    // 2) Hapus baris pengawas
+    const { error: e2 } = await client
+      .from('pengawas')
+      .delete()
+      .eq('nip', nip);
+    if (e2) throw e2;
   },
   async togglePengawas(nip, status) {
     const { error } = await ensureClient().from('pengawas').update({ is_active: status }).eq('nip', nip);
     if (error) throw error;
+  },
+
+  // ============================================
+  // RESET TOTAL (DANGER ZONE)
+  // ============================================
+  async resetAllData() {
+    const client = ensureClient();
+    const { error: e1 } = await client.from('sekolah').delete().neq('npsn', '__never__');
+    if (e1) throw e1;
+    const { error: e2 } = await client.from('pengawas').delete().neq('nip', '__never__');
+    if (e2) throw e2;
   },
 
   isReady() { return !!window.supabase; }
