@@ -447,6 +447,22 @@
           <div class="step-item"><div class="step-number"></div><div class="step-content">Gunakan tombol <strong>Reset Klaim</strong> jika klaim deadlock atau salah</div></div>
         </div>
       </div>
+
+      <div class="info-card" style="border:2px solid var(--danger-600);margin-top:var(--space-4);">
+        <div class="info-card-header">
+          <i data-lucide="alert-octagon" style="color:var(--danger-600);"></i>
+          <h3 style="color:var(--danger-600);">Danger Zone — Reset Aplikasi</h3>
+        </div>
+        <div class="info-box danger" style="margin-bottom:var(--space-4);">
+          <i data-lucide="alert-triangle"></i>
+          <div>
+            <strong>Tindakan Permanen & Tidak Bisa Di-undo</strong><br>
+            Menghapus <strong>SEMUA</strong> data sekolah dan pengawas dari Supabase.
+            KS dan PS tidak akan bisa login sampai data diisi ulang. Pastikan sudah backup data.
+          </div>
+        </div>
+        <button class="btn btn-danger" id="btnResetAll"><i data-lucide="trash-2"></i><span>Reset Semua Data Aplikasi</span></button>
+      </div>
     </div>
 
     <div id="viewSekolah" style="display:none;">
@@ -625,6 +641,55 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" data-close="modalConfirmAssign">Batal</button>
       <button class="btn btn-primary" id="btnConfirmAssign"><i data-lucide="check"></i><span>Ya, Ganti Pengawas</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DELETE CONFIRM (Sekolah / Pengawas) -->
+<div class="modal-overlay" id="modalDeleteConfirm">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i data-lucide="alert-triangle" style="color:var(--danger-600);"></i>
+        <span id="deleteTitle">Hapus?</span>
+      </div>
+      <button class="modal-close" data-close="modalDeleteConfirm"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body" id="deleteBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="modalDeleteConfirm">Batal</button>
+      <button class="btn btn-danger" id="btnDoDelete" disabled><i data-lucide="trash-2"></i><span>Hapus Permanen</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RESET ALL -->
+<div class="modal-overlay" id="modalResetAll">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i data-lucide="alert-octagon" style="color:var(--danger-600);"></i>
+        <span>Reset Semua Data</span>
+      </div>
+      <button class="modal-close" data-close="modalResetAll"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="info-box danger" style="margin-bottom:var(--space-4);">
+        <i data-lucide="alert-octagon"></i>
+        <div>
+          <strong>PERHATIAN — DESTRUKTIF TOTAL</strong><br>
+          Semua data sekolah & pengawas di Supabase akan dihapus permanen.
+          KS dan PS tidak bisa login sampai data diisi ulang.
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ketik <code style="background:var(--slate-100);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);">RESET SEMUA</code> untuk konfirmasi:</label>
+        <input type="text" id="resetAllInput" class="form-input" placeholder="Ketik RESET SEMUA" autocomplete="off" style="font-family:var(--font-mono);text-align:center;font-size:16px;letter-spacing:0.1em;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="modalResetAll">Batal</button>
+      <button class="btn btn-danger" id="btnDoResetAll" disabled><i data-lucide="trash-2"></i><span>Reset Semua Data</span></button>
     </div>
   </div>
 </div>
@@ -910,6 +975,7 @@ function renderSekolahTable() {
       <td class="cell-actions">
         <button class="btn-icon" data-edit-sek="${sk.npsn}" title="Edit"><i data-lucide="edit-3"></i></button>
         <button class="btn-icon ${sk.is_active === false ? '' : 'danger'}" data-toggle-sek="${sk.npsn}" title="${sk.is_active === false ? 'Aktifkan' : 'Suspend'}"><i data-lucide="power"></i></button>
+        <button class="btn-icon danger" data-delete-sek="${sk.npsn}" title="Hapus permanen"><i data-lucide="trash-2"></i></button>
       </td>
     </tr>`;
   }).join('');
@@ -932,6 +998,7 @@ function renderSekolahTable() {
 
   el('tbodySekolah').querySelectorAll('[data-edit-sek]').forEach(b => { b.onclick = () => openEditSekolah(b.dataset.editSek); });
   el('tbodySekolah').querySelectorAll('[data-toggle-sek]').forEach(b => { b.onclick = () => toggleSekolahActive(b.dataset.toggleSek); });
+  el('tbodySekolah').querySelectorAll('[data-delete-sek]').forEach(b => { b.onclick = () => openDeleteConfirm('sekolah', b.dataset.deleteSek); });
   lucide.createIcons();
 }
 
@@ -985,12 +1052,14 @@ function renderPengawasTable() {
       <td class="cell-actions">
         <button class="btn-icon" data-edit-pen="${p.nip}" title="Edit"><i data-lucide="edit-3"></i></button>
         <button class="btn-icon ${p.is_active === false ? '' : 'danger'}" data-toggle-pen="${p.nip}" title="${p.is_active === false ? 'Aktifkan' : 'Suspend'}"><i data-lucide="power"></i></button>
+        <button class="btn-icon danger" data-delete-pen="${p.nip}" title="Hapus permanen"><i data-lucide="trash-2"></i></button>
       </td>
     </tr>`;
   }).join('');
 
   el('tbodyPengawas').querySelectorAll('[data-edit-pen]').forEach(b => { b.onclick = () => openEditPengawas(b.dataset.editPen); });
   el('tbodyPengawas').querySelectorAll('[data-toggle-pen]').forEach(b => { b.onclick = () => togglePengawasActive(b.dataset.togglePen); });
+  el('tbodyPengawas').querySelectorAll('[data-delete-pen]').forEach(b => { b.onclick = () => openDeleteConfirm('pengawas', b.dataset.deletePen); });
   lucide.createIcons();
 }
 
@@ -1616,6 +1685,115 @@ const ImportCSV = {
 
 el('btnImportSekolah').onclick = () => ImportCSV.open('sekolah');
 el('btnImportPengawas').onclick = () => ImportCSV.open('pengawas');
+
+/* ============================================
+   DELETE & RESET ALL — Danger Zone
+   ============================================ */
+let _deleteCtx = null;
+
+function openDeleteConfirm(type, id) {
+  if (type === 'sekolah') {
+    const sk = State.sekolah.find(x => x.npsn === id);
+    if (!sk) return;
+    _deleteCtx = { type: 'sekolah', id, confirmText: sk.npsn };
+    el('deleteTitle').textContent = 'Hapus Sekolah?';
+    el('deleteBody').innerHTML = `
+      <div class="info-box danger" style="margin-bottom:var(--space-4);">
+        <i data-lucide="alert-triangle"></i>
+        <div><strong>Sekolah akan dihapus PERMANEN.</strong><br>KS tidak akan bisa login lagi.</div>
+      </div>
+      <div style="padding:12px 16px;background:var(--slate-50);border-radius:var(--radius-md);margin-bottom:var(--space-4);">
+        <div style="font-size:11px;color:var(--slate-500);text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Sekolah</div>
+        <div style="font-weight:600;font-size:15px;color:var(--slate-900);">${esc(sk.nama_sekolah)}</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--slate-600);margin-top:2px;">NPSN: ${esc(sk.npsn)}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ketik NPSN <code style="background:var(--slate-100);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);">${esc(sk.npsn)}</code> untuk konfirmasi:</label>
+        <input type="text" id="deleteConfirmInput" class="form-input" placeholder="Ketik NPSN" autocomplete="off" style="font-family:var(--font-mono);text-align:center;">
+      </div>
+    `;
+  } else {
+    const p = State.pengawas.find(x => x.nip === id);
+    if (!p) return;
+    const binaan = State.binaanCount[p.nip] || 0;
+    _deleteCtx = { type: 'pengawas', id, confirmText: p.nip };
+    el('deleteTitle').textContent = 'Hapus Pengawas?';
+    el('deleteBody').innerHTML = `
+      <div class="info-box danger" style="margin-bottom:var(--space-4);">
+        <i data-lucide="alert-triangle"></i>
+        <div>
+          <strong>Pengawas akan dihapus PERMANEN.</strong><br>
+          PS tidak bisa login.${binaan > 0 ? ` <strong>${binaan} sekolah binaannya</strong> akan di-unclaim otomatis.` : ''}
+        </div>
+      </div>
+      <div style="padding:12px 16px;background:var(--slate-50);border-radius:var(--radius-md);margin-bottom:var(--space-4);">
+        <div style="font-size:11px;color:var(--slate-500);text-transform:uppercase;font-weight:700;letter-spacing:0.06em;margin-bottom:4px;">Pengawas</div>
+        <div style="font-weight:600;font-size:15px;color:var(--slate-900);">${esc(p.nama_pengawas)}</div>
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--slate-600);margin-top:2px;">NIP: ${esc(p.nip)}</div>
+        ${p.wilayah ? `<div style="font-size:13px;color:var(--slate-500);margin-top:2px;">${esc(p.wilayah)}</div>` : ''}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ketik NIP <code style="background:var(--slate-100);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);">${esc(p.nip)}</code> untuk konfirmasi:</label>
+        <input type="text" id="deleteConfirmInput" class="form-input" placeholder="Ketik NIP" autocomplete="off" style="font-family:var(--font-mono);text-align:center;">
+      </div>
+    `;
+  }
+  el('btnDoDelete').disabled = true;
+  openModal('modalDeleteConfirm');
+  setTimeout(() => {
+    const inp = el('deleteConfirmInput');
+    inp.oninput = () => { el('btnDoDelete').disabled = inp.value.trim() !== _deleteCtx.confirmText; };
+    inp.focus();
+  }, 150);
+}
+
+el('btnDoDelete').onclick = async () => {
+  if (!_deleteCtx) return;
+  const { type, id } = _deleteCtx;
+  loading(true);
+  try {
+    if (type === 'sekolah') {
+      await Supabase.deleteSekolah(id);
+      toast('Sekolah berhasil dihapus', 'success');
+    } else {
+      await Supabase.deletePengawas(id);
+      toast('Pengawas berhasil dihapus', 'success');
+    }
+    closeModal('modalDeleteConfirm');
+    _deleteCtx = null;
+    await loadData();
+  } catch (err) {
+    toast('Gagal hapus: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+};
+
+el('btnResetAll').onclick = () => {
+  el('resetAllInput').value = '';
+  el('btnDoResetAll').disabled = true;
+  openModal('modalResetAll');
+  setTimeout(() => el('resetAllInput').focus(), 150);
+};
+
+el('resetAllInput').addEventListener('input', e => {
+  el('btnDoResetAll').disabled = e.target.value.trim() !== 'RESET SEMUA';
+});
+
+el('btnDoResetAll').onclick = async () => {
+  if (el('resetAllInput').value.trim() !== 'RESET SEMUA') return;
+  loading(true);
+  try {
+    await Supabase.resetAllData();
+    toast('Semua data berhasil direset', 'success');
+    closeModal('modalResetAll');
+    await loadData();
+  } catch (err) {
+    toast('Gagal reset: ' + err.message, 'error');
+  } finally {
+    loading(false);
+  }
+};
 
 lucide.createIcons();
 </script>
