@@ -11,662 +11,176 @@
      DESIGN TOKENS
      ============================================ */
   :root {
-    /* Spacing scale */
-    --space-1: 4px;
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 20px;
-    --space-6: 24px;
-    --space-8: 32px;
-    --space-10: 40px;
-
-    /* Radius */
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-xl: 20px;
-    --radius-full: 9999px;
-
-    /* Shadow */
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 20px; --radius-full: 9999px;
     --shadow-xs: 0 1px 2px rgba(15,23,42,.04);
     --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
     --shadow-md: 0 4px 8px -2px rgba(15,23,42,.1);
     --shadow-lg: 0 12px 24px -8px rgba(15,23,42,.15);
     --shadow-xl: 0 24px 48px -12px rgba(15,23,42,.2);
-
-    /* Brand */
-    --brand-50: #eef2ff;
-    --brand-100: #e0e7ff;
-    --brand-500: #6366f1;
-    --brand-600: #4f46e5;
-    --brand-700: #4338ca;
-
-    /* Slate */
-    --slate-50: #f8fafc;
-    --slate-100: #f1f5f9;
-    --slate-200: #e2e8f0;
-    --slate-300: #cbd5e1;
-    --slate-400: #94a3b8;
-    --slate-500: #64748b;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1e293b;
-    --slate-900: #0f172a;
-
-    /* Semantic */
-    --success-50: #f0fdf4;
-    --success-100: #dcfce7;
-    --success-600: #16a34a;
-    --success-700: #15803d;
-
-    --warning-50: #fffbeb;
-    --warning-100: #fef3c7;
-    --warning-600: #d97706;
-    --warning-700: #b45309;
-
-    --danger-50: #fef2f2;
-    --danger-100: #fee2e2;
-    --danger-600: #dc2626;
-    --danger-700: #b91c1c;
-
-    /* Typography */
+    --brand-50: #eef2ff; --brand-100: #e0e7ff; --brand-500: #6366f1;
+    --brand-600: #4f46e5; --brand-700: #4338ca;
+    --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b;
+    --slate-600: #475569; --slate-700: #334155; --slate-800: #1e293b; --slate-900: #0f172a;
+    --success-50: #f0fdf4; --success-100: #dcfce7; --success-600: #16a34a; --success-700: #15803d;
+    --warning-50: #fffbeb; --warning-100: #fef3c7; --warning-600: #d97706; --warning-700: #b45309;
+    --danger-50: #fef2f2; --danger-100: #fee2e2; --danger-600: #dc2626; --danger-700: #b91c1c;
     --font-sans: -apple-system, 'Inter', 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-
-    /* Layout */
     --sidebar-w: 260px;
   }
 
-  /* ============================================
-     RESET
-     ============================================ */
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
   html, body {
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
     font-family: var(--font-sans);
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--slate-900);
-    background: var(--slate-50);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-size: 14px; line-height: 1.5;
+    color: var(--slate-900); background: var(--slate-50);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
   button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; }
   input, select, textarea { font-family: inherit; }
   svg { display: block; flex-shrink: 0; }
   a { color: inherit; text-decoration: none; }
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
 
-  /* ============================================
-     LOGIN SCREEN
-     ============================================ */
+  /* LOGIN */
   .login-screen {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-4);
-    z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--space-4); z-index: 9999;
   }
   .login-card {
-    background: white;
-    border-radius: var(--radius-xl);
+    background: white; border-radius: var(--radius-xl);
     padding: var(--space-10) var(--space-8);
-    width: 100%;
-    max-width: 420px;
-    box-shadow: var(--shadow-xl);
-    text-align: center;
+    width: 100%; max-width: 420px;
+    box-shadow: var(--shadow-xl); text-align: center;
   }
   .login-logo {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-lg);
+    width: 64px; height: 64px; border-radius: var(--radius-lg);
     background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto var(--space-5);
-    box-shadow: 0 8px 24px -8px rgba(79,70,229,.6);
+    color: white; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto var(--space-5); box-shadow: 0 8px 24px -8px rgba(79,70,229,.6);
   }
-  .login-card h2 {
-    margin: 0 0 var(--space-2);
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--slate-900);
-  }
-  .login-card p {
-    margin: 0 0 var(--space-6);
-    font-size: 14px;
-    color: var(--slate-500);
-  }
-  .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
+  .login-card h2 { margin: 0 0 var(--space-2); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--slate-900); }
+  .login-card p { margin: 0 0 var(--space-6); font-size: 14px; color: var(--slate-500); }
+  .login-form { display: flex; flex-direction: column; gap: var(--space-3); }
   .login-input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1.5px solid var(--slate-300);
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    text-align: center;
-    letter-spacing: 0.05em;
-    color: var(--slate-900);
-    transition: all 0.15s;
+    width: 100%; padding: 12px 16px;
+    border: 1.5px solid var(--slate-300); border-radius: var(--radius-md);
+    font-size: 15px; text-align: center; letter-spacing: 0.05em;
+    color: var(--slate-900); transition: all 0.15s;
   }
-  .login-input:focus {
-    outline: none;
-    border-color: var(--brand-500);
-    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
-  }
+  .login-input:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 4px rgba(99,102,241,0.15); }
   .login-btn {
-    width: 100%;
-    padding: 12px 16px;
+    width: 100%; padding: 12px 16px;
     background: linear-gradient(180deg, #5b54e8, var(--brand-600));
-    color: white;
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    font-weight: 600;
-    box-shadow: 0 2px 6px -1px rgba(79,70,229,.4);
-    transition: all 0.15s;
+    color: white; border-radius: var(--radius-md);
+    font-size: 15px; font-weight: 600;
+    box-shadow: 0 2px 6px -1px rgba(79,70,229,.4); transition: all 0.15s;
   }
-  .login-btn:hover {
-    background: linear-gradient(180deg, var(--brand-600), var(--brand-700));
-    box-shadow: 0 4px 12px -2px rgba(79,70,229,.5);
-  }
+  .login-btn:hover { background: linear-gradient(180deg, var(--brand-600), var(--brand-700)); box-shadow: 0 4px 12px -2px rgba(79,70,229,.5); }
 
-  /* ============================================
-     APP LAYOUT
-     ============================================ */
-  #app {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-  }
+  /* APP LAYOUT */
+  #app { display: flex; height: 100vh; overflow: hidden; }
+  .sidebar { width: var(--sidebar-w); background: white; border-right: 1px solid var(--slate-200); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-brand { padding: var(--space-5); border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; gap: var(--space-3); }
+  .sidebar-brand-logo { width: 40px; height: 40px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--brand-500), var(--brand-700)); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px -4px rgba(79,70,229,.5); }
+  .sidebar-brand-info { min-width: 0; flex: 1; }
+  .sidebar-brand-info strong { display: block; font-size: 14px; font-weight: 700; color: var(--slate-900); letter-spacing: -0.01em; }
+  .sidebar-brand-info span { display: block; font-size: 11px; color: var(--slate-500); margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: var(--space-3); overflow-y: auto; }
+  .sidebar-section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--slate-400); padding: var(--space-3) var(--space-3) var(--space-2); }
+  .nav-item { display: flex; align-items: center; gap: var(--space-3); padding: 10px 12px; border-radius: var(--radius-md); color: var(--slate-600); font-size: 14px; font-weight: 500; transition: all 0.12s; margin-bottom: 2px; width: 100%; text-align: left; }
+  .nav-item:hover { background: var(--slate-100); color: var(--slate-900); }
+  .nav-item.active { background: var(--brand-50); color: var(--brand-700); font-weight: 600; }
+  .nav-item svg { width: 18px; height: 18px; }
+  .sidebar-footer { padding: var(--space-4); border-top: 1px solid var(--slate-200); }
 
-  /* Sidebar */
-  .sidebar {
-    width: var(--sidebar-w);
-    background: white;
-    border-right: 1px solid var(--slate-200);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-  }
-  .sidebar-brand {
-    padding: var(--space-5);
-    border-bottom: 1px solid var(--slate-200);
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-  .sidebar-brand-logo {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px -4px rgba(79,70,229,.5);
-  }
-  .sidebar-brand-info {
-    min-width: 0;
-    flex: 1;
-  }
-  .sidebar-brand-info strong {
-    display: block;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--slate-900);
-    letter-spacing: -0.01em;
-  }
-  .sidebar-brand-info span {
-    display: block;
-    font-size: 11px;
-    color: var(--slate-500);
-    margin-top: 2px;
-  }
-  .sidebar-nav {
-    flex: 1;
-    padding: var(--space-3);
-    overflow-y: auto;
-  }
-  .sidebar-section {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--slate-400);
-    padding: var(--space-3) var(--space-3) var(--space-2);
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: 10px 12px;
-    border-radius: var(--radius-md);
-    color: var(--slate-600);
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.12s;
-    margin-bottom: 2px;
-    width: 100%;
-    text-align: left;
-  }
-  .nav-item:hover {
-    background: var(--slate-100);
-    color: var(--slate-900);
-  }
-  .nav-item.active {
-    background: var(--brand-50);
-    color: var(--brand-700);
-    font-weight: 600;
-  }
-  .nav-item svg {
-    width: 18px;
-    height: 18px;
-  }
-  .sidebar-footer {
-    padding: var(--space-4);
-    border-top: 1px solid var(--slate-200);
-  }
+  .main-content { flex: 1; overflow-y: auto; padding: var(--space-8); display: flex; flex-direction: column; gap: var(--space-6); }
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+  .page-header-title h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--slate-900); }
+  .page-header-title p { margin: var(--space-1) 0 0; font-size: 14px; color: var(--slate-500); }
+  .page-header-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 
-  /* Main content */
-  .main-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--space-8);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-  }
-
-  /* Page header */
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-  .page-header-title h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--slate-900);
-  }
-  .page-header-title p {
-    margin: var(--space-1) 0 0;
-    font-size: 14px;
-    color: var(--slate-500);
-  }
-  .page-header-actions {
-    display: flex;
-    gap: var(--space-2);
-    flex-wrap: wrap;
-  }
-
-  /* ============================================
-     BUTTONS
-     ============================================ */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 9px 16px;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 600;
-    border: 1px solid transparent;
-    transition: all 0.15s;
-    white-space: nowrap;
-    line-height: 1;
-  }
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; border: 1px solid transparent; transition: all 0.15s; white-space: nowrap; line-height: 1; }
   .btn svg { width: 15px; height: 15px; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-primary {
-    background: linear-gradient(180deg, #5b54e8, var(--brand-600));
-    color: white;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05), inset 0 1px 0 rgba(255,255,255,.15);
-  }
-  .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(180deg, var(--brand-600), var(--brand-700));
-    box-shadow: 0 4px 12px -2px rgba(79,70,229,.4);
-  }
-  .btn-secondary {
-    background: white;
-    color: var(--slate-700);
-    border-color: var(--slate-300);
-  }
-  .btn-secondary:hover:not(:disabled) {
-    background: var(--slate-50);
-    border-color: var(--slate-400);
-  }
-  .btn-danger {
-    background: white;
-    color: var(--danger-600);
-    border-color: var(--danger-100);
-  }
-  .btn-danger:hover:not(:disabled) {
-    background: var(--danger-50);
-    border-color: var(--danger-600);
-  }
-  .btn-ghost {
-    background: transparent;
-    color: var(--slate-600);
-  }
-  .btn-ghost:hover {
-    background: var(--slate-100);
-    color: var(--slate-900);
-  }
-  .btn-sm {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-  .btn-icon {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--slate-200);
-    background: white;
-    color: var(--slate-600);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.12s;
-  }
+  .btn-primary { background: linear-gradient(180deg, #5b54e8, var(--brand-600)); color: white; box-shadow: 0 1px 2px rgba(15,23,42,.05), inset 0 1px 0 rgba(255,255,255,.15); }
+  .btn-primary:hover:not(:disabled) { background: linear-gradient(180deg, var(--brand-600), var(--brand-700)); box-shadow: 0 4px 12px -2px rgba(79,70,229,.4); }
+  .btn-secondary { background: white; color: var(--slate-700); border-color: var(--slate-300); }
+  .btn-secondary:hover:not(:disabled) { background: var(--slate-50); border-color: var(--slate-400); }
+  .btn-danger { background: white; color: var(--danger-600); border-color: var(--danger-100); }
+  .btn-danger:hover:not(:disabled) { background: var(--danger-50); border-color: var(--danger-600); }
+  .btn-ghost { background: transparent; color: var(--slate-600); }
+  .btn-ghost:hover { background: var(--slate-100); color: var(--slate-900); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-icon { width: 32px; height: 32px; padding: 0; border-radius: var(--radius-sm); border: 1px solid var(--slate-200); background: white; color: var(--slate-600); display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s; }
   .btn-icon svg { width: 15px; height: 15px; }
-  .btn-icon:hover {
-    background: var(--slate-50);
-    border-color: var(--slate-300);
-    color: var(--slate-900);
-  }
+  .btn-icon:hover { background: var(--slate-50); border-color: var(--slate-300); color: var(--slate-900); }
   .btn-icon.danger { color: var(--danger-600); border-color: var(--danger-100); }
   .btn-icon.danger:hover { background: var(--danger-50); border-color: var(--danger-600); }
 
-  /* ============================================
-     STAT CARDS
-     ============================================ */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-4);
-  }
-  .stat-card {
-    background: white;
-    border: 1px solid var(--slate-200);
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s;
-  }
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--accent, var(--brand-500));
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .stat-card:hover {
-    border-color: var(--slate-300);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
+  /* STAT CARDS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); }
+  .stat-card { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: var(--space-5); position: relative; overflow: hidden; transition: all 0.2s; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent, var(--brand-500)); opacity: 0; transition: opacity 0.2s; }
+  .stat-card:hover { border-color: var(--slate-300); box-shadow: var(--shadow-md); transform: translateY(-2px); }
   .stat-card:hover::before { opacity: 1; }
-  .stat-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--space-4);
-  }
-  .stat-card-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--slate-500);
-    line-height: 1.4;
-  }
-  .stat-card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
+  .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4); }
+  .stat-card-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-500); line-height: 1.4; }
+  .stat-card-icon { width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .stat-card-icon svg { width: 20px; height: 20px; }
-  .stat-card-value {
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--slate-900);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.03em;
-  }
-  .stat-card-sub {
-    font-size: 12px;
-    color: var(--slate-500);
-    margin-top: var(--space-2);
-  }
+  .stat-card-value { font-size: 32px; font-weight: 800; color: var(--slate-900); line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+  .stat-card-sub { font-size: 12px; color: var(--slate-500); margin-top: var(--space-2); }
 
-  /* ============================================
-     WARNING CARDS
-     ============================================ */
-  .warnings-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-  .warning-card {
-    background: white;
-    border: 1px solid var(--slate-200);
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: var(--space-3);
-    align-items: center;
-    transition: all 0.15s;
-    border-left-width: 3px;
-  }
-  .warning-card:hover {
-    box-shadow: var(--shadow-sm);
-    border-color: var(--slate-300);
-  }
+  /* WARNINGS */
+  .warnings-list { display: flex; flex-direction: column; gap: var(--space-2); }
+  .warning-card { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: var(--space-4); display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: center; transition: all 0.15s; border-left-width: 3px; }
+  .warning-card:hover { box-shadow: var(--shadow-sm); border-color: var(--slate-300); }
   .warning-card.warn { border-left-color: var(--warning-600); }
   .warning-card.info { border-left-color: var(--brand-500); }
   .warning-card.success { border-left-color: var(--success-600); }
-  .warning-card-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
+  .warning-card-icon { width: 36px; height: 36px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .warning-card-icon svg { width: 18px; height: 18px; }
   .warning-card.warn .warning-card-icon { background: var(--warning-100); color: var(--warning-700); }
   .warning-card.info .warning-card-icon { background: var(--brand-100); color: var(--brand-700); }
   .warning-card.success .warning-card-icon { background: var(--success-100); color: var(--success-700); }
-  .warning-card-text {
-    font-size: 14px;
-    color: var(--slate-700);
-    line-height: 1.5;
-  }
-  .warning-card-text strong {
-    color: var(--slate-900);
-    font-weight: 700;
-  }
+  .warning-card-text { font-size: 14px; color: var(--slate-700); line-height: 1.5; }
+  .warning-card-text strong { color: var(--slate-900); font-weight: 700; }
 
-  /* ============================================
-     TOOLBAR
-     ============================================ */
-  .toolbar {
-    background: white;
-    border: 1px solid var(--slate-200);
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: var(--space-3);
-    align-items: center;
-  }
-  .toolbar-filters {
-    display: flex;
-    gap: var(--space-2);
-    flex-wrap: wrap;
-  }
-  .toolbar-actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-  .input-with-icon {
-    position: relative;
-    flex: 1;
-    min-width: 220px;
-  }
-  .input-with-icon svg {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
-    color: var(--slate-400);
-    pointer-events: none;
-  }
-  .input-with-icon input {
-    width: 100%;
-    padding: 9px 14px 9px 36px;
-    border: 1px solid var(--slate-300);
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    background: white;
-    transition: all 0.15s;
-  }
-  .input-with-icon input:focus {
-    outline: none;
-    border-color: var(--brand-500);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-  }
-  .select {
-    padding: 9px 32px 9px 14px;
-    border: 1px solid var(--slate-300);
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    background: white;
-    color: var(--slate-700);
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .select:focus {
-    outline: none;
-    border-color: var(--brand-500);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-  }
-  .checkbox-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 9px 14px;
-    background: white;
-    border: 1px solid var(--slate-300);
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    color: var(--slate-700);
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .checkbox-pill:has(input:checked) {
-    background: var(--brand-50);
-    border-color: var(--brand-500);
-    color: var(--brand-700);
-    font-weight: 600;
-  }
-  .checkbox-pill input {
-    margin: 0;
-    cursor: pointer;
-  }
+  /* TOOLBAR */
+  .toolbar { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: var(--space-4); display: grid; grid-template-columns: 1fr auto; gap: var(--space-3); align-items: center; }
+  .toolbar-filters { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .toolbar-actions { display: flex; gap: var(--space-2); }
+  .input-with-icon { position: relative; flex: 1; min-width: 220px; }
+  .input-with-icon svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--slate-400); pointer-events: none; }
+  .input-with-icon input { width: 100%; padding: 9px 14px 9px 36px; border: 1px solid var(--slate-300); border-radius: var(--radius-md); font-size: 13px; background: white; transition: all 0.15s; }
+  .input-with-icon input:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .select { padding: 9px 32px 9px 14px; border: 1px solid var(--slate-300); border-radius: var(--radius-md); font-size: 13px; background: white; color: var(--slate-700); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; cursor: pointer; transition: all 0.15s; }
+  .select:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .checkbox-pill { display: inline-flex; align-items: center; gap: var(--space-2); padding: 9px 14px; background: white; border: 1px solid var(--slate-300); border-radius: var(--radius-md); font-size: 13px; color: var(--slate-700); cursor: pointer; transition: all 0.15s; user-select: none; }
+  .checkbox-pill:has(input:checked) { background: var(--brand-50); border-color: var(--brand-500); color: var(--brand-700); font-weight: 600; }
+  .checkbox-pill input { margin: 0; cursor: pointer; }
 
-  /* ============================================
-     TABLE
-     ============================================ */
-  .table-wrapper {
-    background: white;
-    border: 1px solid var(--slate-200);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-xs);
-  }
-  .table-scroll {
-    overflow-x: auto;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
-  }
-  thead {
-    background: var(--slate-50);
-  }
-  thead th {
-    padding: 12px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--slate-500);
-    text-align: left;
-    border-bottom: 1px solid var(--slate-200);
-    white-space: nowrap;
-    line-height: 1.4;
-  }
-  tbody tr {
-    border-bottom: 1px solid var(--slate-100);
-    transition: background 0.1s;
-  }
+  /* TABLE */
+  .table-wrapper { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-xs); }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  thead { background: var(--slate-50); }
+  thead th { padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-500); text-align: left; border-bottom: 1px solid var(--slate-200); white-space: nowrap; line-height: 1.4; }
+  tbody tr { border-bottom: 1px solid var(--slate-100); transition: background 0.1s; }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: var(--slate-50); }
-  tbody td {
-    padding: 14px 16px;
-    font-size: 14px;
-    color: var(--slate-700);
-    vertical-align: middle;
-    line-height: 1.5;
-  }
+  tbody td { padding: 14px 16px; font-size: 14px; color: var(--slate-700); vertical-align: middle; line-height: 1.5; }
   td.mono { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--slate-900); }
   td.cell-actions { text-align: right; white-space: nowrap; }
   td.cell-actions > * + * { margin-left: var(--space-1); }
@@ -674,18 +188,7 @@
   .cell-title { font-weight: 600; color: var(--slate-900); line-height: 1.4; }
   .cell-sub { font-size: 12px; color: var(--slate-500); margin-top: 2px; line-height: 1.4; }
 
-  /* Badges */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--radius-full); font-size: 12px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
   .badge svg { width: 12px; height: 12px; }
   .badge-success { background: var(--success-100); color: var(--success-700); }
   .badge-warning { background: var(--warning-100); color: var(--warning-700); }
@@ -693,174 +196,38 @@
   .badge-info { background: var(--brand-100); color: var(--brand-700); }
   .badge-neutral { background: var(--slate-100); color: var(--slate-600); }
 
-  /* Pagination */
-  .pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--slate-50);
-    border-top: 1px solid var(--slate-200);
-    font-size: 13px;
-    color: var(--slate-600);
-  }
+  .pagination { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--slate-50); border-top: 1px solid var(--slate-200); font-size: 13px; color: var(--slate-600); }
   .pagination-buttons { display: flex; gap: var(--space-2); }
 
-  /* ============================================
-     MODAL
-     ============================================ */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-4);
-    z-index: 1000;
-  }
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: var(--space-4); z-index: 1000; }
   .modal-overlay.show { display: flex; }
-  .modal-panel {
-    background: white;
-    border-radius: var(--radius-xl);
-    width: 100%;
-    max-width: 560px;
-    max-height: calc(100vh - 32px);
-    display: flex;
-    flex-direction: column;
-    box-shadow: var(--shadow-xl);
-    animation: modalIn 0.22s ease-out;
-  }
+  .modal-panel { background: white; border-radius: var(--radius-xl); width: 100%; max-width: 560px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; box-shadow: var(--shadow-xl); animation: modalIn 0.22s ease-out; }
   .modal-panel.wide { max-width: 720px; }
-  @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.96) translateY(8px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  .modal-header {
-    padding: var(--space-5) var(--space-6);
-    border-bottom: 1px solid var(--slate-200);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-3);
-    flex-shrink: 0;
-  }
-  .modal-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--slate-900);
-    letter-spacing: -0.01em;
-  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-header { padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-shrink: 0; }
+  .modal-title { display: flex; align-items: center; gap: var(--space-2); font-size: 18px; font-weight: 700; color: var(--slate-900); letter-spacing: -0.01em; }
   .modal-title svg { width: 20px; height: 20px; color: var(--brand-600); }
-  .modal-close {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--slate-500);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.12s;
-  }
-  .modal-close:hover {
-    background: var(--slate-100);
-    color: var(--slate-900);
-  }
+  .modal-close { width: 32px; height: 32px; border-radius: var(--radius-sm); background: transparent; color: var(--slate-500); display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+  .modal-close:hover { background: var(--slate-100); color: var(--slate-900); }
   .modal-close svg { width: 18px; height: 18px; }
-  .modal-body {
-    padding: var(--space-6);
-    overflow-y: auto;
-    flex: 1;
-  }
-  .modal-footer {
-    padding: var(--space-4) var(--space-6);
-    border-top: 1px solid var(--slate-200);
-    background: var(--slate-50);
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-2);
-    flex-shrink: 0;
-    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-  }
+  .modal-body { padding: var(--space-6); overflow-y: auto; flex: 1; }
+  .modal-footer { padding: var(--space-4) var(--space-6); border-top: 1px solid var(--slate-200); background: var(--slate-50); display: flex; justify-content: flex-end; gap: var(--space-2); flex-shrink: 0; border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
 
-  /* ============================================
-     FORM
-     ============================================ */
+  /* FORM */
   .form-group { margin-bottom: var(--space-4); }
   .form-group:last-child { margin-bottom: 0; }
-  .form-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--slate-700);
-    margin-bottom: var(--space-2);
-  }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--slate-700); margin-bottom: var(--space-2); }
   .form-label .required { color: var(--danger-600); margin-left: 2px; }
-  .form-input,
-  .form-select,
-  .form-textarea {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--slate-300);
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    color: var(--slate-900);
-    background: white;
-    transition: all 0.15s;
-  }
-  .form-input:focus,
-  .form-select:focus,
-  .form-textarea:focus {
-    outline: none;
-    border-color: var(--brand-500);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-  }
-  .form-input:disabled {
-    background: var(--slate-50);
-    color: var(--slate-500);
-    cursor: not-allowed;
-  }
-  .form-hint {
-    margin-top: var(--space-2);
-    font-size: 12px;
-    color: var(--slate-500);
-    line-height: 1.5;
-  }
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
-  }
-  .form-section {
-    padding-top: var(--space-4);
-    margin-top: var(--space-4);
-    border-top: 1px solid var(--slate-200);
-  }
-  .form-section-title {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--slate-500);
-    margin-bottom: var(--space-3);
-  }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--slate-300); border-radius: var(--radius-md); font-size: 14px; color: var(--slate-900); background: white; transition: all 0.15s; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .form-input:disabled { background: var(--slate-50); color: var(--slate-500); cursor: not-allowed; }
+  .form-hint { margin-top: var(--space-2); font-size: 12px; color: var(--slate-500); line-height: 1.5; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .form-section { padding-top: var(--space-4); margin-top: var(--space-4); border-top: 1px solid var(--slate-200); }
+  .form-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-500); margin-bottom: var(--space-3); }
 
-  /* Info Box dalam modal */
-  .info-box {
-    display: flex;
-    gap: var(--space-3);
-    align-items: flex-start;
-    padding: var(--space-4);
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    line-height: 1.5;
-  }
+  .info-box { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-4); border-radius: var(--radius-md); font-size: 13px; line-height: 1.5; }
   .info-box svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
   .info-box.success { background: var(--success-50); color: var(--success-700); border: 1px solid var(--success-100); }
   .info-box.warning { background: var(--warning-50); color: var(--warning-700); border: 1px solid var(--warning-100); }
@@ -868,412 +235,115 @@
   .info-box.info { background: var(--brand-50); color: var(--brand-700); border: 1px solid var(--brand-100); }
   .info-box strong { font-weight: 700; }
 
-  /* ============================================
-     TOAST & LOADING
-     ============================================ */
-  #toast {
-    position: fixed;
-    bottom: var(--space-6);
-    right: var(--space-6);
-    background: var(--slate-900);
-    color: white;
-    padding: 12px 18px;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    box-shadow: var(--shadow-lg);
-    z-index: 2000;
-    opacity: 0;
-    transform: translateY(12px);
-    transition: all 0.22s;
-    pointer-events: none;
-    max-width: 420px;
-  }
+  /* TOAST & LOADING */
+  #toast { position: fixed; bottom: var(--space-6); right: var(--space-6); background: var(--slate-900); color: white; padding: 12px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: var(--space-2); box-shadow: var(--shadow-lg); z-index: 2000; opacity: 0; transform: translateY(12px); transition: all 0.22s; pointer-events: none; max-width: 420px; }
   #toast.show { opacity: 1; transform: translateY(0); }
   #toast svg { width: 18px; height: 18px; flex-shrink: 0; }
   #toast.success { background: var(--success-600); }
   #toast.error { background: var(--danger-600); }
   #toast.warning { background: var(--warning-600); }
 
-  #loading {
-    position: fixed;
-    inset: 0;
-    background: rgba(248, 250, 252, 0.85);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000;
-  }
+  #loading { position: fixed; inset: 0; background: rgba(248, 250, 252, 0.85); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 3000; }
   #loading.show { display: flex; }
-  .loading-spinner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-3);
-    color: var(--slate-600);
-    font-size: 13px;
-    font-weight: 500;
-  }
-  .loading-spinner svg {
-    width: 40px;
-    height: 40px;
-    color: var(--brand-600);
-    animation: spin 0.9s linear infinite;
-  }
+  .loading-spinner { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); color: var(--slate-600); font-size: 13px; font-weight: 500; }
+  .loading-spinner svg { width: 40px; height: 40px; color: var(--brand-600); animation: spin 0.9s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ============================================
-     EMPTY STATE
-     ============================================ */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-10) var(--space-4);
-    text-align: center;
-  }
-  .empty-state-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-lg);
-    background: var(--slate-100);
-    color: var(--slate-400);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: var(--space-4);
-  }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-10) var(--space-4); text-align: center; }
+  .empty-state-icon { width: 64px; height: 64px; border-radius: var(--radius-lg); background: var(--slate-100); color: var(--slate-400); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-4); }
   .empty-state-icon svg { width: 32px; height: 32px; }
-  .empty-state h3 {
-    margin: 0 0 var(--space-2);
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--slate-700);
-  }
-  .empty-state p {
-    margin: 0;
-    font-size: 13px;
-    color: var(--slate-500);
-    max-width: 360px;
-  }
+  .empty-state h3 { margin: 0 0 var(--space-2); font-size: 15px; font-weight: 600; color: var(--slate-700); }
+  .empty-state p { margin: 0; font-size: 13px; color: var(--slate-500); max-width: 360px; }
 
-  /* ============================================
-     INFO CARD (Cara Kerja)
-     ============================================ */
-  .info-card {
-    background: white;
-    border: 1px solid var(--slate-200);
-    border-radius: var(--radius-lg);
-    padding: var(--space-5);
-  }
-  .info-card-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-4);
-  }
+  .info-card { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: var(--space-5); }
+  .info-card-header { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); }
   .info-card-header svg { width: 20px; height: 20px; color: var(--brand-600); }
-  .info-card-header h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--slate-900);
-  }
-  .steps-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    counter-reset: step;
-  }
-  .step-item {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--space-3);
-    align-items: start;
-    counter-increment: step;
-  }
-  .step-number {
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-full);
-    background: var(--brand-100);
-    color: var(--brand-700);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
+  .info-card-header h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--slate-900); }
+  .steps-list { display: flex; flex-direction: column; gap: var(--space-3); counter-reset: step; }
+  .step-item { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start; counter-increment: step; }
+  .step-number { width: 28px; height: 28px; border-radius: var(--radius-full); background: var(--brand-100); color: var(--brand-700); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
   .step-number::before { content: counter(step); }
-  .step-content {
-    padding-top: 4px;
-    font-size: 14px;
-    color: var(--slate-700);
-    line-height: 1.55;
-  }
+  .step-content { padding-top: 4px; font-size: 14px; color: var(--slate-700); line-height: 1.55; }
   .step-content strong { color: var(--slate-900); font-weight: 600; }
 
-  /* ============================================
-     RESPONSIVE — MOBILE IMPROVED
-     ============================================ */
-
-  /* Tablet (≤1024px) */
+  /* RESPONSIVE */
   @media (max-width: 1024px) {
-    .main-content {
-      padding: var(--space-5);
-      gap: var(--space-5);
-    }
-    .toolbar {
-      grid-template-columns: 1fr;
-      gap: var(--space-3);
-    }
-    .toolbar-filters {
-      flex-direction: column;
-      width: 100%;
-    }
+    .main-content { padding: var(--space-5); gap: var(--space-5); }
+    .toolbar { grid-template-columns: 1fr; gap: var(--space-3); }
+    .toolbar-filters { flex-direction: column; width: 100%; }
     .toolbar-filters > * { width: 100%; }
     .input-with-icon { min-width: 0; width: 100%; }
-    .toolbar-actions {
-      width: 100%;
-      justify-content: stretch;
-    }
+    .toolbar-actions { width: 100%; justify-content: stretch; }
     .toolbar-actions .btn { flex: 1; }
   }
-
-  /* Mobile (≤768px) */
   @media (max-width: 768px) {
-    /* App layout — scroll natural */
-    #app {
-      flex-direction: column;
-      height: auto;
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow: visible;
-    }
-
-    /* Sidebar → Bottom Tab Bar */
-    .sidebar {
-      width: 100%;
-      flex-direction: row;
-      border-right: none;
-      border-bottom: 1px solid var(--slate-200);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,.06);
-    }
+    #app { flex-direction: column; height: auto; min-height: 100vh; min-height: 100dvh; overflow: visible; }
+    .sidebar { width: 100%; flex-direction: row; border-right: none; border-bottom: 1px solid var(--slate-200); position: sticky; top: 0; z-index: 100; background: white; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
     .sidebar-brand { display: none; }
-
-    .sidebar-nav {
-      flex-direction: row;
-      padding: var(--space-2);
-      flex: 1;
-      gap: 4px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
+    .sidebar-nav { flex-direction: row; padding: var(--space-2); flex: 1; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .sidebar-nav::-webkit-scrollbar { display: none; }
-
     .sidebar-section { display: none; }
-
-    .nav-item {
-      width: auto;
-      flex-shrink: 0;
-      white-space: nowrap;
-      margin-bottom: 0;
-      padding: 8px 14px;
-      font-size: 13px;
-      border-radius: var(--radius-full);
-      gap: 6px;
-    }
+    .nav-item { width: auto; flex-shrink: 0; white-space: nowrap; margin-bottom: 0; padding: 8px 14px; font-size: 13px; border-radius: var(--radius-full); gap: 6px; }
     .nav-item svg { width: 16px; height: 16px; }
-    .nav-item:hover { background: var(--slate-100); }
-    .nav-item.active {
-      background: var(--brand-600);
-      color: white;
-    }
-
-    .sidebar-footer {
-      border-top: none;
-      border-left: 1px solid var(--slate-200);
-      padding: var(--space-2);
-      background: white;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-    }
-    .sidebar-footer .btn {
-      padding: 8px 12px;
-      font-size: 12px;
-      gap: 4px;
-    }
+    .nav-item.active { background: var(--brand-600); color: white; }
+    .sidebar-footer { border-top: none; border-left: 1px solid var(--slate-200); padding: var(--space-2); background: white; flex-shrink: 0; display: flex; align-items: center; }
+    .sidebar-footer .btn { padding: 8px 12px; font-size: 12px; gap: 4px; }
     .sidebar-footer .btn svg { width: 14px; height: 14px; }
-
-    /* Main content */
-    .main-content {
-      padding: var(--space-4);
-      gap: var(--space-4);
-    }
-
-    /* Page header */
-    .page-header {
-      flex-direction: column;
-      gap: var(--space-3);
-    }
+    .main-content { padding: var(--space-4); gap: var(--space-4); }
+    .page-header { flex-direction: column; gap: var(--space-3); }
     .page-header-title h1 { font-size: 20px; }
     .page-header-title p { font-size: 13px; }
     .page-header-actions { width: 100%; }
-    .page-header-actions .btn {
-      flex: 1;
-      font-size: 12px;
-      padding: 8px 12px;
-    }
-
-    /* Stats */
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-3);
-    }
+    .page-header-actions .btn { flex: 1; font-size: 12px; padding: 8px 12px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
     .stat-card { padding: var(--space-4); }
     .stat-card-value { font-size: 24px; }
     .stat-card-label { font-size: 10px; }
     .stat-card-icon { width: 36px; height: 36px; }
     .stat-card-icon svg { width: 18px; height: 18px; }
     .stat-card-sub { font-size: 11px; }
-
-    /* Warning cards */
-    .warning-card {
-      grid-template-columns: auto 1fr;
-      padding: var(--space-3);
-      gap: var(--space-2);
-      border-radius: var(--radius-md);
-    }
+    .warning-card { grid-template-columns: auto 1fr; padding: var(--space-3); gap: var(--space-2); border-radius: var(--radius-md); }
     .warning-card-icon { width: 32px; height: 32px; }
     .warning-card-icon svg { width: 16px; height: 16px; }
-    .warning-card-text {
-      grid-column: 2 / -1;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .warning-card button {
-      grid-column: 1 / -1;
-      width: 100%;
-      justify-content: center;
-      margin-top: var(--space-1);
-    }
-
-    /* Toolbar */
+    .warning-card-text { grid-column: 2 / -1; font-size: 13px; line-height: 1.5; }
+    .warning-card button { grid-column: 1 / -1; width: 100%; justify-content: center; margin-top: var(--space-1); }
     .toolbar { padding: var(--space-3); }
     .toolbar-filters { gap: var(--space-2); }
     .checkbox-pill { justify-content: flex-start; }
-
-    /* Table */
     .table-wrapper { border-radius: var(--radius-md); }
-    .table-scroll {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { min-width: 720px; }
-    thead th {
-      padding: 10px 12px;
-      font-size: 10px;
-      letter-spacing: 0.04em;
-    }
-    tbody td {
-      padding: 10px 12px;
-      font-size: 13px;
-    }
+    thead th { padding: 10px 12px; font-size: 10px; letter-spacing: 0.04em; }
+    tbody td { padding: 10px 12px; font-size: 13px; }
     td.mono { font-size: 12px; }
     .cell-title { font-size: 13px; }
     .cell-sub { font-size: 11px; }
     .btn-icon { width: 30px; height: 30px; }
     .btn-icon svg { width: 13px; height: 13px; }
     .badge { font-size: 11px; padding: 3px 8px; }
-
-    /* Pagination */
-    .pagination {
-      flex-direction: column;
-      gap: var(--space-2);
-      padding: var(--space-3);
-      text-align: center;
-    }
-    .pagination-buttons {
-      width: 100%;
-      justify-content: stretch;
-    }
-    .pagination-buttons .btn {
-      flex: 1;
-      justify-content: center;
-    }
-
-    /* Modal */
+    .pagination { flex-direction: column; gap: var(--space-2); padding: var(--space-3); text-align: center; }
+    .pagination-buttons { width: 100%; justify-content: stretch; }
+    .pagination-buttons .btn { flex: 1; justify-content: center; }
     .modal-overlay { padding: var(--space-2); }
-    .modal-panel {
-      max-height: calc(100vh - 16px);
-      max-height: calc(100dvh - 16px);
-      border-radius: var(--radius-lg);
-    }
+    .modal-panel { max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); border-radius: var(--radius-lg); }
     .modal-panel.wide { max-width: 100%; }
-    .modal-header {
-      padding: var(--space-3) var(--space-4);
-    }
+    .modal-header { padding: var(--space-3) var(--space-4); }
     .modal-title { font-size: 16px; gap: var(--space-2); }
     .modal-title svg { width: 18px; height: 18px; }
     .modal-body { padding: var(--space-4); }
-    .modal-footer {
-      flex-direction: column-reverse;
-      padding: var(--space-3);
-      gap: var(--space-2);
-      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    }
+    .modal-footer { flex-direction: column-reverse; padding: var(--space-3); gap: var(--space-2); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
     .modal-footer .btn { width: 100%; }
-
-    /* Forms */
     .form-row { grid-template-columns: 1fr; }
-    .form-section {
-      padding-top: var(--space-3);
-      margin-top: var(--space-3);
-    }
+    .form-section { padding-top: var(--space-3); margin-top: var(--space-3); }
     .form-label { font-size: 12px; }
     .form-input, .form-select, .form-textarea { font-size: 14px; }
-
-    /* Info box */
-    .info-box {
-      padding: var(--space-3);
-      font-size: 12px;
-      gap: var(--space-2);
-    }
-
-    /* Steps */
-    .step-item {
-      grid-template-columns: 24px 1fr;
-      gap: var(--space-2);
-    }
+    .info-box { padding: var(--space-3); font-size: 12px; gap: var(--space-2); }
+    .step-item { grid-template-columns: 24px 1fr; gap: var(--space-2); }
     .step-number { width: 24px; height: 24px; font-size: 11px; }
     .step-content { font-size: 13px; }
     .info-card { padding: var(--space-4); }
     .info-card-header h3 { font-size: 14px; }
-
-    /* Toast */
-    #toast {
-      left: var(--space-3);
-      right: var(--space-3);
-      bottom: var(--space-3);
-      max-width: none;
-      justify-content: center;
-      text-align: center;
-    }
-
-    /* Login */
+    #toast { left: var(--space-3); right: var(--space-3); bottom: var(--space-3); max-width: none; justify-content: center; text-align: center; }
     .login-screen { padding: var(--space-3); }
     .login-card { padding: var(--space-8) var(--space-5); }
     .login-logo { width: 56px; height: 56px; margin-bottom: var(--space-4); }
@@ -1281,20 +351,11 @@
     .login-card h2 { font-size: 20px; }
     .login-card p { font-size: 13px; margin-bottom: var(--space-5); }
   }
-
-  /* Small mobile (≤480px) */
   @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
-    .main-content {
-      padding: var(--space-3);
-      gap: var(--space-3);
-    }
+    .main-content { padding: var(--space-3); gap: var(--space-3); }
     .page-header-title h1 { font-size: 18px; }
-    .stat-card {
-      flex-direction: row;
-      align-items: center;
-      padding: var(--space-3);
-    }
+    .stat-card { flex-direction: row; align-items: center; padding: var(--space-3); }
     .stat-card-value { font-size: 22px; }
     .modal-header { padding: var(--space-3); }
     .modal-body { padding: var(--space-3); }
@@ -1304,7 +365,6 @@
     .sidebar-footer .btn span { display: none; }
   }
 
-  /* Utility */
   .hidden { display: none !important; }
 </style>
 </head>
@@ -1319,6 +379,7 @@
     <h2>Admin Panel</h2>
     <p>SISPA Mandiri — Kabupaten Wonogiri</p>
     <form id="loginForm" class="login-form">
+      <input type="text" name="username" autocomplete="username" value="admin" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
       <input type="password" id="adminKey" class="login-input" placeholder="Masukkan Kunci Admin" autocomplete="current-password" autofocus>
       <button type="submit" class="login-btn">Masuk ke Panel</button>
     </form>
@@ -1328,7 +389,6 @@
 <!-- APP -->
 <div id="app" style="display:none;">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-logo">
@@ -1362,7 +422,6 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main-content">
     <header class="page-header">
       <div class="page-header-title">
@@ -1372,7 +431,6 @@
       <div class="page-header-actions" id="pageActions"></div>
     </header>
 
-    <!-- VIEW: DASHBOARD -->
     <div id="viewDashboard">
       <div class="stats-grid" id="statsGrid" style="margin-bottom:var(--space-4);"></div>
       <div class="warnings-list" id="warningsList" style="margin-bottom:var(--space-4);"></div>
@@ -1382,31 +440,15 @@
           <h3>Cara Kerja Klaim Pengawas</h3>
         </div>
         <div class="steps-list">
-          <div class="step-item">
-            <div class="step-number"></div>
-            <div class="step-content"><strong>Pengawas</strong> klaim sekolah via aplikasi PS → status <span class="badge badge-warning" style="font-size:11px;">Pending</span></div>
-          </div>
-          <div class="step-item">
-            <div class="step-number"></div>
-            <div class="step-content"><strong>Kepala Sekolah</strong> buka aplikasi KS → klik "Cek Pengawas" → konfirmasi/tolak</div>
-          </div>
-          <div class="step-item">
-            <div class="step-number"></div>
-            <div class="step-content">Jika <strong>diterima</strong> → status berubah menjadi <span class="badge badge-success" style="font-size:11px;">Terkonfirmasi</span></div>
-          </div>
-          <div class="step-item">
-            <div class="step-number"></div>
-            <div class="step-content">Jika ada konflik/masalah → <strong>Admin</strong> bisa override via Edit Sekolah atau <strong>Assign Pengawas</strong> manual</div>
-          </div>
-          <div class="step-item">
-            <div class="step-number"></div>
-            <div class="step-content">Gunakan tombol <strong>Reset Klaim</strong> jika klaim deadlock atau salah</div>
-          </div>
+          <div class="step-item"><div class="step-number"></div><div class="step-content"><strong>Pengawas</strong> klaim sekolah via aplikasi PS → status <span class="badge badge-warning" style="font-size:11px;">Pending</span></div></div>
+          <div class="step-item"><div class="step-number"></div><div class="step-content"><strong>Kepala Sekolah</strong> buka aplikasi KS → klik "Cek Pengawas" → konfirmasi/tolak</div></div>
+          <div class="step-item"><div class="step-number"></div><div class="step-content">Jika <strong>diterima</strong> → status berubah menjadi <span class="badge badge-success" style="font-size:11px;">Terkonfirmasi</span></div></div>
+          <div class="step-item"><div class="step-number"></div><div class="step-content">Jika ada konflik/masalah → <strong>Admin</strong> bisa override via Edit Sekolah atau <strong>Assign Pengawas</strong> manual</div></div>
+          <div class="step-item"><div class="step-number"></div><div class="step-content">Gunakan tombol <strong>Reset Klaim</strong> jika klaim deadlock atau salah</div></div>
         </div>
       </div>
     </div>
 
-    <!-- VIEW: SEKOLAH -->
     <div id="viewSekolah" style="display:none;">
       <div class="toolbar" style="margin-bottom:var(--space-4);">
         <div class="toolbar-filters">
@@ -1447,7 +489,6 @@
       </div>
     </div>
 
-    <!-- VIEW: PENGAWAS -->
     <div id="viewPengawas" style="display:none;">
       <div class="toolbar" style="margin-bottom:var(--space-4);">
         <div class="toolbar-filters">
@@ -1525,6 +566,21 @@
   </div>
 </div>
 
+<!-- MODAL: IMPORT CSV -->
+<div class="modal-overlay" id="modalImport">
+  <div class="modal-panel wide">
+    <div class="modal-header">
+      <div class="modal-title" id="modalImportTitle">
+        <i data-lucide="file-spreadsheet"></i>
+        <span>Import CSV</span>
+      </div>
+      <button class="modal-close" data-close="modalImport"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body" id="modalImportBody"></div>
+    <div class="modal-footer" id="modalImportFooter"></div>
+  </div>
+</div>
+
 <!-- MODAL: RESET KLAIM -->
 <div class="modal-overlay" id="modalReset">
   <div class="modal-panel">
@@ -1582,19 +638,12 @@
   </div>
 </div>
 
-<!-- IMPORTS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
 import { Supabase } from '../shared/js/supabase.js';
 
-// ============================================
-// CONFIG
-// ============================================
-const ADMIN_KEY = 'admin123'; // ⚠️ GANTI SEBELUM DEPLOY!
+const ADMIN_KEY = 'admin123';
 
-// ============================================
-// STATE
-// ============================================
 const State = {
   sekolah: [],
   pengawas: [],
@@ -1611,20 +660,12 @@ const State = {
   pendingAssign: null
 };
 
-// ============================================
-// UTILS
-// ============================================
 const el = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const toast = (msg, type = '') => {
   const t = el('toast');
-  const icons = {
-    success: 'check-circle',
-    error: 'alert-circle',
-    warning: 'alert-triangle',
-    info: 'info'
-  };
+  const icons = { success: 'check-circle', error: 'alert-circle', warning: 'alert-triangle', info: 'info' };
   const icon = icons[type] || icons.info;
   t.innerHTML = `<i data-lucide="${icon}"></i><span>${esc(msg)}</span>`;
   t.className = `show ${type}`;
@@ -1634,20 +675,13 @@ const toast = (msg, type = '') => {
 };
 
 const loading = (show) => el('loading').classList.toggle('show', show);
-
-const openModal = (id) => {
-  el(id).classList.add('show');
-  lucide.createIcons();
-};
-
+const openModal = (id) => { el(id).classList.add('show'); lucide.createIcons(); };
 const closeModal = (id) => el(id).classList.remove('show');
 
-// Attach close buttons
 document.querySelectorAll('[data-close]').forEach(btn => {
   btn.onclick = () => closeModal(btn.dataset.close);
 });
 
-// Close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => {
     if (e.target === m) {
@@ -1658,9 +692,6 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
   });
 });
 
-// ============================================
-// LOGIN
-// ============================================
 el('loginForm').onsubmit = (e) => {
   e.preventDefault();
   if (el('adminKey').value === ADMIN_KEY) {
@@ -1677,20 +708,15 @@ el('loginForm').onsubmit = (e) => {
 
 el('btnLogout').onclick = () => location.reload();
 
-// ============================================
-// NAVIGATION
-// ============================================
 document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
   item.onclick = () => switchTab(item.dataset.tab);
 });
 
 function switchTab(tab) {
-  // Update active state
   document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
   const navItem = document.querySelector(`.nav-item[data-tab="${tab}"]`);
   if (navItem) navItem.classList.add('active');
 
-  // Update title & sub
   const titles = {
     dashboard: { title: 'Dashboard', sub: 'Ringkasan data akun & klaim SISPA Mandiri', actions: '' },
     sekolah: { title: 'Data Sekolah', sub: `${State.sekolah.length} sekolah terdaftar`, actions: '' },
@@ -1703,22 +729,17 @@ function switchTab(tab) {
     el('pageActions').innerHTML = titles[tab].actions;
   }
 
-  // Hide all views
   ['dashboard', 'sekolah', 'pengawas'].forEach(t => {
     const view = el('view' + t.charAt(0).toUpperCase() + t.slice(1));
     if (view) view.style.display = 'none';
   });
 
-  // Show target view
   const target = el('view' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (target) target.style.display = 'block';
 
   lucide.createIcons();
 }
 
-// ============================================
-// LOAD DATA
-// ============================================
 async function loadData() {
   loading(true);
   try {
@@ -1758,9 +779,6 @@ function populatePengawasFilter() {
     State.pengawas.map(p => `<option value="${p.nip}">${esc(p.nama_pengawas)}</option>`).join('');
 }
 
-// ============================================
-// RENDER: DASHBOARD
-// ============================================
 function renderDashboard() {
   const total = State.sekolah.length;
   const pengawasCount = State.pengawas.length;
@@ -1773,9 +791,7 @@ function renderDashboard() {
     <div class="stat-card" style="--accent: var(--brand-500);">
       <div class="stat-card-header">
         <div class="stat-card-label">Total<br>Sekolah</div>
-        <div class="stat-card-icon" style="background:var(--brand-100);color:var(--brand-700);">
-          <i data-lucide="school"></i>
-        </div>
+        <div class="stat-card-icon" style="background:var(--brand-100);color:var(--brand-700);"><i data-lucide="school"></i></div>
       </div>
       <div class="stat-card-value">${total}</div>
       <div class="stat-card-sub">Terdaftar di sistem</div>
@@ -1783,9 +799,7 @@ function renderDashboard() {
     <div class="stat-card" style="--accent: #16a34a;">
       <div class="stat-card-header">
         <div class="stat-card-label">Total<br>Pengawas</div>
-        <div class="stat-card-icon" style="background:var(--success-100);color:var(--success-700);">
-          <i data-lucide="users"></i>
-        </div>
+        <div class="stat-card-icon" style="background:var(--success-100);color:var(--success-700);"><i data-lucide="users"></i></div>
       </div>
       <div class="stat-card-value">${pengawasCount}</div>
       <div class="stat-card-sub">Aktif bertugas</div>
@@ -1793,9 +807,7 @@ function renderDashboard() {
     <div class="stat-card" style="--accent: #059669;">
       <div class="stat-card-header">
         <div class="stat-card-label">Terkon-<br>firmasi</div>
-        <div class="stat-card-icon" style="background:#d1fae5;color:#059669;">
-          <i data-lucide="check-circle"></i>
-        </div>
+        <div class="stat-card-icon" style="background:#d1fae5;color:#059669;"><i data-lucide="check-circle"></i></div>
       </div>
       <div class="stat-card-value">${confirmed}</div>
       <div class="stat-card-sub">${total > 0 ? Math.round(confirmed/total*100) : 0}% dari total</div>
@@ -1803,9 +815,7 @@ function renderDashboard() {
     <div class="stat-card" style="--accent: #d97706;">
       <div class="stat-card-header">
         <div class="stat-card-label">Pending<br>Klaim</div>
-        <div class="stat-card-icon" style="background:var(--warning-100);color:var(--warning-700);">
-          <i data-lucide="clock"></i>
-        </div>
+        <div class="stat-card-icon" style="background:var(--warning-100);color:var(--warning-700);"><i data-lucide="clock"></i></div>
       </div>
       <div class="stat-card-value">${pending}</div>
       <div class="stat-card-sub">Menunggu konfirmasi KS</div>
@@ -1813,9 +823,7 @@ function renderDashboard() {
     <div class="stat-card" style="--accent: #dc2626;">
       <div class="stat-card-header">
         <div class="stat-card-label">Belum<br>Ada PS</div>
-        <div class="stat-card-icon" style="background:var(--danger-100);color:var(--danger-700);">
-          <i data-lucide="user-x"></i>
-        </div>
+        <div class="stat-card-icon" style="background:var(--danger-100);color:var(--danger-700);"><i data-lucide="user-x"></i></div>
       </div>
       <div class="stat-card-value">${belumAda}</div>
       <div class="stat-card-sub">Perlu assign segera</div>
@@ -1823,60 +831,14 @@ function renderDashboard() {
   `;
 
   const warnings = [];
-  if (belumAda > 0) {
-    warnings.push({
-      type: 'warn',
-      icon: 'user-x',
-      text: `<strong>${belumAda} sekolah</strong> belum punya pengawas pembina. Klaim atau assign manual via Edit Sekolah.`,
-      action: () => {
-        State.filter.sekolah.klaim = 'none';
-        el('filterKlaim').value = 'none';
-        State.pagination.sekolah = 1;
-        switchTab('sekolah');
-        renderSekolahTable();
-      }
-    });
-  }
-  if (pending > 0) {
-    warnings.push({
-      type: 'warn',
-      icon: 'clock',
-      text: `<strong>${pending} klaim</strong> menunggu konfirmasi KS. Pastikan KS sudah buka aplikasi.`,
-      action: () => {
-        State.filter.sekolah.klaim = 'pending';
-        el('filterKlaim').value = 'pending';
-        State.pagination.sekolah = 1;
-        switchTab('sekolah');
-        renderSekolahTable();
-      }
-    });
-  }
-  if (pengawasKosong > 0) {
-    warnings.push({
-      type: 'warn',
-      icon: 'alert-triangle',
-      text: `<strong>${pengawasKosong} pengawas</strong> belum punya binaan. Assign sekolah atau periksa wilayah.`,
-      action: () => {
-        State.filter.pengawas.onlyEmpty = true;
-        el('filterBelumBinaan').checked = true;
-        switchTab('pengawas');
-        renderPengawasTable();
-      }
-    });
-  }
-  if (warnings.length === 0) {
-    warnings.push({
-      type: 'success',
-      icon: 'check-circle',
-      text: 'Semua data dalam kondisi sehat. Tidak ada peringatan.'
-    });
-  }
+  if (belumAda > 0) warnings.push({ type: 'warn', icon: 'user-x', text: `<strong>${belumAda} sekolah</strong> belum punya pengawas pembina. Klaim atau assign manual via Edit Sekolah.`, action: () => { State.filter.sekolah.klaim = 'none'; el('filterKlaim').value = 'none'; State.pagination.sekolah = 1; switchTab('sekolah'); renderSekolahTable(); } });
+  if (pending > 0) warnings.push({ type: 'warn', icon: 'clock', text: `<strong>${pending} klaim</strong> menunggu konfirmasi KS. Pastikan KS sudah buka aplikasi.`, action: () => { State.filter.sekolah.klaim = 'pending'; el('filterKlaim').value = 'pending'; State.pagination.sekolah = 1; switchTab('sekolah'); renderSekolahTable(); } });
+  if (pengawasKosong > 0) warnings.push({ type: 'warn', icon: 'alert-triangle', text: `<strong>${pengawasKosong} pengawas</strong> belum punya binaan. Assign sekolah atau periksa wilayah.`, action: () => { State.filter.pengawas.onlyEmpty = true; el('filterBelumBinaan').checked = true; switchTab('pengawas'); renderPengawasTable(); } });
+  if (warnings.length === 0) warnings.push({ type: 'success', icon: 'check-circle', text: 'Semua data dalam kondisi sehat. Tidak ada peringatan.' });
 
   el('warningsList').innerHTML = warnings.map((w, i) => `
     <div class="warning-card ${w.type}">
-      <div class="warning-card-icon">
-        <i data-lucide="${w.icon}"></i>
-      </div>
+      <div class="warning-card-icon"><i data-lucide="${w.icon}"></i></div>
       <div class="warning-card-text">${w.text}</div>
       ${w.action ? `<button class="btn btn-secondary btn-sm" data-warn-action="${i}">Lihat <i data-lucide="arrow-right" style="width:12px;height:12px;"></i></button>` : '<div></div>'}
     </div>
@@ -1890,9 +852,6 @@ function renderDashboard() {
   lucide.createIcons();
 }
 
-// ============================================
-// RENDER: SEKOLAH TABLE
-// ============================================
 function renderSekolahTable() {
   const f = State.filter.sekolah;
   let list = State.sekolah.slice();
@@ -1937,7 +896,6 @@ function renderSekolahTable() {
     if (sk.pengawas_status === 'confirmed') klaimBadge = '<span class="badge badge-success"><i data-lucide="check-circle"></i>Terkonfirmasi</span>';
     else if (sk.pengawas_status === 'pending') klaimBadge = '<span class="badge badge-warning"><i data-lucide="clock"></i>Pending</span>';
     else if (sk.pengawas_status === 'rejected') klaimBadge = '<span class="badge badge-danger"><i data-lucide="x-circle"></i>Ditolak</span>';
-    else if (sk.pengawas_nip) klaimBadge = '<span class="badge badge-neutral">—</span>';
 
     const statusBadge = sk.is_active === false
       ? '<span class="badge badge-danger"><i data-lucide="pause-circle"></i>Suspend</span>'
@@ -1945,20 +903,13 @@ function renderSekolahTable() {
 
     return `<tr>
       <td class="mono">${esc(sk.npsn)}</td>
-      <td>
-        <div class="cell-title">${esc(sk.nama_sekolah)}</div>
-      </td>
-      <td>
-        ${pg ? `<div class="cell-title" style="font-weight:500;">${esc(pg.nama_pengawas)}</div><div class="cell-sub">${esc(pg.wilayah || '')}</div>`
-             : '<span style="color:var(--slate-400);font-size:13px;">Belum ada</span>'}
-      </td>
+      <td><div class="cell-title">${esc(sk.nama_sekolah)}</div></td>
+      <td>${pg ? `<div class="cell-title" style="font-weight:500;">${esc(pg.nama_pengawas)}</div><div class="cell-sub">${esc(pg.wilayah || '')}</div>` : '<span style="color:var(--slate-400);font-size:13px;">Belum ada</span>'}</td>
       <td class="cell-center">${klaimBadge}</td>
       <td class="cell-center">${statusBadge}</td>
       <td class="cell-actions">
         <button class="btn-icon" data-edit-sek="${sk.npsn}" title="Edit"><i data-lucide="edit-3"></i></button>
-        <button class="btn-icon ${sk.is_active === false ? '' : 'danger'}" data-toggle-sek="${sk.npsn}" title="${sk.is_active === false ? 'Aktifkan' : 'Suspend'}">
-          <i data-lucide="power"></i>
-        </button>
+        <button class="btn-icon ${sk.is_active === false ? '' : 'danger'}" data-toggle-sek="${sk.npsn}" title="${sk.is_active === false ? 'Aktifkan' : 'Suspend'}"><i data-lucide="power"></i></button>
       </td>
     </tr>`;
   }).join('');
@@ -1968,12 +919,8 @@ function renderSekolahTable() {
       <div class="pagination">
         <span>Halaman <strong>${State.pagination.sekolah}</strong> dari <strong>${totalPages}</strong> · ${list.length} sekolah</span>
         <div class="pagination-buttons">
-          <button class="btn btn-secondary btn-sm" id="prevPageSek" ${State.pagination.sekolah === 1 ? 'disabled' : ''}>
-            <i data-lucide="chevron-left"></i>Prev
-          </button>
-          <button class="btn btn-secondary btn-sm" id="nextPageSek" ${State.pagination.sekolah === totalPages ? 'disabled' : ''}>
-            Next<i data-lucide="chevron-right"></i>
-          </button>
+          <button class="btn btn-secondary btn-sm" id="prevPageSek" ${State.pagination.sekolah === 1 ? 'disabled' : ''}><i data-lucide="chevron-left"></i>Prev</button>
+          <button class="btn btn-secondary btn-sm" id="nextPageSek" ${State.pagination.sekolah === totalPages ? 'disabled' : ''}>Next<i data-lucide="chevron-right"></i></button>
         </div>
       </div>
     `;
@@ -1983,18 +930,11 @@ function renderSekolahTable() {
     el('paginationSekolah').innerHTML = `<div class="pagination"><span>${list.length} sekolah</span><span></span></div>`;
   }
 
-  el('tbodySekolah').querySelectorAll('[data-edit-sek]').forEach(b => {
-    b.onclick = () => openEditSekolah(b.dataset.editSek);
-  });
-  el('tbodySekolah').querySelectorAll('[data-toggle-sek]').forEach(b => {
-    b.onclick = () => toggleSekolahActive(b.dataset.toggleSek);
-  });
+  el('tbodySekolah').querySelectorAll('[data-edit-sek]').forEach(b => { b.onclick = () => openEditSekolah(b.dataset.editSek); });
+  el('tbodySekolah').querySelectorAll('[data-toggle-sek]').forEach(b => { b.onclick = () => toggleSekolahActive(b.dataset.toggleSek); });
   lucide.createIcons();
 }
 
-// ============================================
-// RENDER: PENGAWAS TABLE
-// ============================================
 function renderPengawasTable() {
   const f = State.filter.pengawas;
   let list = State.pengawas.slice();
@@ -2044,36 +984,23 @@ function renderPengawasTable() {
       <td class="cell-center">${aktifBadge}</td>
       <td class="cell-actions">
         <button class="btn-icon" data-edit-pen="${p.nip}" title="Edit"><i data-lucide="edit-3"></i></button>
-        <button class="btn-icon ${p.is_active === false ? '' : 'danger'}" data-toggle-pen="${p.nip}" title="${p.is_active === false ? 'Aktifkan' : 'Suspend'}">
-          <i data-lucide="power"></i>
-        </button>
+        <button class="btn-icon ${p.is_active === false ? '' : 'danger'}" data-toggle-pen="${p.nip}" title="${p.is_active === false ? 'Aktifkan' : 'Suspend'}"><i data-lucide="power"></i></button>
       </td>
     </tr>`;
   }).join('');
 
-  el('tbodyPengawas').querySelectorAll('[data-edit-pen]').forEach(b => {
-    b.onclick = () => openEditPengawas(b.dataset.editPen);
-  });
-  el('tbodyPengawas').querySelectorAll('[data-toggle-pen]').forEach(b => {
-    b.onclick = () => togglePengawasActive(b.dataset.togglePen);
-  });
+  el('tbodyPengawas').querySelectorAll('[data-edit-pen]').forEach(b => { b.onclick = () => openEditPengawas(b.dataset.editPen); });
+  el('tbodyPengawas').querySelectorAll('[data-toggle-pen]').forEach(b => { b.onclick = () => togglePengawasActive(b.dataset.togglePen); });
   lucide.createIcons();
 }
 
-// ============================================
-// FILTER HANDLERS
-// ============================================
 el('searchSekolah').addEventListener('input', e => { State.filter.sekolah.q = e.target.value; State.pagination.sekolah = 1; renderSekolahTable(); });
 el('filterKlaim').addEventListener('change', e => { State.filter.sekolah.klaim = e.target.value; State.pagination.sekolah = 1; renderSekolahTable(); });
 el('filterPengawasSek').addEventListener('change', e => { State.filter.sekolah.pengawas = e.target.value; State.pagination.sekolah = 1; renderSekolahTable(); });
-
 el('searchPengawas').addEventListener('input', e => { State.filter.pengawas.q = e.target.value; renderPengawasTable(); });
 el('sortPengawas').addEventListener('change', e => { State.filter.pengawas.sort = e.target.value; renderPengawasTable(); });
 el('filterBelumBinaan').addEventListener('change', e => { State.filter.pengawas.onlyEmpty = e.target.checked; renderPengawasTable(); });
 
-// ============================================
-// MODAL: EDIT SEKOLAH
-// ============================================
 function openEditSekolah(npsn) {
   const sk = State.sekolah.find(x => x.npsn === npsn);
   if (!sk) return;
@@ -2105,10 +1032,8 @@ function openEditSekolah(npsn) {
       <label class="form-label">Nama Sekolah</label>
       <input type="text" class="form-input" id="editSekNama" value="${esc(sk.nama_sekolah)}">
     </div>
-
     <div class="form-section">
       <div class="form-section-title">Pengawas Pembina</div>
-
       ${sk.pengawas_nip ? `
         <div class="info-box ${sk.pengawas_status === 'confirmed' ? 'success' : 'warning'}" style="margin-bottom:var(--space-4);">
           <i data-lucide="${sk.pengawas_status === 'confirmed' ? 'check-circle' : 'clock'}"></i>
@@ -2123,7 +1048,6 @@ function openEditSekolah(npsn) {
           <div>Belum ada pengawas pembina. Assign manual di bawah atau tunggu PS klaim.</div>
         </div>
       `}
-
       <div class="form-group">
         <label class="form-label">Assign / Ganti Pengawas</label>
         <select class="form-select" id="editSekPengawas">
@@ -2132,31 +1056,20 @@ function openEditSekolah(npsn) {
         </select>
         <div class="form-hint">Pilih pengawas untuk assign manual. Admin override langsung jadi <strong>terkonfirmasi</strong> (bypass KS).</div>
       </div>
-
-      ${sk.pengawas_nip ? `
-        <button class="btn btn-danger btn-sm" id="btnResetKlaim" style="margin-top:var(--space-2);">
-          <i data-lucide="rotate-ccw"></i><span>Reset Klaim Pengawas</span>
-        </button>
-      ` : ''}
+      ${sk.pengawas_nip ? `<button class="btn btn-danger btn-sm" id="btnResetKlaim" style="margin-top:var(--space-2);"><i data-lucide="rotate-ccw"></i><span>Reset Klaim Pengawas</span></button>` : ''}
     </div>
   `;
 
   if (sk.pengawas_nip) {
-    el('btnResetKlaim').onclick = () => {
-      closeModal('modalSekolah');
-      openResetKlaim(sk);
-    };
+    el('btnResetKlaim').onclick = () => { closeModal('modalSekolah'); openResetKlaim(sk); };
   }
-
   openModal('modalSekolah');
 }
 
-// Save sekolah
 el('btnSaveSekolah').onclick = async () => {
   const sk = State.editSekolah;
   if (!sk) return;
-
-  if (sk.isNew) return; // handled separately
+  if (sk.isNew) return;
 
   const newNama = el('editSekNama').value.trim();
   const newAktif = el('editSekAktif').value === 'true';
@@ -2164,7 +1077,6 @@ el('btnSaveSekolah').onclick = async () => {
 
   if (!newNama) return toast('Nama sekolah wajib diisi', 'error');
 
-  // If pengawas changed (from existing to different/none)
   if (sk.pengawas_nip !== newPengawas) {
     const oldPg = State.pengawasByNip[sk.pengawas_nip];
     const newPg = State.pengawasByNip[newPengawas];
@@ -2207,11 +1119,7 @@ function showConfirmAssign(sk, oldPg, newPg, newNama, newAktif) {
 el('btnConfirmAssign').onclick = async () => {
   const { sk, newNama, newAktif, newPg } = State.pendingAssign;
   closeModal('modalConfirmAssign');
-  await saveSekolah(sk, {
-    nama_sekolah: newNama,
-    is_active: newAktif,
-    pengawas_nip: newPg ? newPg.nip : null
-  });
+  await saveSekolah(sk, { nama_sekolah: newNama, is_active: newAktif, pengawas_nip: newPg ? newPg.nip : null });
   State.pendingAssign = null;
 };
 
@@ -2219,8 +1127,7 @@ async function saveSekolah(sk, changes) {
   loading(true);
   try {
     const payload = {
-      ...sk,
-      ...changes,
+      ...sk, ...changes,
       pengawas_status: changes.pengawas_nip ? 'confirmed' : null,
       pengawas_confirmed_at: changes.pengawas_nip ? new Date().toISOString() : null
     };
@@ -2237,9 +1144,6 @@ async function saveSekolah(sk, changes) {
   }
 }
 
-// ============================================
-// MODAL: RESET KLAIM
-// ============================================
 function openResetKlaim(sk) {
   State.resetNpsn = sk.npsn;
   el('resetConfirmInput').value = '';
@@ -2260,12 +1164,7 @@ el('btnDoReset').onclick = async () => {
 
   loading(true);
   try {
-    await Supabase.saveSekolah({
-      ...sk,
-      pengawas_nip: null,
-      pengawas_status: null,
-      pengawas_confirmed_at: null
-    });
+    await Supabase.saveSekolah({ ...sk, pengawas_nip: null, pengawas_status: null, pengawas_confirmed_at: null });
     toast('Klaim pengawas berhasil direset', 'success');
     closeModal('modalReset');
     State.resetNpsn = null;
@@ -2277,15 +1176,11 @@ el('btnDoReset').onclick = async () => {
   }
 };
 
-// ============================================
-// TOGGLE AKTIF
-// ============================================
 async function toggleSekolahActive(npsn) {
   const sk = State.sekolah.find(x => x.npsn === npsn);
   if (!sk) return;
   const newStatus = sk.is_active === false;
   if (!confirm(`${newStatus ? 'Aktifkan' : 'Suspend'} sekolah ${sk.nama_sekolah}?`)) return;
-
   loading(true);
   try {
     await Supabase.toggleSekolah(npsn, newStatus);
@@ -2303,7 +1198,6 @@ async function togglePengawasActive(nip) {
   if (!p) return;
   const newStatus = p.is_active === false;
   if (!confirm(`${newStatus ? 'Aktifkan' : 'Suspend'} pengawas ${p.nama_pengawas}?`)) return;
-
   loading(true);
   try {
     await Supabase.togglePengawas(nip, newStatus);
@@ -2316,9 +1210,6 @@ async function togglePengawasActive(nip) {
   }
 }
 
-// ============================================
-// MODAL: PENGAWAS
-// ============================================
 function openEditPengawas(nip) {
   const p = State.pengawas.find(x => x.nip === nip);
   if (!p) return;
@@ -2355,7 +1246,6 @@ function openEditPengawas(nip) {
 el('btnSavePengawas').onclick = async () => {
   const p = State.editPengawas;
   if (!p) return;
-
   if (p.isNew) return;
 
   const newNama = el('editPenNama').value.trim();
@@ -2366,12 +1256,7 @@ el('btnSavePengawas').onclick = async () => {
 
   loading(true);
   try {
-    await Supabase.savePengawas({
-      nip: p.nip,
-      nama_pengawas: newNama,
-      wilayah: newWilayah,
-      is_active: newAktif
-    });
+    await Supabase.savePengawas({ nip: p.nip, nama_pengawas: newNama, wilayah: newWilayah, is_active: newAktif });
     toast('Data pengawas tersimpan', 'success');
     closeModal('modalPengawas');
     State.editPengawas = null;
@@ -2383,12 +1268,8 @@ el('btnSavePengawas').onclick = async () => {
   }
 };
 
-// ============================================
-// ADD SEKOLAH
-// ============================================
 el('btnAddSekolah').onclick = () => {
   el('modalSekolahTitle').innerHTML = '<i data-lucide="plus-circle"></i><span>Tambah Sekolah</span>';
-
   const pengawasOptions = State.pengawas
     .filter(p => p.is_active !== false)
     .map(p => `<option value="${p.nip}">${esc(p.nama_pengawas)} — ${esc(p.wilayah || '')}</option>`)
@@ -2427,14 +1308,7 @@ el('btnAddSekolah').onclick = () => {
 
     loading(true);
     try {
-      await Supabase.saveSekolah({
-        npsn,
-        nama_sekolah: nama,
-        is_active: true,
-        pengawas_nip: pengawas || null,
-        pengawas_status: pengawas ? 'confirmed' : null,
-        pengawas_confirmed_at: pengawas ? new Date().toISOString() : null
-      });
+      await Supabase.saveSekolah({ npsn, nama_sekolah: nama, is_active: true, pengawas_nip: pengawas || null, pengawas_status: pengawas ? 'confirmed' : null, pengawas_confirmed_at: pengawas ? new Date().toISOString() : null });
       toast('Sekolah ditambahkan', 'success');
       closeModal('modalSekolah');
       State.editSekolah = null;
@@ -2447,9 +1321,6 @@ el('btnAddSekolah').onclick = () => {
   };
 };
 
-// ============================================
-// ADD PENGAWAS
-// ============================================
 el('btnAddPengawas').onclick = () => {
   el('modalPengawasTitle').innerHTML = '<i data-lucide="plus-circle"></i><span>Tambah Pengawas</span>';
 
@@ -2495,13 +1366,257 @@ el('btnAddPengawas').onclick = () => {
   };
 };
 
-// Import CSV placeholders
-el('btnImportSekolah').onclick = () => toast('Fitur Import CSV sekolah — pakai admin lama atau request upgrade terpisah', 'warning');
-el('btnImportPengawas').onclick = () => toast('Fitur Import CSV pengawas — pakai admin lama atau request upgrade terpisah', 'warning');
+/* ============================================
+   IMPORT CSV
+   ============================================ */
+const ImportCSV = {
+  type: null,
+  parsed: [],
 
-// ============================================
-// INIT ICONS
-// ============================================
+  open(type) {
+    this.type = type;
+    this.parsed = [];
+    this.renderUploadStep();
+    openModal('modalImport');
+    lucide.createIcons();
+  },
+
+  renderUploadStep() {
+    const typeLabel = this.type === 'sekolah' ? 'Sekolah' : 'Pengawas';
+    const format = this.type === 'sekolah' ? 'npsn ; nama_sekolah' : 'nip ; nama_pengawas ; wilayah';
+
+    el('modalImportTitle').innerHTML = `<i data-lucide="file-spreadsheet"></i><span>Import CSV — ${typeLabel}</span>`;
+
+    el('modalImportBody').innerHTML = `
+      <div class="info-box info" style="margin-bottom:var(--space-4);">
+        <i data-lucide="info"></i>
+        <div>
+          <strong>Format kolom:</strong> <code style="font-family:var(--font-mono);background:rgba(255,255,255,.5);padding:2px 6px;border-radius:4px;">${format}</code><br>
+          Separator: <strong>titik-koma (;)</strong>, <strong>koma (,)</strong>, atau <strong>Tab</strong>. Duplikat otomatis dilewati.
+        </div>
+      </div>
+
+      <div class="form-section" style="border-top:none;padding-top:0;margin-top:0;">
+        <div class="form-section-title">Langkah 1 — Download Template</div>
+        <button class="btn btn-secondary" id="btnDownloadTemplate">
+          <i data-lucide="download"></i><span>Download Template CSV</span>
+        </button>
+        <div class="form-hint" style="margin-top:var(--space-2);">Buka di Excel/Google Sheets, isi data, lalu Save As → CSV UTF-8.</div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Langkah 2 — Upload File</div>
+        <input type="file" id="importFileInput" accept=".csv,.txt" class="form-input" style="padding:10px;">
+        <div class="form-hint" style="margin-top:var(--space-2);">Pilih file .csv atau .txt (maks 5 MB, maks 1000 baris).</div>
+      </div>
+    `;
+
+    el('modalImportFooter').innerHTML = `
+      <button class="btn btn-secondary" data-close="modalImport">Batal</button>
+      <button class="btn btn-primary" id="btnParseImport">
+        <i data-lucide="chevron-right"></i><span>Preview Data</span>
+      </button>
+    `;
+
+    el('btnDownloadTemplate').onclick = () => this.downloadTemplate();
+    el('btnParseImport').onclick = () => this.parseFile();
+    lucide.createIcons();
+  },
+
+  downloadTemplate() {
+    let content, filename;
+    if (this.type === 'sekolah') {
+      content = '\uFEFF# Template Import Sekolah SISPA\n'
+        + '# Format: npsn ; nama_sekolah\n'
+        + 'npsn;nama_sekolah\n'
+        + '20311457;SD Negeri 1 Pule\n'
+        + '20311458;SD Negeri 2 Pule\n'
+        + '20311459;SD Negeri 3 Pule\n';
+      filename = 'Template_Import_Sekolah.csv';
+    } else {
+      content = '\uFEFF# Template Import Pengawas SISPA\n'
+        + '# Format: nip ; nama_pengawas ; wilayah\n'
+        + 'nip;nama_pengawas;wilayah\n'
+        + '197001012000031001;Dr. Ahmad Suryadi, M.Pd;Kecamatan Pule\n'
+        + '197502022006041002;Dra. Siti Aminah, M.Pd;Kecamatan Pule\n';
+      filename = 'Template_Import_Pengawas.csv';
+    }
+
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Template terunduh', 'success');
+  },
+
+  parseFile() {
+    const file = el('importFileInput').files[0];
+    if (!file) return toast('Pilih file CSV terlebih dahulu', 'error');
+    if (file.size > 5 * 1024 * 1024) return toast('File terlalu besar (maks 5 MB)', 'error');
+    const reader = new FileReader();
+    reader.onload = (e) => this.parseCSV(e.target.result);
+    reader.readAsText(file, 'UTF-8');
+  },
+
+  parseCSV(text) {
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    const lines = text.split(/\r?\n/).filter(l => l.trim() && !l.trim().startsWith('#'));
+    if (lines.length === 0) return toast('File kosong', 'error');
+
+    const sample = lines[0];
+    const sep = sample.includes('\t') ? '\t' : sample.includes(';') ? ';' : ',';
+    const headerLower = sample.toLowerCase();
+    const hasHeader = headerLower.includes('npsn') || headerLower.includes('nip') || headerLower.includes('nama');
+    const startIdx = hasHeader ? 1 : 0;
+
+    const dataLines = lines.slice(startIdx);
+    if (dataLines.length === 0) return toast('Tidak ada data dalam file', 'error');
+    if (dataLines.length > 1000) return toast('Maks 1000 baris per import', 'error');
+
+    const existingKeys = new Set();
+    if (this.type === 'sekolah') State.sekolah.forEach(s => existingKeys.add(s.npsn));
+    else State.pengawas.forEach(p => existingKeys.add(p.nip));
+    const fileKeys = new Set();
+
+    const parsed = dataLines.map((line, idx) => {
+      const cols = this.parseCSVLine(line, sep);
+      let status = 'valid', msg = '';
+      if (this.type === 'sekolah') {
+        const npsn = (cols[0] || '').trim();
+        const nama = (cols[1] || '').trim();
+        if (!npsn || !/^\d{8}$/.test(npsn)) { status = 'error'; msg = 'NPSN harus 8 digit angka'; }
+        else if (!nama) { status = 'error'; msg = 'Nama sekolah wajib diisi'; }
+        else if (existingKeys.has(npsn)) { status = 'dup'; msg = 'NPSN sudah terdaftar di database'; }
+        else if (fileKeys.has(npsn)) { status = 'dup'; msg = 'Duplikat di file ini juga'; }
+        else { fileKeys.add(npsn); }
+        return { lineNum: startIdx + idx + 1, cols: { npsn, nama_sekolah: nama }, status, msg };
+      } else {
+        const nip = (cols[0] || '').trim();
+        const nama = (cols[1] || '').trim();
+        const wilayah = (cols[2] || '').trim();
+        if (!nip) { status = 'error'; msg = 'NIP wajib diisi'; }
+        else if (!nama) { status = 'error'; msg = 'Nama pengawas wajib diisi'; }
+        else if (existingKeys.has(nip)) { status = 'dup'; msg = 'NIP sudah terdaftar di database'; }
+        else if (fileKeys.has(nip)) { status = 'dup'; msg = 'Duplikat di file ini juga'; }
+        else { fileKeys.add(nip); }
+        return { lineNum: startIdx + idx + 1, cols: { nip, nama_pengawas: nama, wilayah }, status, msg };
+      }
+    });
+
+    this.parsed = parsed;
+    this.renderPreviewStep();
+  },
+
+  parseCSVLine(line, sep) {
+    const out = []; let cur = ''; let q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (q && line[i + 1] === '"') { cur += '"'; i++; }
+        else q = !q;
+      } else if (ch === sep && !q) { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur);
+    return out.map(s => s.trim());
+  },
+
+  renderPreviewStep() {
+    const valid = this.parsed.filter(p => p.status === 'valid');
+    const dups = this.parsed.filter(p => p.status === 'dup');
+    const errs = this.parsed.filter(p => p.status === 'error');
+
+    const rowsHtml = this.parsed.map(p => {
+      const icon = p.status === 'valid' ? 'check-circle' : p.status === 'dup' ? 'alert-triangle' : 'x-circle';
+      const color = p.status === 'valid' ? 'var(--success-600)' : p.status === 'dup' ? 'var(--warning-700)' : 'var(--danger-600)';
+      const bg = p.status === 'valid' ? 'var(--success-50)' : p.status === 'dup' ? 'var(--warning-50)' : 'var(--danger-50)';
+      let title, subtitle;
+      if (this.type === 'sekolah') {
+        title = p.cols.nama_sekolah || '(tanpa nama)';
+        subtitle = `NPSN: ${p.cols.npsn || '—'}`;
+      } else {
+        title = p.cols.nama_pengawas || '(tanpa nama)';
+        subtitle = `NIP: ${p.cols.nip || '—'}${p.cols.wilayah ? ' · ' + p.cols.wilayah : ''}`;
+      }
+      return `<div style="padding:10px 14px;border-bottom:1px solid var(--slate-100);display:flex;gap:12px;align-items:flex-start;background:${bg}">
+        <i data-lucide="${icon}" style="width:18px;height:18px;color:${color};flex-shrink:0;margin-top:2px;"></i>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:13px;color:var(--slate-900);">${esc(title)}</div>
+          <div style="font-size:12px;color:var(--slate-600);margin-top:2px;">${esc(subtitle)}</div>
+          ${p.msg ? `<div style="font-size:12px;color:${color};margin-top:4px;font-weight:500;">${esc(p.msg)}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    const summary = `${valid.length} valid · ${dups.length} duplikat · ${errs.length} error`;
+    el('modalImportTitle').innerHTML = `<i data-lucide="file-spreadsheet"></i><span>Preview — ${summary}</span>`;
+
+    el('modalImportBody').innerHTML = `
+      <div style="max-height:50vh;overflow-y:auto;border:1px solid var(--slate-200);border-radius:var(--radius-md);margin-bottom:var(--space-4);">
+        ${rowsHtml || `<div class="empty-state" style="padding:32px;"><div class="empty-state-icon"><i data-lucide="inbox"></i></div><h3>Tidak ada data</h3><p>File kosong atau format tidak sesuai.</p></div>`}
+      </div>
+      <div class="info-box ${valid.length > 0 ? 'success' : 'warning'}">
+        <i data-lucide="${valid.length > 0 ? 'check-circle' : 'alert-triangle'}"></i>
+        <div>
+          <strong>${valid.length}</strong> baris akan diimpor.
+          ${dups.length > 0 ? `<br><strong>${dups.length}</strong> duplikat akan dilewati.` : ''}
+          ${errs.length > 0 ? `<br><strong>${errs.length}</strong> error akan dilewati.` : ''}
+        </div>
+      </div>
+    `;
+
+    el('modalImportFooter').innerHTML = `
+      <button class="btn btn-secondary" id="btnBackImport"><i data-lucide="chevron-left"></i><span>Kembali</span></button>
+      <button class="btn btn-primary" id="btnDoImport" ${valid.length === 0 ? 'disabled' : ''}><i data-lucide="upload"></i><span>Import ${valid.length} Baris</span></button>
+    `;
+
+    el('btnBackImport').onclick = () => this.renderUploadStep();
+    el('btnDoImport').onclick = () => this.doImport(valid);
+    lucide.createIcons();
+  },
+
+  async doImport(valid) {
+    if (valid.length === 0) return;
+    const btn = el('btnDoImport');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" style="animation:spin 1s linear infinite;"></i><span>Mengimpor...</span>';
+    lucide.createIcons();
+    loading(true);
+    let success = 0, fail = 0;
+    try {
+      for (const p of valid) {
+        try {
+          if (this.type === 'sekolah') {
+            await Supabase.saveSekolah({ npsn: p.cols.npsn, nama_sekolah: p.cols.nama_sekolah, is_active: true, pengawas_nip: null, pengawas_status: null });
+          } else {
+            await Supabase.savePengawas({ nip: p.cols.nip, nama_pengawas: p.cols.nama_pengawas, wilayah: p.cols.wilayah || '', is_active: true });
+          }
+          success++;
+        } catch (err) {
+          console.error('Import error line ' + p.lineNum, err);
+          fail++;
+        }
+      }
+      closeModal('modalImport');
+      const msg = `${success} ${this.type} berhasil diimpor${fail > 0 ? `, ${fail} gagal` : ''}`;
+      toast(msg, success > 0 ? 'success' : 'error');
+      await loadData();
+    } catch (err) {
+      toast('Gagal import: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="upload"></i><span>Import</span>';
+      lucide.createIcons();
+    } finally {
+      loading(false);
+    }
+  }
+};
+
+el('btnImportSekolah').onclick = () => ImportCSV.open('sekolah');
+el('btnImportPengawas').onclick = () => ImportCSV.open('pengawas');
+
 lucide.createIcons();
 </script>
 
