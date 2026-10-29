@@ -38,8 +38,8 @@ export const Laporan = {
               <div><label class="label">Jenis</label><select class="select" id="fJenis">
                 <option value="">Semua</option>
                 <option value="3 Tahap" ${this._filters.jenis === '3 Tahap' ? 'selected' : ''}>3 Tahap</option>
-                <option value="Akademik" ${this._filters.jenis === 'Akademik' ? 'selected' : ''}>Akademik</option>
-                <option value="Coaching" ${this._filters.jenis === 'Coaching' ? 'selected' : ''}>Coaching</option>
+                <option value="Akademik" ${this._filters.jenis === 'Akademik' ? 'selected' : ''}>Supervisi Digitalisasi</option>
+                <option value="Coaching" ${this._filters.jenis === 'Coaching' ? 'selected' : ''}>Coaching Digitalisasi</option>
                 <option value="Supervisi PM" ${this._filters.jenis === 'Supervisi PM' ? 'selected' : ''}>Supervisi PM</option>
               </select></div>
               <div><label class="label">Status</label><select class="select" id="fStatus">
@@ -123,6 +123,8 @@ export const Laporan = {
       return;
     }
 
+    const typeLabel = { 'Akademik': 'Supervisi Digitalisasi', 'Coaching': 'Coaching Digitalisasi' };
+
     box.innerHTML = `<table><thead><tr>
       <th>Guru</th>
       <th>Jenis</th>
@@ -138,7 +140,7 @@ export const Laporan = {
       const statusLabel = s.status === 'selesai' ? 'Selesai' : s.status === 'draft' ? 'Draft' : 'Berjalan';
       return `<tr>
         <td style="font-weight:600">${Utils.esc(g?.nama || '?')}</td>
-        <td><span class="badge badge-${badge}">${s.type}</span></td>
+        <td><span class="badge badge-${badge}">${typeLabel[s.type] || s.type}</span></td>
         <td>${Utils.date(s.tgl)}</td>
         <td style="text-align:center"><span class="badge badge-${statusBadge}">${statusLabel}</span></td>
         <td style="text-align:center;font-weight:700">${skor} ${s.max && s.max !== '-' ? `<span style="font-weight:400;color:var(--slate-400);font-size:.75rem">/ ${s.max}</span>` : ''}</td>
@@ -251,10 +253,10 @@ export const Laporan = {
       <h2>Ringkasan</h2>
       <table class="info">
         <tr><td>Total Guru</td><td>:</td><td><strong>${guru.length}</strong></td></tr>
-        <tr><td>Total Sesi Supervisi</td><td>:</td><td><strong>${totalSesi}</strong> (3T: ${supFiltered.length}, PM: ${pmFiltered.length}, Akademik: ${akadFiltered.length}, Coaching: ${coachFiltered.length})</td></tr>
+        <tr><td>Total Sesi Supervisi</td><td>:</td><td><strong>${totalSesi}</strong> (3T: ${supFiltered.length}, PM: ${pmFiltered.length}, Digitalisasi: ${akadFiltered.length}, Coaching: ${coachFiltered.length})</td></tr>
         <tr><td>Coverage (Guru Tersentuh)</td><td>:</td><td><strong>${guruCovered.size}/${guru.length} (${coverage}%)</strong></td></tr>
-        <tr><td>Rata-rata Skor Akademik</td><td>:</td><td>${avgAkad} / 76</td></tr>
-        <tr><td>Rata-rata Skor Coaching</td><td>:</td><td>${avgCoach} / 32</td></tr>
+        <tr><td>Rata-rata Skor Supervisi Digitalisasi</td><td>:</td><td>${avgAkad} / 76</td></tr>
+        <tr><td>Rata-rata Skor Coaching Digitalisasi</td><td>:</td><td>${avgCoach} / 32</td></tr>
         <tr><td>Rata-rata Skor Telaah PM</td><td>:</td><td>${avgPM} / 100</td></tr>
       </table>      </table>
 
@@ -279,15 +281,15 @@ export const Laporan = {
       <h2>Rekap per Guru</h2>
       <table class="ind">
         <thead><tr>
-        <th style="text-align:center;width:30px">#</th>
-        <th>Nama Guru</th>
-        <th>Mapel</th>
-        <th style="text-align:center">Tipe</th>
-        <th style="text-align:center">3T</th>
-        <th style="text-align:center">PM</th>
-        <th style="text-align:center">Akad</th>
-        <th style="text-align:center">Coach</th>
-      </tr></thead>
+          <th style="text-align:center;width:30px">#</th>
+          <th>Nama Guru</th>
+          <th>Mapel</th>
+          <th style="text-align:center">Tipe</th>
+          <th style="text-align:center">3T</th>
+          <th style="text-align:center">PM</th>
+          <th style="text-align:center">Digitalisasi</th>
+          <th style="text-align:center">Coaching</th>
+        </tr></thead>
       <tbody>${guruRows || '<tr><td colspan="8" style="text-align:center">Belum ada data guru</td></tr>'}</tbody>
       </table>
 
