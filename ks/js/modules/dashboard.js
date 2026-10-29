@@ -141,8 +141,8 @@ const papanSupervisi = () => {
     <div class="card-body">
       ${row('supervisi', 'Supervisi 3 Tahap', supGuru.size)}
       ${row('supervisi_pm', 'Supervisi PM', pmGuru.size)}
-      ${row('akademik', 'Observasi Akademik', akadGuru.size)}
-      ${row('coaching', 'Observasi Coaching', coachGuru.size)}
+      ${row('akademik', 'Supervisi Digitalisasi', akadGuru.size)}
+      ${row('coaching', 'Coaching Digitalisasi', coachGuru.size)}
       ${belumSamaSekali > 0 ? `
         <div style="margin-top:.75rem;padding:.75rem;background:#fef3c7;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:.5rem;color:#92400e;font-size:.85rem">
