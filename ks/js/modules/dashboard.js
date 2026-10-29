@@ -104,6 +104,7 @@ const papanSupervisi = () => {
   const sup = Store.get('supervisi');
   const akad = Store.get('akademik');
   const coach = Store.get('coaching');
+  const pm = Store.get('supervisiPM') || [];
   const total = guru.length;
 
   if (total === 0) return '';
@@ -111,7 +112,8 @@ const papanSupervisi = () => {
   const supGuru = new Set(sup.map(s => s.gid));
   const akadGuru = new Set(akad.map(s => s.gid));
   const coachGuru = new Set(coach.map(s => s.gid));
-  const combined = new Set([...supGuru, ...akadGuru, ...coachGuru]);
+  const pmGuru = new Set(pm.map(s => s.gid));
+  const combined = new Set([...supGuru, ...akadGuru, ...coachGuru, ...pmGuru]);
   const belumSamaSekali = guru.filter(g => !combined.has(g.id)).length;
 
   const pct = (n) => Math.round((n / total) * 100);
@@ -138,6 +140,7 @@ const papanSupervisi = () => {
     </div>
     <div class="card-body">
       ${row('supervisi', 'Supervisi 3 Tahap', supGuru.size)}
+      ${row('supervisi_pm', 'Supervisi PM', pmGuru.size)}
       ${row('akademik', 'Observasi Akademik', akadGuru.size)}
       ${row('coaching', 'Observasi Coaching', coachGuru.size)}
       ${belumSamaSekali > 0 ? `
@@ -323,7 +326,8 @@ export const Dashboard = {
       const sup = Store.get('supervisi');
       const akad = Store.get('akademik');
       const coach = Store.get('coaching');
-      const combined = new Set([...sup.map(s => s.gid), ...akad.map(s => s.gid), ...coach.map(s => s.gid)]);
+      const pm = Store.get('supervisiPM') || [];
+      const combined = new Set([...sup.map(s => s.gid), ...akad.map(s => s.gid), ...coach.map(s => s.gid), ...pm.map(s => s.gid)]);
       const belum = guru.filter(g => !combined.has(g.id));
 
       Utils.modal(`${belum.length} Guru Belum Disupervisi`, `
