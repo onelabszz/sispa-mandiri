@@ -47,6 +47,8 @@ export const SupervisiPM = {
   _persist() {
     if (!_cur) return;
     _cur.updated_at = new Date().toISOString();
+    // Auto-fill npsn untuk backward-compat record lama
+    if (!_cur.npsn) _cur.npsn = Store.config().npsn || '';
     const list = Store.get('supervisiPM') || [];
     const idx = list.findIndex(x => x.id === _cur.id);
     if (idx !== -1) list[idx] = _cur; else list.push(_cur);
@@ -155,7 +157,9 @@ export const SupervisiPM = {
 
       const now = new Date().toISOString();
       const rec = {
-        id: Utils.uid(), gid, tgl, step: 1, status: 'draft',
+        id: Utils.uid(), gid, tgl,
+        npsn: Store.config().npsn || '',
+        step: 1, status: 'draft',
         telaah: { meta: { jenjang:'', mapel:'', kelas:'', judul_rpp:'' }, skor:{}, komentar:{}, kualitatif:{}, total:0, nilai:0 },
         obs: { meta: { hari_tanggal:tgl, satuan_pendidikan:'', nama_guru:'', kelas_semester:'', mapel:'', pemberi_umpan_balik:'' }, bukti:{}, catatan:{} },
         refleksi: {},
