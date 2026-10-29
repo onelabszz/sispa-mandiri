@@ -41,9 +41,6 @@ const App = {
       }
 
       // (b) Stale session guard — INI FIX UTAMA
-      // Jika Store sudah punya nip_pengawas lain, JANGAN auto-login.
-      // Force logout → login screen → user ketik NIP →
-      // _showConflictModal (yang sudah ada) akan trigger.
       if (cfg.nip_pengawas && cfg.nip_pengawas !== session.nip) {
         console.warn(
           '[PS Init] Stale session detected. Session:', session.nip,
@@ -54,8 +51,7 @@ const App = {
         return;
       }
 
-      // (c) Sync config — aman, karena (b) sudah memastikan tidak ada mismatch
-      //     (akan jadi no-op kalau cfg.nip_pengawas === session.nip)
+      // (c) Sync config
       Store.setConfig({
         ...cfg,
         nip_pengawas: session.nip,
@@ -63,7 +59,7 @@ const App = {
         wilayah: session.wilayah
       });
 
-      // (d) PIN check — pakai config terbaru (cfg2)
+      // (d) PIN check
       const cfg2 = Store.config();
       if (cfg2.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
         PinLock.show(cfg2, 'PS', () => this.boot());
@@ -125,7 +121,7 @@ const App = {
                 <div style="font-size:.62rem;color:#a5b4fc;line-height:1.2">© ${new Date().getFullYear()} SISPA Pengawas</div>
               </div>
             </div>
-            <span class="version-pill">v2.0.0</span>
+            <span class="version-pill">v2.1.0</span>
           </div>
         </div>
       </aside>
@@ -185,25 +181,19 @@ const App = {
           return Utils.toast('Akun pengawas ini dinonaktifkan (Suspend). Hubungi Admin.', 'error');
         }
 
-        // ============================================
-        // CEK: Apakah device ini sudah punya data pengawas LAIN?
-        // ============================================
         const cfg = Store.config();
         const hasDifferentPengawas = cfg.nip_pengawas && cfg.nip_pengawas !== data.nip;
         const hasExistingData = (Store.get('sekolah') || []).length > 0
-          || (Store.get('evaluasi') || []).length > 0;
+          || (Store.get('evaluasi') || []).length > 0
+          || (Store.get('supervisiPM') || []).length > 0;
 
         if (hasDifferentPengawas && hasExistingData) {
-          // Tampilkan modal blocker — JANGAN login dulu
           btn.disabled = false;
           btn.innerHTML = originalHtml;
           this._showConflictModal(cfg, data);
           return;
         }
 
-        // ============================================
-        // Login normal (tidak ada konflik data)
-        // ============================================
         Auth.saveSession({
           role: 'PS',
           nip: data.nip,
@@ -308,6 +298,7 @@ const App = {
   _showConflictModal(oldCfg, newPengawasData) {
     const sekolahCount = (Store.get('sekolah') || []).length;
     const evaluasiCount = (Store.get('evaluasi') || []).length;
+    const pmCount = (Store.get('supervisiPM') || []).length;
 
     Utils.modal('⚠️ Perangkat Sudah Punya Data', `
       <div style="padding:1rem;background:#fee2e2;border:1px solid #fecaca;border-radius:10px;margin-bottom:1rem">
@@ -330,7 +321,7 @@ const App = {
           <div style="font-weight:700;color:#991b1b;font-size:.9rem">${Utils.esc(oldCfg.nama_pengawas || '—')}</div>
           <div style="font-size:.75rem;color:#7f1d1d;margin-top:.15rem;font-family:monospace">NIP ${Utils.esc(oldCfg.nip_pengawas || '—')}</div>
           <div style="font-size:.75rem;color:#991b1b;margin-top:.35rem">
-            ${sekolahCount} sekolah binaan · ${evaluasiCount} evaluasi
+            ${sekolahCount} sekolah binaan · ${evaluasiCount} evaluasi${pmCount > 0 ? ` · ${pmCount} sesi PM` : ''}
           </div>
         </div>
         <div style="padding:.85rem;background:var(--brand-50);border-radius:8px;border:1px solid var(--brand-500)">
@@ -380,7 +371,7 @@ const App = {
     Utils.el('btnConflictForce').onclick = () => {
       Utils.confirm(
         'Yakin Timpa Data?',
-        `Semua data ${oldCfg.nama_pengawas} (${sekolahCount} sekolah, ${evaluasiCount} evaluasi) akan dihapus permanen.`,
+        `Semua data ${oldCfg.nama_pengawas} (${sekolahCount} sekolah, ${evaluasiCount} evaluasi${pmCount > 0 ? `, ${pmCount} sesi PM` : ''}) akan dihapus permanen.`,
         () => this._wipeAndLogin(newPengawasData)
       );
     };
