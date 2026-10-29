@@ -596,5 +596,6 @@ tbody tr { transition: background var(--t-fast); }
   color: var(--brand-600);
   border-bottom-color: var(--brand-600);
 }
+
 /* ============ SUPERVISI PM ============ */
 .skor-pm.active[data-v="0"] { background: var(--slate-500); border-color: var(--slate-500); color: #fff; }
