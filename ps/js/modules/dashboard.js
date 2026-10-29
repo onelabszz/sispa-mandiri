@@ -16,15 +16,20 @@ export const Dashboard = {
     const totalGuru = guru.length;
     const totalSesi = sesi.length;
 
-    // Filter: hanya confirmed + semua yang sudah ada data
+    // Breakdown per jenis (untuk sub-text di Total Sesi card)
+    const total3T = sekolah.reduce((s, sk) => s + (sk.supervisi || []).length, 0);
+    const totalPM = sekolah.reduce((s, sk) => s + (sk.supervisiPM || []).length, 0);
+    const totalAkad = sekolah.reduce((s, sk) => s + (sk.akademik || []).length, 0);
+    const totalCoach = sekolah.reduce((s, sk) => s + (sk.coaching || []).length, 0);
+
     const confirmed = sekolah.filter(sk => sk.pengawas_status === 'confirmed');
     const pending = sekolah.filter(sk => sk.pengawas_status === 'pending');
-    const noStatus = sekolah.filter(sk => !sk.pengawas_status);
-    
-    // Sekolah confirmed yang belum ada data (guru = 0 & sesi = 0)
+
+    // Belum ada data — include PM
     const belumAdaData = confirmed.filter(sk => 
       (sk.guru || []).length === 0 
       && (sk.supervisi || []).length === 0
+      && (sk.supervisiPM || []).length === 0
       && (sk.akademik || []).length === 0
       && (sk.coaching || []).length === 0
     );
@@ -33,9 +38,13 @@ export const Dashboard = {
     guru.forEach(g => { if (g.tipe && tipeDist[g.tipe] !== undefined) tipeDist[g.tipe]++; });
     const sudahDinilai = guru.filter(g => g.tipe).length;
 
+    // Per sekolah — include PM
     const perSekolah = sekolah.map(sk => ({
       id: sk.id, nama: sk.nama_sekolah,
-      sesi: (sk.supervisi || []).length + (sk.akademik || []).length + (sk.coaching || []).length
+      sesi: (sk.supervisi || []).length
+          + (sk.supervisiPM || []).length
+          + (sk.akademik || []).length
+          + (sk.coaching || []).length
     })).sort((a, b) => b.sesi - a.sesi);
     const maxSesi = Math.max(...perSekolah.map(x => x.sesi), 1);
 
@@ -79,7 +88,19 @@ export const Dashboard = {
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1e40af">${Icons.svg('clipboard-list', 22)}</div>
-          <div><div style="font-size:.75rem;color:var(--slate-500)">Total Sesi</div><div style="font-size:1.5rem;font-weight:700">${totalSesi}</div></div>
+          <div>
+            <div style="font-size:.75rem;color:var(--slate-500)">Total Sesi</div>
+            <div style="font-size:1.5rem;font-weight:700">${totalSesi}</div>
+            <div style="font-size:.65rem;color:var(--slate-500);margin-top:.2rem">3T: ${total3T} · PM: ${totalPM} · Akad: ${totalAkad} · Coach: ${totalCoach}</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8);color:#9d174d">${Icons.svg('book-open-check', 22)}</div>
+          <div>
+            <div style="font-size:.75rem;color:var(--slate-500)">Supervisi PM</div>
+            <div style="font-size:1.5rem;font-weight:700">${totalPM}</div>
+            <div style="font-size:.65rem;color:var(--slate-500);margin-top:.2rem">Telaah RPP + Obs + Refleksi</div>
+          </div>
         </div>
       </div>
 
@@ -169,7 +190,10 @@ export const Dashboard = {
           <div class="card-body" style="padding:0">
             ${recent.map(x => {
               const g = guruBySekolah(x._skId, x.gid);
-              const badge = x._jenis === 'Akademik' ? 'info' : x._jenis === 'Coaching' ? 'warning' : 'neutral';
+              const badge = x._jenis === 'Akademik' ? 'info'
+                : x._jenis === 'Coaching' ? 'warning'
+                : x._jenis === 'Supervisi PM' ? 'success'
+                : 'neutral';
               return `<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.7rem 1.25rem;border-bottom:1px solid var(--slate-100);font-size:.85rem">
                 <div style="min-width:0;flex:1">
                   <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(g?.nama || '?')}</div>
@@ -200,9 +224,6 @@ export const Dashboard = {
     </div>`;
   },
 
-  // ============================================
-  // SYNC DABIN — pull dari Supabase ke lokal
-  // ============================================
   async syncDabin(silent = false) {
     const myNip = Store.config().nip_pengawas;
     if (!myNip) return;
@@ -220,7 +241,6 @@ export const Dashboard = {
       const local = Store.get('sekolah');
       const localNpsns = new Set(local.map(s => s.npsn));
       
-      // 1. Pull sekolah baru dari Supabase (admin assign / klaim PS lain)
       const missing = mySchools.filter(s => !localNpsns.has(s.npsn));
       let added = 0;
       const newSk = missing.map(s => {
@@ -233,11 +253,10 @@ export const Dashboard = {
           pengawas_status: s.pengawas_status || 'pending',
           imported_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          guru: [], program: [], supervisi: [], akademik: [], coaching: []
+          guru: [], program: [], supervisi: [], supervisiPM: [], akademik: [], coaching: []
         };
       });
       
-      // 2. Update status klaim untuk sekolah existing
       let updated = 0;
       local.forEach(sk => {
         const remote = mySchools.find(s => s.npsn === sk.npsn);
@@ -247,9 +266,6 @@ export const Dashboard = {
         }
       });
       
-      // 3. Hapus sekolah lokal yang sudah di-unclaim (tidak ada di remote)
-      //    (optional, karena mungkin PS simpan data untuk arsip)
-      // Kalau di-unclaim, lebih baik tetap simpan data tapi status null
       const unclaimed = local.filter(sk => 
         sk.pengawas_status && !mySchools.find(s => s.npsn === sk.npsn)
       );
@@ -258,12 +274,10 @@ export const Dashboard = {
         updated++;
       });
       
-      // Save
       if (added > 0 || updated > 0) {
         await Store.set('sekolah', [...local, ...newSk]);
       }
       
-      // Update _pendingKlaimData
       this._pendingKlaimData = mySchools
         .filter(s => s.pengawas_status === 'pending')
         .map(s => ({ npsn: s.npsn, nama_sekolah: s.nama_sekolah, pengawas_status: 'pending' }));
@@ -275,7 +289,6 @@ export const Dashboard = {
         Utils.toast(msg.length ? `Sync berhasil: ${msg.join(', ')}` : 'Semua data sudah sinkron', 'success');
         Router.navigate('dashboard');
       } else {
-        // Silent sync — reload view kalau ada perubahan
         if (added > 0 || updated > 0) {
           Router.navigate('dashboard');
         }
@@ -289,11 +302,9 @@ export const Dashboard = {
   },
 
   async bind() {
-    // Sync button
     Utils.el('btnSync')?.addEventListener('click', () => this.syncDabin());
     Utils.el('btnEmptySync')?.addEventListener('click', () => this.syncDabin());
     
-    // Import
     const goImport = async () => {
       const { Sekolah } = await import('./sekolah.js');
       Sekolah.startImportJSON();
@@ -301,21 +312,18 @@ export const Dashboard = {
     Utils.el('btnImport')?.addEventListener('click', goImport);
     Utils.el('btnEmptyImport')?.addEventListener('click', goImport);
 
-    // Pending → filter ke sekolah
     Utils.el('btnLihatPending')?.addEventListener('click', async () => {
       const { Sekolah } = await import('./sekolah.js');
       if (Sekolah._setFilter) Sekolah._setFilter('pending');
       Router.navigate('sekolah');
     });
 
-    // Belum ada data → filter ke sekolah
     Utils.el('btnLihatBelumData')?.addEventListener('click', async () => {
       const { Sekolah } = await import('./sekolah.js');
       if (Sekolah._setFilter) Sekolah._setFilter('nodata');
       Router.navigate('sekolah');
     });
 
-    // Auto-sync silent saat buka dashboard (background)
     setTimeout(() => this.syncDabin(true), 500);
   }
 };
