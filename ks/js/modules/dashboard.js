@@ -298,8 +298,9 @@ export const Dashboard = {
         const { Store } = await import('../../storage.js');
         const { Utils } = await import('../../../shared/js/utils.js');
         const data = Store.load();
-        data.version = '2.0.0';
+        data.version = '2.1.0';
         data.app = 'sispa-standalone';
+        data.schema_flags = { supervisiPM: true };
         data.exported_at = new Date().toISOString();
         Utils.downloadJSON(data, `SISPA_Backup_${new Date().toISOString().slice(0, 10)}.json`);
         localStorage.setItem('sispa_last_export', new Date().toISOString());
