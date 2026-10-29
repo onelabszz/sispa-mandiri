@@ -146,7 +146,7 @@ export const Analisis = {
       <div class="page-head">
         <div>
           <h2>Analisis PM & KKA</h2>
-          <div class="page-sub">Data dari ${sup.length} supervisi 3 tahap + ${pm.length} Supervisi PM + ${akad.length} obs akademik</div>
+          <div class="page-sub">Data dari ${sup.length} supervisi 3 tahap + ${pm.length} Supervisi PM + ${akad.length} Supervisi Digitalisasi</div>
         </div>
       </div>
 
