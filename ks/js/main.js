@@ -13,6 +13,7 @@ import { Guru } from './modules/guru.js';
 import { Profil } from './modules/profil.js';
 import { Program } from './modules/program.js';
 import { Supervisi } from './modules/supervisi.js';
+import { SupervisiPM } from './modules/supervisi-pm.js';
 import { Akademik } from './modules/akademik.js';
 import { Coaching } from './modules/coaching.js';
 import { Analisis } from './modules/analisis.js';
@@ -350,6 +351,7 @@ const App = {
     Router.register('profil', Profil);
     Router.register('program', Program);
     Router.register('supervisi', Supervisi);
+    Router.register('supervisi_pm', SupervisiPM);
     Router.register('akademik', Akademik);
     Router.register('coaching', Coaching);
     Router.register('analisis', Analisis);
