@@ -2,7 +2,7 @@ import { Store } from '../../storage.js';
 import { Icons } from '../../../shared/js/icons.js';
 import { Router } from '../../../shared/js/router.js';
 import { Utils } from '../../../shared/js/utils.js';
-import { emptyState, metricsSekolah } from '../helpers.js';
+import { emptyState, metricsSekolah, allGuru } from '../helpers.js';
 import { DPL_LABELS, INSTRUMEN_AKADEMIK, INSTRUMEN_COACHING } from '../../../shared/js/constants.js';
 
 export const Analisis = {
@@ -18,6 +18,7 @@ export const Analisis = {
 
     const tabContent = this._tab === 'akademik' ? this._renderAkademik(sekolah)
       : this._tab === 'coaching' ? this._renderCoaching(sekolah)
+      : this._tab === 'pm' ? this._renderPM(sekolah)
       : this._renderOverview(sekolah);
 
     return `
@@ -30,6 +31,7 @@ export const Analisis = {
 
       <div class="tab-nav">
         <button class="tab-btn ${this._tab === 'overview' ? 'active' : ''}" data-tab="overview">${Icons.svg('bar-chart-3', 16)} Overview</button>
+        <button class="tab-btn ${this._tab === 'pm' ? 'active' : ''}" data-tab="pm">${Icons.svg('book-open-check', 16)} Supervisi PM</button>
         <button class="tab-btn ${this._tab === 'akademik' ? 'active' : ''}" data-tab="akademik">${Icons.svg('laptop', 16)} Obs. Akademik</button>
         <button class="tab-btn ${this._tab === 'coaching' ? 'active' : ''}" data-tab="coaching">${Icons.svg('message-circle', 16)} Obs. Coaching</button>
       </div>
@@ -49,9 +51,10 @@ export const Analisis = {
 
   _renderOverview(sekolah) {
     const allSup3 = sekolah.flatMap(sk => sk.supervisi || []);
+    const allPM = sekolah.flatMap(sk => sk.supervisiPM || []);
     const allAkad = sekolah.flatMap(sk => sk.akademik || []);
     const allCoach = sekolah.flatMap(sk => sk.coaching || []);
-    const allSesi = [...allSup3, ...allAkad, ...allCoach];
+    const allSesi = [...allSup3, ...allPM, ...allAkad, ...allCoach];
     const totalSesi = allSesi.length;
 
     // KPI
@@ -59,6 +62,9 @@ export const Analisis = {
     const pctKKA = allSup3.length > 0 ? Math.round(denganKKA / allSup3.length * 100) : 0;
     const avgAkad = allAkad.length > 0 ? (allAkad.reduce((s, x) => s + (x.skor || 0), 0) / allAkad.length).toFixed(1) : '—';
     const avgCoach = allCoach.length > 0 ? (allCoach.reduce((s, x) => s + (x.skor || 0), 0) / allCoach.length).toFixed(1) : '—';
+    const avgPM = allPM.length > 0
+      ? Math.round(allPM.reduce((sum, s) => sum + ((s.telaah && s.telaah.nilai) || 0), 0) / allPM.length)
+      : 0;
 
     // Prinsip & Pengalaman
     const pC = { berkesadaran: 0, bermakna: 0, menggembirakan: 0 };
@@ -71,7 +77,7 @@ export const Analisis = {
     const maxG = Math.max(...Object.values(gC), 1);
     const maxD = Math.max(...dC, 1);
 
-    // Trend per bulan (12 bulan terakhir)
+    // Trend per bulan
     const bulanLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
     const currentYear = new Date().getFullYear();
     const trendData = Array(12).fill(0);
@@ -87,7 +93,7 @@ export const Analisis = {
       return `${x},${y}`;
     }).join(' ');
 
-    // Insight otomatis
+    // Insight
     const insights = [];
     if (allSup3.length > 0) {
       const prinsipMax = Object.keys(pC).reduce((a, b) => pC[a] > pC[b] ? a : b);
@@ -99,7 +105,16 @@ export const Analisis = {
       if (pctKKA < 30) insights.push({ type: 'info', text: `Integrasi KKA baru <strong>${pctKKA}%</strong>. Target ideal >50% sesuai Modul 5.` });
       else if (pctKKA >= 50) insights.push({ type: 'success', text: `Integrasi KKA baik: <strong>${pctKKA}%</strong> sesi 3T menyertakan Koding/AI.` });
     }
-    // Insight sekolah dengan coverage terendah
+    if (allPM.length > 0) {
+      const pmCovered = new Set(allPM.map(s => `${s._skId || ''}:${s.gid}`)).size;
+      const totalGuruAll = allGuru().length;
+      const pmCov = totalGuruAll > 0 ? Math.round(pmCovered / totalGuruAll * 100) : 0;
+      if (pmCov >= 80) insights.push({ type: 'success', text: `Coverage Supervisi PM lintas sekolah: <strong>${pmCov}%</strong> (${pmCovered}/${totalGuruAll} guru).` });
+      else if (pmCov >= 40) insights.push({ type: 'info', text: `Coverage Supervisi PM lintas sekolah baru <strong>${pmCov}%</strong>. Tingkatkan pemerataan.` });
+      else insights.push({ type: 'warning', text: `Coverage Supervisi PM rendah (<strong>${pmCov}%</strong>). Prioritaskan guru yang belum tersentuh PM.` });
+      if (avgPM >= 75) insights.push({ type: 'success', text: `Rata-rata skor Telaah RPP PM <strong>${avgPM}/100</strong> — kualitas perencanaan tinggi.` });
+      else if (avgPM > 0 && avgPM < 60) insights.push({ type: 'warning', text: `Rata-rata Telaah RPP PM <strong>${avgPM}/100</strong>. Perlu pembinaan kualitas perencanaan.` });
+    }
     const skMetrics = sekolah.map(sk => ({ sk, m: metricsSekolah(sk) }));
     const lowestCoverage = skMetrics.reduce((min, x) => x.m.coverage < min.m.coverage ? x : min, skMetrics[0]);
     if (lowestCoverage && lowestCoverage.m.coverage < 50) {
@@ -107,7 +122,6 @@ export const Analisis = {
     }
 
     return `
-      <!-- KPI Cards -->
       <div class="grid-auto" style="margin-bottom:1.5rem">
         <div class="stat-card">
           <div class="stat-icon" style="background:#e0e7ff;color:#4338ca">${Icons.svg('clipboard-list', 22)}</div>
@@ -122,12 +136,15 @@ export const Analisis = {
           <div><div style="font-size:.75rem;color:var(--slate-500)">Avg Coaching</div><div style="font-size:1.5rem;font-weight:700">${avgCoach}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/32</span></div></div>
         </div>
         <div class="stat-card">
+          <div class="stat-icon" style="background:#fce7f3;color:#9d174d">${Icons.svg('book-open-check', 22)}</div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Avg Telaah PM</div><div style="font-size:1.5rem;font-weight:700">${avgPM}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/100</span></div></div>
+        </div>
+        <div class="stat-card">
           <div class="stat-icon" style="background:#dbeafe;color:#1e40af">${Icons.svg('code', 22)}</div>
           <div><div style="font-size:.75rem;color:var(--slate-500)">Integrasi KKA</div><div style="font-size:1.5rem;font-weight:700">${pctKKA}%</div></div>
         </div>
       </div>
 
-      <!-- Trend Chart -->
       <div class="card" style="margin-bottom:1.5rem">
         <div class="card-header">${Icons.svg('trending-up', 18)} Tren Supervisi ${currentYear}</div>
         <div class="card-body">
@@ -151,7 +168,6 @@ export const Analisis = {
         </div>
       </div>
 
-      <!-- Insight -->
       ${insights.length > 0 ? `
         <div class="card" style="margin-bottom:1.5rem">
           <div class="card-header">${Icons.svg('info', 18)} Insight & Rekomendasi</div>
@@ -219,6 +235,129 @@ export const Analisis = {
               <div style="width:30px;font-size:.75rem;font-weight:600;text-align:right">${dC[i]}</div>
             </div>
           `).join('')}
+        </div>
+      </div>
+    `;
+  },
+
+  // ============================================
+  // TAB: SUPERVISI PM
+  // ============================================
+  _renderPM(sekolah) {
+    const allPM = sekolah.flatMap(sk => (sk.supervisiPM || []).map(s => ({ ...s, _skId: sk.id, _skNama: sk.nama_sekolah })));
+    if (allPM.length === 0) {
+      return `<div class="card"><div class="card-body">${emptyState('book-open-check', 'Belum ada data PM', 'Belum ada Supervisi PM yang diimpor dari KS. Pastikan KS sudah update ke v2.1.0 dan buat sesi Supervisi PM.')}</div></div>`;
+    }
+
+    const pmFinal = allPM.filter(s => s.status === 'selesai');
+    const avgTelaah = allPM.length > 0
+      ? Math.round(allPM.reduce((sum, s) => sum + ((s.telaah && s.telaah.nilai) || 0), 0) / allPM.length)
+      : 0;
+
+    const obsFilled = allPM.reduce((sum, s) =>
+      sum + Object.values((s.obs && s.obs.bukti) || {}).filter(v => v && String(v).trim()).length, 0);
+    const obsTotal = allPM.length * 15;
+    const fillRate = obsTotal > 0 ? Math.round(obsFilled / obsTotal * 100) : 0;
+
+    // Coverage PM lintas sekolah (guru unik)
+    const pmGuruKeys = new Set(allPM.map(s => `${s._skId}:${s.gid}`));
+    const totalGuruAll = allGuru().length;
+    const pmCoverage = totalGuruAll > 0 ? Math.round(pmGuruKeys.size / totalGuruAll * 100) : 0;
+
+    // Per sekolah breakdown
+    const perSk = sekolah.map(sk => {
+      const pmSk = sk.supervisiPM || [];
+      const totalGuruSk = (sk.guru || []).length;
+      const gidsWithPM = new Set(pmSk.map(s => s.gid));
+      const covered = (sk.guru || []).filter(g => gidsWithPM.has(g.id)).length;
+      const cov = totalGuruSk > 0 ? Math.round(covered / totalGuruSk * 100) : 0;
+      const avgNilaiSk = pmSk.length > 0
+        ? Math.round(pmSk.reduce((sum, s) => sum + ((s.telaah && s.telaah.nilai) || 0), 0) / pmSk.length)
+        : 0;
+      const finalSk = pmSk.filter(s => s.status === 'selesai').length;
+      return { sk, total: pmSk.length, final: finalSk, covered, cov, totalGuru: totalGuruSk, avgNilai: avgNilaiSk };
+    }).filter(x => x.total > 0 || x.totalGuru > 0).sort((a, b) => b.total - a.total);
+
+    return `
+      <div class="grid-auto" style="margin-bottom:1.5rem">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fce7f3;color:#9d174d">${Icons.svg('book-open-check', 22)}</div>
+          <div>
+            <div style="font-size:.75rem;color:var(--slate-500)">Total PM</div>
+            <div style="font-size:1.5rem;font-weight:700">${allPM.length}</div>
+            <div style="font-size:.7rem;color:var(--slate-500);margin-top:.15rem">${pmFinal.length} selesai</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e0e7ff;color:#4338ca">${Icons.svg('award', 22)}</div>
+          <div>
+            <div style="font-size:.75rem;color:var(--slate-500)">Avg Telaah</div>
+            <div style="font-size:1.5rem;font-weight:700">${avgTelaah}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/100</span></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dcfce7;color:#166534">${Icons.svg('percent', 22)}</div>
+          <div>
+            <div style="font-size:.75rem;color:var(--slate-500)">Coverage PM</div>
+            <div style="font-size:1.5rem;font-weight:700">${pmCoverage}%</div>
+            <div style="font-size:.7rem;color:var(--slate-500);margin-top:.15rem">${pmGuruKeys.size}/${totalGuruAll} guru</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dbeafe;color:#1e40af">${Icons.svg('eye', 22)}</div>
+          <div>
+            <div style="font-size:.75rem;color:var(--slate-500)">Bukti Obs Terisi</div>
+            <div style="font-size:1.5rem;font-weight:700">${fillRate}%</div>
+            <div style="font-size:.7rem;color:var(--slate-500);margin-top:.15rem">${obsFilled}/${obsTotal} item</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header">${Icons.svg('percent', 18)} Coverage PM per Sekolah</div>
+        <div class="card-body">
+          ${perSk.map(x => {
+            const color = x.cov >= 80 ? 'var(--success)' : x.cov >= 50 ? 'var(--warning)' : 'var(--danger)';
+            return `<div style="margin-bottom:.75rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;font-size:.85rem">
+                <div style="font-weight:600;color:var(--slate-800)">${Utils.esc(x.sk.nama_sekolah)}</div>
+                <div style="font-size:.75rem;color:var(--slate-500)">
+                  <strong>${x.total}</strong> sesi (${x.final} final) ·
+                  <span style="color:${color};font-weight:600">${x.covered}/${x.totalGuru} guru (${x.cov}%)</span>
+                  ${x.avgNilai > 0 ? ` · avg <strong>${x.avgNilai}</strong>` : ''}
+                </div>
+              </div>
+              <div style="height:8px;background:var(--slate-100);border-radius:999px;overflow:hidden">
+                <div style="height:100%;width:${x.cov}%;background:${color};border-radius:999px;transition:width .3s"></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">${Icons.svg('list', 18)} Daftar Sesi PM Terbaru</div>
+        <div class="card-body" style="padding:0">
+          ${allPM
+            .sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''))
+            .slice(0, 20)
+            .map(s => {
+              const nilai = (s.telaah && s.telaah.nilai) || 0;
+              const status = s.status === 'selesai'
+                ? '<span class="badge badge-success" style="font-size:.65rem">Selesai</span>'
+                : '<span class="badge badge-warning" style="font-size:.65rem">Draft</span>';
+              const g = (Store.get('sekolah').find(x => x.id === s._skId)?.guru || []).find(x => x.id === s.gid);
+              return `<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--slate-100);font-size:.85rem">
+                <div style="min-width:0;flex:1">
+                  <div style="font-weight:600">${Utils.esc(g?.nama || '?')} ${status}</div>
+                  <div style="font-size:.75rem;color:var(--slate-500);margin-top:.1rem">${Utils.esc(s._skNama)} · ${Utils.date(s.tgl)}</div>
+                </div>
+                <div style="text-align:right;white-space:nowrap">
+                  <div style="font-weight:700;color:var(--brand-700)">${nilai}<span style="color:var(--slate-400);font-weight:400;font-size:.7rem">/100</span></div>
+                  <div style="font-size:.65rem;color:var(--slate-500)">Telaah</div>
+                </div>
+              </div>`;
+            }).join('')}
         </div>
       </div>
     `;
