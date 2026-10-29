@@ -642,8 +642,9 @@ const App = {
 
     Utils.el('btnConflictExport').onclick = () => {
       const data = Store.load();
-      data.version = '2.0.0';
+      data.version = '2.1.0';
       data.app = 'sispa-standalone';
+      data.schema_flags = { supervisiPM: true };
       data.exported_at = new Date().toISOString();
 
       const sanitize = (str) => String(str || '')
