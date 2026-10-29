@@ -5,9 +5,9 @@ export const Store = {
   init() {
     try {
       const raw = localStorage.getItem(this.KEY);
-      this._cache = raw ? JSON.parse(raw) : { config:{}, guru:[], program:[], supervisi:[], akademik:[], coaching:[] };
+      this._cache = raw ? JSON.parse(raw) : { config:{}, guru:[], program:[], supervisi:[], akademik:[], coaching:[], supervisiPM:[] };
     } catch {
-      this._cache = { config:{}, guru:[], program:[], supervisi:[], akademik:[], coaching:[] };
+      this._cache = { config:{}, guru:[], program:[], supervisi:[], akademik:[], coaching:[], supervisiPM:[] };
     }
     return Promise.resolve();
   },
@@ -37,7 +37,7 @@ export const Store = {
   },
 
   async reset() {
-    this._cache = { config:{}, guru:[], program:[], supervisi:[], akademik:[], coaching:[] };
+    this._cache = { config:{}, guru:[], program:[], supervisi:[], akademik:[], coaching:[], supervisiPM:[] };
     try { localStorage.removeItem(this.KEY); } catch {}
   }
 };
