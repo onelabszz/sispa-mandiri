@@ -16,6 +16,7 @@ const MAX_OBS = INSTRUMEN_OBS_PM.length;           // 15
 const MAX_SKOR = MAX_TELAAH * 4;                   // 60
 
 const isFilled = (v) => v !== null && v !== undefined && String(v).trim() !== '';
+const goNav = () => Router.navigate('supervisi_pm');
 
 export const SupervisiPM = {
   async render() {
@@ -26,6 +27,30 @@ export const SupervisiPM = {
   async bind() {
     if (_cur) return this._bindWizard();
     return this._bindList();
+  },
+
+  // ============================================
+  // HELPERS
+  // ============================================
+  _isTelaahDone(s) {
+    if (!s.telaah || !s.telaah.skor) return false;
+    return INSTRUMEN_TELAAH_RPP.every(i => s.telaah.skor[i.kode] !== undefined);
+  },
+  _isObsDone(s) {
+    if (!s.obs || !s.obs.bukti) return false;
+    return INSTRUMEN_OBS_PM.every(i => isFilled(s.obs.bukti[i.kode]));
+  },
+  _isRefleksiDone(s) {
+    if (!s.refleksi) return false;
+    return REFLEKSI_PM.every(i => isFilled(s.refleksi[i.kode]));
+  },
+  _persist() {
+    if (!_cur) return;
+    _cur.updated_at = new Date().toISOString();
+    const list = Store.get('supervisiPM') || [];
+    const idx = list.findIndex(x => x.id === _cur.id);
+    if (idx !== -1) list[idx] = _cur; else list.push(_cur);
+    Store.set('supervisiPM', list);
   },
 
   // ============================================
@@ -65,20 +90,19 @@ export const SupervisiPM = {
           </tr></thead>
           <tbody>${sorted.map(s => {
             const g = guru.find(x => x.id === s.gid);
-            const tDone = this._isTelaahDone(s);
-            const oDone = this._isObsDone(s);
-            const rDone = this._isRefleksiDone(s);
+            const tD = this._isTelaahDone(s);
+            const oD = this._isObsDone(s);
+            const rD = this._isRefleksiDone(s);
             const isDraft = s.status !== 'selesai';
-            const nilai = s.telaah?.nilai || 0;
+            const nilai = (s.telaah && s.telaah.nilai) || 0;
             const badge = (done, label) => `<span class="badge badge-${done?'success':'neutral'}" style="font-size:.65rem">${done?'✓':'○'} ${label}</span>`;
-
             return `<tr>
               <td>
                 <div style="font-weight:600">${Utils.esc(g?.nama || '?')}</div>
                 <div style="font-size:.75rem;color:var(--slate-500)">${Utils.esc(g?.mapel || '—')}</div>
               </td>
               <td>${Utils.date(s.tgl)}</td>
-              <td style="text-align:center;white-space:nowrap">${badge(tDone,'Telaah')} ${badge(oDone,'Obs')} ${badge(rDone,'Refleksi')}</td>
+              <td style="text-align:center;white-space:nowrap">${badge(tD,'Telaah')} ${badge(oD,'Obs')} ${badge(rD,'Refleksi')}</td>
               <td style="text-align:center;font-weight:700">${nilai > 0 ? nilai + '<span style="font-weight:400;color:var(--slate-400);font-size:.7rem">/100</span>' : '—'}</td>
               <td style="text-align:center"><span class="badge badge-${isDraft?'warning':'success'}">${isDraft?'Draft':'Selesai'}</span></td>
               <td style="text-align:right;white-space:nowrap">
@@ -118,7 +142,7 @@ export const SupervisiPM = {
       </div>
       <div class="info-banner info" style="margin-top:.5rem">
         ${Icons.svg('info', 16)}
-        <div>Siklus Supervisi PM: <strong>Telaah RPP</strong> → <strong>Observasi Implementasi</strong> → <strong>Refleksi & RTL</strong>. Bisa simpan draft di setiap tahap.</div>
+        <div>Siklus: <strong>Telaah RPP</strong> → <strong>Observasi Implementasi</strong> → <strong>Refleksi & RTL</strong>. Bisa simpan draft di setiap tahap.</div>
       </div>
     `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button>
         <button class="btn btn-primary" id="btnStartPMSave">${Icons.svg('chevron-right', 16)} Mulai</button>`);
@@ -143,7 +167,7 @@ export const SupervisiPM = {
 
       Utils.closeModal();
       _cur = rec; _step = 1;
-      Router.navigate('supervisi_pm');
+      goNav();
     };
   },
 
@@ -153,18 +177,18 @@ export const SupervisiPM = {
     if (!rec) return;
     _cur = JSON.parse(JSON.stringify(rec));
     _step = rec.step || 1;
-    Router.navigate('supervisi_pm');
+    goNav();
   },
 
   _delete(id) {
     Utils.confirm('Hapus Supervisi PM?', 'Data telaah, observasi, dan refleksi akan dihapus permanen.', () => {
       Store.set('supervisiPM', (Store.get('supervisiPM')||[]).filter(x => x.id !== id));
-      Router.navigate('supervisi_pm');
+      goNav();
     });
   },
 
   // ============================================
-  // WIZARD VIEW
+  // WIZARD
   // ============================================
   _renderWizard() {
     if (!_cur) return '';
@@ -206,11 +230,9 @@ export const SupervisiPM = {
 
   async _bindWizard() {
     const isReadonly = _cur?.status === 'selesai';
-    Utils.el('btnBack').onclick = () => { _cur = null; _step = 1; Router.navigate('supervisi_pm'); };
+    Utils.el('btnBack').onclick = () => { _cur = null; _step = 1; goNav(); };
 
-    document.querySelectorAll('.step-tab').forEach(b => {
-      b.onclick = () => this._goStep(parseInt(b.dataset.step));
-    });
+    document.querySelectorAll('.step-tab').forEach(b => { b.onclick = () => this._goStep(parseInt(b.dataset.step)); });
 
     Utils.el('btnPrev')?.addEventListener('click', () => this._goStep(_step - 1));
     Utils.el('btnNext')?.addEventListener('click', () => this._goStep(_step + 1));
@@ -220,7 +242,7 @@ export const SupervisiPM = {
 
     if (isReadonly) return;
 
-    // Score buttons (Telaah)
+    // Skor telaah (0-4)
     document.querySelectorAll('.skor-pm').forEach(btn => {
       btn.onclick = () => {
         const kode = parseInt(btn.dataset.kode);
@@ -228,18 +250,11 @@ export const SupervisiPM = {
         _cur.telaah.skor[kode] = v;
         document.querySelectorAll(`.skor-pm[data-kode="${kode}"]`).forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Update live total badge
-        const badge = Utils.el('telaahBadge');
-        if (badge) {
-          const total = Object.values(_cur.telaah.skor).reduce((a,b) => a+b, 0);
-          const filled = Object.keys(_cur.telaah.skor).length;
-          const nilai = Math.round(total / MAX_SKOR * 100);
-          badge.textContent = `${filled}/${MAX_TELAAH} · Skor ${total}/${MAX_SKOR} (${nilai})`;
-        }
+        this._refreshTelaahBadge();
       };
     });
 
-    // Komentar & kualitatif telaah
+    // Telaah komentar & kualitatif
     document.querySelectorAll('[data-komentar]').forEach(ta => { ta.oninput = () => { _cur.telaah.komentar[parseInt(ta.dataset.komentar)] = ta.value; }; });
     document.querySelectorAll('[data-kualitatif]').forEach(ta => { ta.oninput = () => { _cur.telaah.kualitatif[parseInt(ta.dataset.kualitatif)] = ta.value; }; });
 
@@ -261,6 +276,16 @@ export const SupervisiPM = {
 
     // Refleksi
     document.querySelectorAll('[data-refleksi]').forEach(ta => { ta.oninput = () => { _cur.refleksi[parseInt(ta.dataset.refleksi)] = ta.value; }; });
+  },
+
+  _refreshTelaahBadge() {
+    const badge = Utils.el('telaahBadge');
+    if (!badge) return;
+    const total = Object.values(_cur.telaah.skor).reduce((a,b) => a+b, 0);
+    const filled = Object.keys(_cur.telaah.skor).length;
+    const nilai = Math.round(total / MAX_SKOR * 100);
+    badge.textContent = `${filled}/${MAX_TELAAH} · Skor ${total}/${MAX_SKOR} (${nilai})`;
+    badge.className = `badge badge-${filled===MAX_TELAAH?'success':'warning'}`;
   },
 
   _renderTelaah(isReadonly) {
@@ -419,6 +444,171 @@ export const SupervisiPM = {
 
   _renderRefleksi(isReadonly) {
     const r = _cur.refleksi || {};
+    const totalTelaah = Object.values(_cur.telaah.skor).reduce((a,b) => a+b, 0);
+    const nilaiTelaah = Math.round(totalTelaah / MAX_SKOR * 100);
+    const obsFilled = Object.values(_cur.obs.bukti).filter(v => isFilled(v)).length;
+
     return `
       <div class="card" style="margin-bottom:1rem">
-        <div class="card-header">${Icons.svg('message-circle', 18)} Refleksi Pasca-Observasi</
+        <div class="card-header">${Icons.svg('bar-chart-3', 18)} Ringkasan Siklus</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div style="padding:.75rem;background:var(--brand-50);border-radius:8px">
+              <div style="font-size:.7rem;color:var(--brand-700);text-transform:uppercase;font-weight:700">Telaah RPP</div>
+              <div style="font-size:1.25rem;font-weight:700;color:var(--brand-700);margin-top:.15rem">${nilaiTelaah}<span style="font-size:.85rem;color:var(--slate-500)">/100</span></div>
+              <div style="font-size:.75rem;color:var(--slate-500);margin-top:.15rem">Skor ${totalTelaah}/${MAX_SKOR}</div>
+            </div>
+            <div style="padding:.75rem;background:var(--success-50,#dcfce7);border-radius:8px">
+              <div style="font-size:.7rem;color:#166534;text-transform:uppercase;font-weight:700">Obs Implementasi</div>
+              <div style="font-size:1.25rem;font-weight:700;color:#166534;margin-top:.15rem">${obsFilled}<span style="font-size:.85rem;color:var(--slate-500)">/${MAX_OBS}</span></div>
+              <div style="font-size:.75rem;color:var(--slate-500);margin-top:.15rem">Item dengan bukti</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header">${Icons.svg('message-circle', 18)} Refleksi & RTL</div>
+        <div class="card-body">
+          ${REFLEKSI_PM.map(q => `
+            <div class="form-group">
+              <label class="label">${q.kode}. ${Utils.esc(q.t)}</label>
+              <textarea class="textarea" rows="4" data-refleksi="${q.kode}" ${isReadonly?'disabled':''}>${Utils.esc(r[q.kode] || '')}</textarea>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  },
+
+  _goStep(n) {
+    if (n < 1 || n > 3) return;
+    if (n > _step) {
+      if (_step === 1) {
+        const total = Object.values(_cur.telaah.skor).reduce((a,b) => a+b, 0);
+        _cur.telaah.total = total;
+        _cur.telaah.nilai = Math.round(total / MAX_SKOR * 100);
+      }
+    }
+    _cur.step = n;
+    _step = n;
+    this._persist();
+    this._renderWizard();
+    // Re-render via Router untuk trigger bind
+    Router.navigate('supervisi_pm');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  _saveDraft() {
+    this._persist();
+    Utils.toast('Draft tersimpan', 'success');
+  },
+
+  _finish() {
+    if (!this._isTelaahDone(_cur) || !this._isObsDone(_cur) || !this._isRefleksiDone(_cur)) {
+      return Utils.confirm('Belum lengkap', 'Masih ada tahap yang belum selesai. Tetap selesaikan sebagai final?', () => {
+        _cur.status = 'selesai';
+        const total = Object.values(_cur.telaah.skor).reduce((a,b) => a+b, 0);
+        _cur.telaah.total = total;
+        _cur.telaah.nilai = Math.round(total / MAX_SKOR * 100);
+        this._persist();
+        _cur = null; _step = 1;
+        Utils.toast('Supervisi PM selesai', 'success');
+        goNav();
+      });
+    }
+    _cur.status = 'selesai';
+    const total = Object.values(_cur.telaah.skor).reduce((a,b) => a+b, 0);
+    _cur.telaah.total = total;
+    _cur.telaah.nilai = Math.round(total / MAX_SKOR * 100);
+    this._persist();
+    _cur = null; _step = 1;
+    Utils.toast('Supervisi PM selesai', 'success');
+    goNav();
+  },
+
+  // ============================================
+  // PRINT
+  // ============================================
+  print(id) {
+    const s = Store.get('supervisiPM')?.find(x => x.id === id);
+    if (!s) return;
+    const g = Store.get('guru').find(x => x.id === s.gid);
+    const c = Store.config();
+
+    const telaahRows = INSTRUMEN_TELAAH_RPP.map(item => `
+      <tr>
+        <td class="kode" style="text-align:center">${item.kode}</td>
+        <td>${Utils.esc(item.t)}</td>
+        <td class="skor" style="text-align:center">${s.telaah.skor[item.kode] ?? '-'}</td>
+        <td>${Utils.esc(s.telaah.komentar[item.kode] || '')}</td>
+      </tr>
+    `).join('');
+
+    const kualitatifHtml = KUALITATIF_TELAAH.map(q => `
+      <p><strong>${q.kode}. ${Utils.esc(q.t)}</strong><br>${Utils.esc(s.telaah.kualitatif[q.kode] || '-')}</p>
+    `).join('');
+
+    const obsRows = INSTRUMEN_OBS_PM.map(item => `
+      <tr>
+        <td class="kode" style="text-align:center">${item.kode}</td>
+        <td>${Utils.esc(item.t)}</td>
+        <td>${Utils.esc(s.obs.bukti[item.kode] || '')}</td>
+        <td>${Utils.esc(s.obs.catatan[item.kode] || '')}</td>
+      </tr>
+    `).join('');
+
+    const refleksiHtml = REFLEKSI_PM.map(q => `
+      <p><strong>${q.kode}. ${Utils.esc(q.t)}</strong><br>${Utils.esc(s.refleksi[q.kode] || '-')}</p>
+    `).join('');
+
+    const totalTelaah = s.telaah.total || Object.values(s.telaah.skor).reduce((a,b) => a+b, 0);
+    const nilai = s.telaah.nilai || Math.round(totalTelaah / MAX_SKOR * 100);
+
+    Utils.el('printArea').innerHTML = `
+      <h1>LAPORAN SUPERVISI PM</h1>
+      <p class="sub">${Utils.esc(c.nama_sekolah)} — NPSN ${Utils.esc(c.npsn || '-')}</p>
+
+      <table class="info">
+        <tr><td>Nama Guru</td><td>:</td><td><strong>${Utils.esc(s.obs.meta.nama_guru || g?.nama || '-')}</strong></td></tr>
+        <tr><td>NIP</td><td>:</td><td>${Utils.esc(g?.nip || '-')}</td></tr>
+        <tr><td>Tanggal</td><td>:</td><td>${Utils.date(s.tgl)}</td></tr>
+        <tr><td>Pemberi Umpan Balik</td><td>:</td><td>${Utils.esc(s.obs.meta.pemberi_umpan_balik || c.nama_ks || '-')}</td></tr>
+      </table>
+
+      <h2>1. Telaah RPP</h2>
+      <table class="info">
+        <tr><td>Jenjang</td><td>:</td><td>${Utils.esc(s.telaah.meta.jenjang || '-')}</td></tr>
+        <tr><td>Mata Pelajaran</td><td>:</td><td>${Utils.esc(s.telaah.meta.mapel || s.obs.meta.mapel || '-')}</td></tr>
+        <tr><td>Kelas</td><td>:</td><td>${Utils.esc(s.telaah.meta.kelas || s.obs.meta.kelas_semester || '-')}</td></tr>
+        <tr><td>Judul Perencanaan</td><td>:</td><td>${Utils.esc(s.telaah.meta.judul_rpp || '-')}</td></tr>
+        <tr><td>Skor Total</td><td>:</td><td><strong>${totalTelaah} / ${MAX_SKOR} (Nilai: ${nilai})</strong></td></tr>
+      </table>
+      <table class="ind">
+        <thead><tr><th style="width:30px;text-align:center">No</th><th>Aspek</th><th style="width:40px;text-align:center">Skor</th><th>Komentar Kritis</th></tr></thead>
+        <tbody>${telaahRows}</tbody>
+      </table>
+      ${kualitatifHtml}
+
+      <h2 style="page-break-before:always">2. Observasi Implementasi</h2>
+      <table class="info">
+        <tr><td>Hari/Tanggal</td><td>:</td><td>${Utils.date(s.obs.meta.hari_tanggal || s.tgl)}</td></tr>
+        <tr><td>Satuan Pendidikan</td><td>:</td><td>${Utils.esc(s.obs.meta.satuan_pendidikan || c.nama_sekolah)}</td></tr>
+        <tr><td>Kelas/Semester</td><td>:</td><td>${Utils.esc(s.obs.meta.kelas_semester || '-')}</td></tr>
+        <tr><td>Mata Pelajaran</td><td>:</td><td>${Utils.esc(s.obs.meta.mapel || '-')}</td></tr>
+      </table>
+      <table class="ind">
+        <thead><tr><th style="width:30px;text-align:center">No</th><th>Aspek</th><th>Bukti Pembelajaran</th><th>Catatan</th></tr></thead>
+        <tbody>${obsRows}</tbody>
+      </table>
+
+      <h2 style="page-break-before:always">3. Refleksi & RTL</h2>
+      ${refleksiHtml}
+
+      <div class="ttd-grid">
+        <div class="ttd-box"><div>Kepala Sekolah</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(c.nama_ks || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(c.nip_ks || '...')}</div></div>
+        <div class="ttd-box"><div>Guru</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(g?.nama || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(g?.nip || '...')}</div></div>
+      </div>`;
+    setTimeout(() => window.print(), 200);
+  }
+};
