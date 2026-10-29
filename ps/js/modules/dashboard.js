@@ -91,7 +91,7 @@ export const Dashboard = {
           <div>
             <div style="font-size:.75rem;color:var(--slate-500)">Total Sesi</div>
             <div style="font-size:1.5rem;font-weight:700">${totalSesi}</div>
-            <div style="font-size:.65rem;color:var(--slate-500);margin-top:.2rem">3T: ${total3T} · PM: ${totalPM} · Akad: ${totalAkad} · Coach: ${totalCoach}</div>
+            <div style="font-size:.65rem;color:var(--slate-500);margin-top:.2rem">3T: ${total3T} · PM: ${totalPM} · Digitalisasi: ${totalAkad} · Coaching: ${totalCoach}</div>
           </div>
         </div>
         <div class="stat-card">
@@ -190,8 +190,8 @@ export const Dashboard = {
           <div class="card-body" style="padding:0">
             ${recent.map(x => {
               const g = guruBySekolah(x._skId, x.gid);
-              const badge = x._jenis === 'Akademik' ? 'info'
-                : x._jenis === 'Coaching' ? 'warning'
+              const badge = x._jenis === 'Supervisi Digitalisasi' ? 'info'
+                : x._jenis === 'Coaching Digitalisasi' ? 'warning'
                 : x._jenis === 'Supervisi PM' ? 'success'
                 : 'neutral';
               return `<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.7rem 1.25rem;border-bottom:1px solid var(--slate-100);font-size:.85rem">
