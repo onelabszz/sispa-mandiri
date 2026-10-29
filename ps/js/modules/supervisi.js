@@ -2,6 +2,10 @@ import { Store } from '../../storage.js';
 import { Utils } from '../../../shared/js/utils.js';
 import { Icons } from '../../../shared/js/icons.js';
 import { emptyState, allSesi, guruBySekolah } from '../helpers.js';
+import {
+  INSTRUMEN_TELAAH_RPP, KUALITATIF_TELAAH,
+  INSTRUMEN_OBS_PM, REFLEKSI_PM
+} from '../../../shared/js/constants.js';
 
 export const Supervisi = {
   async render() {
@@ -28,6 +32,7 @@ export const Supervisi = {
             <div><label class="label">Jenis</label><select class="select" id="fJenis">
               <option value="">Semua</option>
               <option value="3 Tahap">3 Tahap</option>
+              <option value="Supervisi PM">Supervisi PM</option>
               <option value="Akademik">Akademik</option>
               <option value="Coaching">Coaching</option>
             </select></div>
@@ -41,7 +46,6 @@ export const Supervisi = {
   },
 
   async bind() {
-    // Jika empty state, pasang event navigasi
     if (!Utils.el('fSk')) {
       Utils.el('btnGoSekolah')?.addEventListener('click', async () => {
         const { Router } = await import('../../../shared/js/router.js');
@@ -83,9 +87,18 @@ export const Supervisi = {
       <th style="text-align:right">Aksi</th>
     </tr></thead><tbody>${list.map(s => {
       const g = guruBySekolah(s._skId, s.gid);
-      const skor = s.skor !== undefined && s.skor !== null ? s.skor : '-';
-      const max = s._jenis === 'Akademik' ? '/76' : s._jenis === 'Coaching' ? '/32' : '';
-      const badge = s._jenis === 'Akademik' ? 'info' : s._jenis === 'Coaching' ? 'warning' : 'neutral';
+      let skor, max;
+      if (s._jenis === 'Supervisi PM') {
+        skor = (s.telaah && s.telaah.nilai) || 0;
+        max = '/100';
+      } else {
+        skor = s.skor !== undefined && s.skor !== null ? s.skor : '-';
+        max = s._jenis === 'Akademik' ? '/76' : s._jenis === 'Coaching' ? '/32' : '';
+      }
+      const badge = s._jenis === 'Akademik' ? 'info'
+        : s._jenis === 'Coaching' ? 'warning'
+        : s._jenis === 'Supervisi PM' ? 'success'
+        : 'neutral';
       return `<tr>
         <td style="font-size:.8rem;color:var(--slate-600)">${Utils.esc(s._skNama)}</td>
         <td style="font-weight:600">${Utils.esc(g?.nama || '?')}</td>
@@ -115,33 +128,16 @@ export const Supervisi = {
   _detail(skId, id, jenis) {
     const sk = Store.get('sekolah').find(x => x.id === skId);
     if (!sk) return;
-    const arr = jenis === 'Akademik' ? 'akademik' : jenis === 'Coaching' ? 'coaching' : 'supervisi';
+    const arr = jenis === 'Akademik' ? 'akademik'
+      : jenis === 'Coaching' ? 'coaching'
+      : jenis === 'Supervisi PM' ? 'supervisiPM'
+      : 'supervisi';
     const s = (sk[arr] || []).find(x => x.id === id);
     if (!s) return;
     const g = (sk.guru || []).find(x => x.id === s.gid);
     let body = '';
-    if (jenis === '3 Tahap') {
-      const momen = (s.momen || []).map(k => (window.__MOMEN_LIST || []).find(m => m.key === k)?.label || k).join(', ') || '—';
-      body = `<div style="font-size:.85rem;line-height:1.6">
-        <div><strong>Sekolah:</strong> ${Utils.esc(sk.nama_sekolah)}</div>
-        <div><strong>Guru:</strong> ${Utils.esc(g?.nama || '?')}</div>
-        <div><strong>Tanggal:</strong> ${Utils.date(s.tgl)}</div>
-        <div><strong>Status:</strong> ${s.status === 'selesai' ? '<span class="badge badge-success">Selesai</span>' : '<span class="badge badge-warning">Draft</span>'}</div>
-        <hr style="margin:.75rem 0;border:none;border-top:1px solid var(--slate-200)">
-        <div><strong>Tujuan:</strong> ${Utils.esc(s.tujuan || '—')}</div>
-        <div><strong>Strategi:</strong> ${Utils.esc(s.strategi || '—')}</div>
-        <div><strong>Asesmen:</strong> ${Utils.esc(s.asesmen || '—')}</div>
-        <hr style="margin:.75rem 0;border:none;border-top:1px solid var(--slate-200)">
-        <div><strong>Aktivitas Guru:</strong> ${Utils.esc(s.obs_guru || '—')}</div>
-        <div><strong>Aktivitas Murid:</strong> ${Utils.esc(s.obs_murid || '—')}</div>
-        <div><strong>Momen PM:</strong> ${momen}</div>
-        <div><strong>KKA:</strong> ${Utils.esc(s.kka || '—')}</div>
-        <div><strong>Durasi:</strong> ${s.durasi || '—'} menit</div>
-        <hr style="margin:.75rem 0;border:none;border-top:1px solid var(--slate-200)">
-        <div><strong>RTL:</strong> ${Utils.esc(s.rtl?.aksi || '—')}</div>
-        <div><strong>Waktu:</strong> ${Utils.esc(s.rtl?.waktu || '—')}</div>
-        <div><strong>Indikator:</strong> ${Utils.esc(s.rtl?.indikator || '—')}</div>
-      </div>`;
+    if (jenis === 'Supervisi PM') {
+      body = this._detailPM(s, g, sk);
     } else if (jenis === 'Akademik') {
       const rows = (window.__INSTRUMEN_AKADEMIK || []).map(i =>
         `<tr><td style="padding:.35rem .5rem;font-family:monospace;font-weight:600;color:var(--brand-700)">${i.kode}</td>
@@ -163,7 +159,7 @@ export const Supervisi = {
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
-    } else {
+    } else if (jenis === 'Coaching') {
       const rows = (window.__INSTRUMEN_COACHING || []).map(i =>
         `<tr><td style="padding:.35rem .5rem;font-family:monospace;font-weight:600;color:var(--brand-700)">${i.tahap}</td>
          <td style="padding:.35rem .5rem;font-size:.8rem">${i.t}</td>
@@ -183,18 +179,145 @@ export const Supervisi = {
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
+    } else {
+      const momen = (s.momen || []).map(k => (window.__MOMEN_LIST || []).find(m => m.key === k)?.label || k).join(', ') || '—';
+      body = `<div style="font-size:.85rem;line-height:1.6">
+        <div><strong>Sekolah:</strong> ${Utils.esc(sk.nama_sekolah)}</div>
+        <div><strong>Guru:</strong> ${Utils.esc(g?.nama || '?')}</div>
+        <div><strong>Tanggal:</strong> ${Utils.date(s.tgl)}</div>
+        <div><strong>Status:</strong> ${s.status === 'selesai' ? '<span class="badge badge-success">Selesai</span>' : '<span class="badge badge-warning">Draft</span>'}</div>
+        <hr style="margin:.75rem 0;border:none;border-top:1px solid var(--slate-200)">
+        <div><strong>Tujuan:</strong> ${Utils.esc(s.tujuan || '—')}</div>
+        <div><strong>Strategi:</strong> ${Utils.esc(s.strategi || '—')}</div>
+        <div><strong>Asesmen:</strong> ${Utils.esc(s.asesmen || '—')}</div>
+        <hr style="margin:.75rem 0;border:none;border-top:1px solid var(--slate-200)">
+        <div><strong>Aktivitas Guru:</strong> ${Utils.esc(s.obs_guru || '—')}</div>
+        <div><strong>Aktivitas Murid:</strong> ${Utils.esc(s.obs_murid || '—')}</div>
+        <div><strong>Momen PM:</strong> ${momen}</div>
+        <div><strong>KKA:</strong> ${Utils.esc(s.kka || '—')}</div>
+        <div><strong>Durasi:</strong> ${s.durasi || '—'} menit</div>
+        <hr style="margin:.75rem 0;border:none;border-top:1px solid var(--slate-200)">
+        <div><strong>RTL:</strong> ${Utils.esc(s.rtl?.aksi || '—')}</div>
+        <div><strong>Waktu:</strong> ${Utils.esc(s.rtl?.waktu || '—')}</div>
+        <div><strong>Indikator:</strong> ${Utils.esc(s.rtl?.indikator || '—')}</div>
+      </div>`;
     }
     Utils.modal(`${jenis} — Detail`, body, '<button class="btn btn-secondary" onclick="Utils.closeModal()">Tutup</button>', true);
+  },
+
+  _detailPM(s, g, sk) {
+    const t = s.telaah || {};
+    const o = s.obs || {};
+    const r = s.refleksi || {};
+    const tMeta = t.meta || {};
+    const oMeta = o.meta || {};
+    const tSkor = t.skor || {};
+    const tKom = t.komentar || {};
+    const tKual = t.kualitatif || {};
+    const oBukti = o.bukti || {};
+    const oCat = o.catatan || {};
+
+    const telaahRows = INSTRUMEN_TELAAH_RPP.map(i =>
+      `<tr>
+        <td style="padding:.35rem .5rem;font-family:monospace;font-weight:600;color:var(--brand-700);text-align:center">${i.kode}</td>
+        <td style="padding:.35rem .5rem;font-size:.8rem">${Utils.esc(i.t)}</td>
+        <td style="padding:.35rem .5rem;text-align:center;font-weight:700">${tSkor[i.kode] ?? '-'}</td>
+        <td style="padding:.35rem .5rem;font-size:.75rem;color:var(--slate-600)">${Utils.esc(tKom[i.kode] || '')}</td>
+      </tr>`).join('');
+
+    const kualHtml = KUALITATIF_TELAAH.map(q =>
+      `<div style="margin-bottom:.5rem">
+        <div style="font-weight:600;font-size:.8rem;color:var(--slate-700)">${q.kode}. ${Utils.esc(q.t)}</div>
+        <div style="font-size:.8rem;color:var(--slate-600);padding:.35rem .5rem;background:var(--slate-50);border-radius:6px;margin-top:.2rem;white-space:pre-wrap">${Utils.esc(tKual[q.kode] || '—')}</div>
+      </div>`).join('');
+
+    const obsRows = INSTRUMEN_OBS_PM.map(i =>
+      `<tr>
+        <td style="padding:.35rem .5rem;font-family:monospace;font-weight:600;color:var(--brand-700);text-align:center">${i.kode}</td>
+        <td style="padding:.35rem .5rem;font-size:.8rem">${Utils.esc(i.t)}</td>
+        <td style="padding:.35rem .5rem;font-size:.75rem;color:var(--slate-700)">${Utils.esc(oBukti[i.kode] || '—')}</td>
+        <td style="padding:.35rem .5rem;font-size:.75rem;color:var(--slate-600)">${Utils.esc(oCat[i.kode] || '')}</td>
+      </tr>`).join('');
+
+    const refleksiHtml = REFLEKSI_PM.map(q =>
+      `<div style="margin-bottom:.5rem">
+        <div style="font-weight:600;font-size:.8rem;color:var(--slate-700)">${q.kode}. ${Utils.esc(q.t)}</div>
+        <div style="font-size:.8rem;color:var(--slate-600);padding:.35rem .5rem;background:var(--slate-50);border-radius:6px;margin-top:.2rem;white-space:pre-wrap">${Utils.esc(r[q.kode] || '—')}</div>
+      </div>`).join('');
+
+    const nilai = t.nilai || 0;
+    const total = t.total || 0;
+    const obsFilled = Object.values(oBukti).filter(v => v && String(v).trim()).length;
+
+    return `
+      <div style="font-size:.85rem;line-height:1.6;margin-bottom:.75rem">
+        <div><strong>Guru:</strong> ${Utils.esc(oMeta.nama_guru || g?.nama || '?')}</div>
+        <div><strong>Sekolah:</strong> ${Utils.esc(sk.nama_sekolah)}</div>
+        <div><strong>Tanggal:</strong> ${Utils.date(s.tgl)} · <strong>Status:</strong> ${s.status === 'selesai' ? '<span class="badge badge-success">Selesai</span>' : '<span class="badge badge-warning">Draft</span>'}</div>
+        <div style="margin-top:.5rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          <span class="badge badge-success">Nilai Telaah: ${nilai}/100</span>
+          <span class="badge badge-info">Obs terisi: ${obsFilled}/15</span>
+          <span class="badge badge-${t.kualitatif && Object.keys(t.kualitatif).length === 3 ? 'success' : 'warning'}">Kualitatif: ${Object.keys(tKual).filter(k => String(tKual[k] || '').trim()).length}/3</span>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--slate-200);padding-top:.75rem;margin-top:.75rem">
+        <div style="font-weight:700;font-size:.9rem;color:var(--brand-700);margin-bottom:.5rem">1. Telaah RPP (Skor ${total}/60)</div>
+        <div style="font-size:.75rem;color:var(--slate-600);margin-bottom:.5rem">
+          ${Utils.esc(tMeta.jenjang || '—')} · ${Utils.esc(tMeta.mapel || oMeta.mapel || '—')} · Kls ${Utils.esc(tMeta.kelas || '—')} · ${Utils.esc(tMeta.judul_rpp || '—')}
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:.75rem">
+          <thead><tr style="background:var(--slate-50)">
+            <th style="padding:.35rem .5rem;text-align:center;width:40px">No</th>
+            <th style="padding:.35rem .5rem;text-align:left">Aspek</th>
+            <th style="padding:.35rem .5rem;text-align:center;width:50px">Skor</th>
+            <th style="padding:.35rem .5rem;text-align:left">Komentar</th>
+          </tr></thead>
+          <tbody>${telaahRows}</tbody>
+        </table>
+        <div style="font-weight:600;font-size:.8rem;color:var(--slate-700);margin-bottom:.35rem">Kualitatif:</div>
+        ${kualHtml}
+      </div>
+
+      <div style="border-top:1px solid var(--slate-200);padding-top:.75rem;margin-top:.75rem">
+        <div style="font-weight:700;font-size:.9rem;color:var(--brand-700);margin-bottom:.5rem">2. Observasi Implementasi</div>
+        <div style="font-size:.75rem;color:var(--slate-600);margin-bottom:.5rem">
+          ${Utils.esc(oMeta.satuan_pendidikan || sk.nama_sekolah)} · Kls/Sem ${Utils.esc(oMeta.kelas_semester || '—')} · ${Utils.esc(oMeta.mapel || '—')} · Pemberi: ${Utils.esc(oMeta.pemberi_umpan_balik || sk.ks_nama || '—')}
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:.8rem">
+          <thead><tr style="background:var(--slate-50)">
+            <th style="padding:.35rem .5rem;text-align:center;width:40px">No</th>
+            <th style="padding:.35rem .5rem;text-align:left">Aspek</th>
+            <th style="padding:.35rem .5rem;text-align:left">Bukti</th>
+            <th style="padding:.35rem .5rem;text-align:left">Catatan</th>
+          </tr></thead>
+          <tbody>${obsRows}</tbody>
+        </table>
+      </div>
+
+      <div style="border-top:1px solid var(--slate-200);padding-top:.75rem;margin-top:.75rem">
+        <div style="font-weight:700;font-size:.9rem;color:var(--brand-700);margin-bottom:.5rem">3. Refleksi & RTL</div>
+        ${refleksiHtml}
+      </div>
+    `;
   },
 
   _print(skId, id, jenis) {
     const sk = Store.get('sekolah').find(x => x.id === skId);
     if (!sk) return;
-    const arr = jenis === 'Akademik' ? 'akademik' : jenis === 'Coaching' ? 'coaching' : 'supervisi';
+    const arr = jenis === 'Akademik' ? 'akademik'
+      : jenis === 'Coaching' ? 'coaching'
+      : jenis === 'Supervisi PM' ? 'supervisiPM'
+      : 'supervisi';
     const s = (sk[arr] || []).find(x => x.id === id);
     if (!s) return;
     const g = (sk.guru || []).find(x => x.id === s.gid);
     const c = Store.config();
+
+    if (jenis === 'Supervisi PM') {
+      this._printPM(s, g, sk, c);
+      return;
+    }
 
     if (jenis === 'Akademik') {
       let html = '';
@@ -280,6 +403,92 @@ export const Supervisi = {
           <div class="ttd-box"><div>Guru</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(g?.nama)}</div></div>
         </div>`;
     }
+    setTimeout(() => window.print(), 200);
+  },
+
+  _printPM(s, g, sk, c) {
+    const t = s.telaah || {};
+    const o = s.obs || {};
+    const r = s.refleksi || {};
+    const tMeta = t.meta || {};
+    const oMeta = o.meta || {};
+    const tSkor = t.skor || {};
+    const tKom = t.komentar || {};
+    const tKual = t.kualitatif || {};
+    const oBukti = o.bukti || {};
+    const oCat = o.catatan || {};
+
+    const telaahRows = INSTRUMEN_TELAAH_RPP.map(i =>
+      `<tr>
+        <td class="kode" style="text-align:center">${i.kode}</td>
+        <td>${Utils.esc(i.t)}</td>
+        <td class="skor" style="text-align:center">${tSkor[i.kode] ?? '-'}</td>
+        <td>${Utils.esc(tKom[i.kode] || '')}</td>
+      </tr>`).join('');
+
+    const kualHtml = KUALITATIF_TELAAH.map(q =>
+      `<p><strong>${q.kode}. ${Utils.esc(q.t)}</strong><br>${Utils.esc(tKual[q.kode] || '-')}</p>`
+    ).join('');
+
+    const obsRows = INSTRUMEN_OBS_PM.map(i =>
+      `<tr>
+        <td class="kode" style="text-align:center">${i.kode}</td>
+        <td>${Utils.esc(i.t)}</td>
+        <td>${Utils.esc(oBukti[i.kode] || '')}</td>
+        <td>${Utils.esc(oCat[i.kode] || '')}</td>
+      </tr>`).join('');
+
+    const refleksiHtml = REFLEKSI_PM.map(q =>
+      `<p><strong>${q.kode}. ${Utils.esc(q.t)}</strong><br>${Utils.esc(r[q.kode] || '-')}</p>`
+    ).join('');
+
+    const totalTelaah = t.total || Object.values(tSkor).reduce((a, b) => a + b, 0);
+    const nilai = t.nilai || Math.round(totalTelaah / 60 * 100);
+
+    Utils.el('printArea').innerHTML = `
+      <h1>LAPORAN SUPERVISI PM</h1>
+      <p class="sub">${Utils.esc(sk.nama_sekolah)} — NPSN ${Utils.esc(sk.npsn || '-')}</p>
+
+      <table class="info">
+        <tr><td>Nama Guru</td><td>:</td><td><strong>${Utils.esc(oMeta.nama_guru || g?.nama || '-')}</strong></td></tr>
+        <tr><td>NIP</td><td>:</td><td>${Utils.esc(g?.nip || '-')}</td></tr>
+        <tr><td>Tanggal</td><td>:</td><td>${Utils.date(s.tgl)}</td></tr>
+        <tr><td>Pemberi Umpan Balik</td><td>:</td><td>${Utils.esc(oMeta.pemberi_umpan_balik || sk.ks_nama || c.nama_pengawas || '-')}</td></tr>
+      </table>
+
+      <h2>1. Telaah RPP</h2>
+      <table class="info">
+        <tr><td>Jenjang</td><td>:</td><td>${Utils.esc(tMeta.jenjang || '-')}</td></tr>
+        <tr><td>Mata Pelajaran</td><td>:</td><td>${Utils.esc(tMeta.mapel || oMeta.mapel || '-')}</td></tr>
+        <tr><td>Kelas</td><td>:</td><td>${Utils.esc(tMeta.kelas || oMeta.kelas_semester || '-')}</td></tr>
+        <tr><td>Judul Perencanaan</td><td>:</td><td>${Utils.esc(tMeta.judul_rpp || '-')}</td></tr>
+        <tr><td>Skor Total</td><td>:</td><td><strong>${totalTelaah} / 60 (Nilai: ${nilai})</strong></td></tr>
+      </table>
+      <table class="ind">
+        <thead><tr><th style="width:30px;text-align:center">No</th><th>Aspek</th><th style="width:40px;text-align:center">Skor</th><th>Komentar Kritis</th></tr></thead>
+        <tbody>${telaahRows}</tbody>
+      </table>
+      ${kualHtml}
+
+      <h2 style="page-break-before:always">2. Observasi Implementasi</h2>
+      <table class="info">
+        <tr><td>Hari/Tanggal</td><td>:</td><td>${Utils.date(oMeta.hari_tanggal || s.tgl)}</td></tr>
+        <tr><td>Satuan Pendidikan</td><td>:</td><td>${Utils.esc(oMeta.satuan_pendidikan || sk.nama_sekolah)}</td></tr>
+        <tr><td>Kelas/Semester</td><td>:</td><td>${Utils.esc(oMeta.kelas_semester || '-')}</td></tr>
+        <tr><td>Mata Pelajaran</td><td>:</td><td>${Utils.esc(oMeta.mapel || '-')}</td></tr>
+      </table>
+      <table class="ind">
+        <thead><tr><th style="width:30px;text-align:center">No</th><th>Aspek</th><th>Bukti Pembelajaran</th><th>Catatan</th></tr></thead>
+        <tbody>${obsRows}</tbody>
+      </table>
+
+      <h2 style="page-break-before:always">3. Refleksi & RTL</h2>
+      ${refleksiHtml}
+
+      <div class="ttd-grid">
+        <div class="ttd-box"><div>Kepala Sekolah</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(sk.ks_nama || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(sk.ks_nip || '...')}</div></div>
+        <div class="ttd-box"><div>Guru</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(g?.nama || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(g?.nip || '...')}</div></div>
+      </div>`;
     setTimeout(() => window.print(), 200);
   }
 };
