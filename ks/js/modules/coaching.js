@@ -41,20 +41,20 @@ export const Coaching = {
     return `
       <div class="page-head">
         <div>
-          <h2>Observasi Coaching</h2>
-          <div class="page-sub">${total} sesi · ${selesai} selesai${draft > 0 ? ` · ${draft} draft` : ''} · 8 indikator STAR-GROW</div>
-        </div>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          ${total > 0 ? `<button class="btn btn-secondary" id="btnCetakRekap">${Icons.svg('printer', 16)} Cetak Rekap</button>` : ''}
-          <button class="btn btn-primary" id="btnStartCoach">${Icons.svg('plus', 16)} Mulai Coaching Baru</button>
-        </div>
+      <h2>Coaching Digitalisasi</h2>
+      <div class="page-sub">${total} sesi · ${selesai} selesai${draft > 0 ? ` · ${draft} draft` : ''} · 8 indikator STAR-GROW</div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      ${total > 0 ? `<button class="btn btn-secondary" id="btnCetakRekap">${Icons.svg('printer', 16)} Cetak Rekap</button>` : ''}
+      <button class="btn btn-primary" id="btnStartCoach">${Icons.svg('plus', 16)} Mulai Coaching Digitalisasi</button>
+    </div>
       </div>
 
       ${guru.length === 0 ? `<div class="card"><div class="card-body">
         ${emptyState('users', 'Belum ada guru', 'Tambahkan guru dulu di menu Data Guru.')}
       </div></div>` : total === 0 ? `<div class="card"><div class="card-body">
-        ${emptyState('message-circle', 'Belum ada observasi coaching', 'Mulai observasi coaching pertama Anda.',
-          `<button class="btn btn-primary" id="btnEmptyStart">${Icons.svg('plus', 16)} Mulai Coaching</button>`)}
+        ${emptyState('message-circle', 'Belum ada sesi Coaching Digitalisasi', 'Mulai Coaching Digitalisasi pertama Anda.',
+  `<button class="btn btn-primary" id="btnEmptyStart">${Icons.svg('plus', 16)} Mulai Coaching Digitalisasi</button>`)}
       </div></div>` : `
         <div class="card"><table>
           <thead><tr>
@@ -172,7 +172,7 @@ export const Coaching = {
       <div class="page-head">
         <div>
           <button class="btn btn-secondary btn-sm" id="btnBack" style="margin-bottom:.75rem">${Icons.svg('chevron-left', 14)} Kembali</button>
-          <h2 style="margin:0">${existing ? (isReadonly ? 'Lihat Observasi Coaching' : 'Lanjutkan Observasi Coaching') : 'Observasi Coaching Baru'}</h2>
+          <h2 style="margin:0">${existing ? (isReadonly ? 'Lihat Coaching Digitalisasi' : 'Lanjutkan Coaching Digitalisasi') : 'Coaching Digitalisasi Baru'}</h2>
           <div class="page-sub">${filled}/8 indikator terisi</div>
         </div>
       </div>
@@ -180,7 +180,7 @@ export const Coaching = {
       ${isReadonly ? `<div class="info-banner success" style="margin-bottom:1rem">
         <div style="display:flex;align-items:flex-start;gap:.5rem">
           ${Icons.svg('check-circle', 18)}
-          <div><strong>Observasi sudah selesai.</strong> Data tidak dapat diubah.</div>
+          <div><strong>Coaching sudah selesai.</strong> Data tidak dapat diubah.</div>
         </div>
       </div>` : ''}
 
@@ -333,7 +333,7 @@ export const Coaching = {
     }
     Store.set('coaching', list);
 
-    Utils.toast(status === 'draft' ? 'Draft tersimpan' : 'Coaching selesai', 'success');
+    Utils.toast(status === 'draft' ? 'Draft tersimpan' : 'Coaching Digitalisasi selesai', 'success');
 
     this._view = 'list';
     this._curId = null;
@@ -371,7 +371,7 @@ export const Coaching = {
     }).join('');
 
     Utils.el('printArea').innerHTML = `
-      <h1>REKAP OBSERVASI COACHING</h1>
+      <h1>REKAP COACHING DIGITALISASI</h1>
       <p class="sub">${Utils.esc(c.nama_sekolah)} — NPSN ${Utils.esc(c.npsn || '-')}</p>
       <table class="info">
         <tr><td>Kepala Sekolah</td><td>:</td><td><strong>${Utils.esc(c.nama_ks || '-')}</strong></td></tr>
@@ -406,7 +406,7 @@ export const Coaching = {
       `<tr><td>${i + 1}</td><td>${Utils.esc(r.aksi)}</td><td>${Utils.esc(r.waktu)}</td><td>${Utils.esc(r.dukungan)}</td><td>${Utils.esc(r.indikator)}</td></tr>`
     ).join('');
     Utils.el('printArea').innerHTML = `
-      <h1>LEMBAR OBSERVASI COACHING</h1>
+      <h1>LEMBAR COACHING DIGITALISASI</h1>
       <p class="sub">${Utils.esc(c.nama_sekolah)}</p>
       <table class="info">
         <tr><td>Guru</td><td>:</td><td><strong>${Utils.esc(g?.nama)}</strong></td></tr>
