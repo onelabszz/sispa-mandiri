@@ -40,20 +40,20 @@ export const Akademik = {
     return `
       <div class="page-head">
         <div>
-          <h2>Observasi Akademik</h2>
-          <div class="page-sub">${total} sesi · ${selesai} selesai${draft > 0 ? ` · ${draft} draft` : ''} · 19 indikator</div>
-        </div>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          ${total > 0 ? `<button class="btn btn-secondary" id="btnCetakRekap">${Icons.svg('printer', 16)} Cetak Rekap</button>` : ''}
-          <button class="btn btn-primary" id="btnStartAkad">${Icons.svg('plus', 16)} Mulai Akademik Baru</button>
-        </div>
+      <h2>Supervisi Digitalisasi</h2>
+      <div class="page-sub">${total} sesi · ${selesai} selesai${draft > 0 ? ` · ${draft} draft` : ''} · 19 indikator</div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      ${total > 0 ? `<button class="btn btn-secondary" id="btnCetakRekap">${Icons.svg('printer', 16)} Cetak Rekap</button>` : ''}
+      <button class="btn btn-primary" id="btnStartAkad">${Icons.svg('plus', 16)} Mulai Supervisi Digitalisasi</button>
+    </div>
       </div>
 
       ${guru.length === 0 ? `<div class="card"><div class="card-body">
         ${emptyState('users', 'Belum ada guru', 'Tambahkan guru dulu di menu Data Guru.')}
       </div></div>` : total === 0 ? `<div class="card"><div class="card-body">
-        ${emptyState('laptop', 'Belum ada observasi akademik', 'Mulai observasi akademik pertama Anda.',
-          `<button class="btn btn-primary" id="btnEmptyStart">${Icons.svg('plus', 16)} Mulai Akademik</button>`)}
+        ${emptyState('laptop', 'Belum ada sesi Supervisi Digitalisasi', 'Mulai Supervisi Digitalisasi pertama Anda.',
+  `<button class="btn btn-primary" id="btnEmptyStart">${Icons.svg('plus', 16)} Mulai Supervisi Digitalisasi</button>`)}
       </div></div>` : `
         <div class="card"><table>
           <thead><tr>
@@ -165,7 +165,7 @@ export const Akademik = {
       <div class="page-head">
         <div>
           <button class="btn btn-secondary btn-sm" id="btnBack" style="margin-bottom:.75rem">${Icons.svg('chevron-left', 14)} Kembali</button>
-          <h2 style="margin:0">${existing ? (isReadonly ? 'Lihat Observasi Akademik' : 'Lanjutkan Observasi Akademik') : 'Observasi Akademik Baru'}</h2>
+          <h2 style="margin:0">${existing ? (isReadonly ? 'Lihat Supervisi Digitalisasi' : 'Lanjutkan Supervisi Digitalisasi') : 'Supervisi Digitalisasi Baru'}</h2>
           <div class="page-sub">${filled}/19 indikator terisi</div>
         </div>
       </div>
@@ -173,7 +173,7 @@ export const Akademik = {
       ${isReadonly ? `<div class="info-banner success" style="margin-bottom:1rem">
         <div style="display:flex;align-items:flex-start;gap:.5rem">
           ${Icons.svg('check-circle', 18)}
-          <div><strong>Observasi sudah selesai.</strong> Data tidak dapat diubah.</div>
+          <div><strong>Supervisi sudah selesai.</strong> Data tidak dapat diubah.</div>
         </div>
       </div>` : ''}
 
@@ -288,7 +288,7 @@ export const Akademik = {
     }
     Store.set('akademik', list);
 
-    Utils.toast(status === 'draft' ? 'Draft tersimpan' : 'Observasi selesai', 'success');
+    Utils.toast(status === 'draft' ? 'Draft tersimpan' : 'Supervisi Digitalisasi selesai', 'success');
 
     this._view = 'list';
     this._curId = null;
@@ -319,7 +319,7 @@ export const Akademik = {
     </tr>`).join('');
 
     Utils.el('printArea').innerHTML = `
-      <h1>REKAP OBSERVASI AKADEMIK</h1>
+      <h1>REKAP SUPERVISI DIGITALISASI</h1>
       <p class="sub">${Utils.esc(c.nama_sekolah)} — NPSN ${Utils.esc(c.npsn || '-')}</p>
       <table class="info">
         <tr><td>Kepala Sekolah</td><td>:</td><td><strong>${Utils.esc(c.nama_ks || '-')}</strong></td></tr>
@@ -354,7 +354,7 @@ export const Akademik = {
       html += `<tr><td class="kode">${i.kode}</td><td>${i.t}</td><td class="skor">${(s.detail || {})[i.kode] || '-'}</td><td>${Utils.esc((s.catatan || {})[i.kode] || '')}</td></tr>`;
     });
     Utils.el('printArea').innerHTML = `
-      <h1>LEMBAR OBSERVASI AKADEMIK</h1>
+      <h1>LEMBAR SUPERVISI DIGITALISASI</h1>
       <p class="sub">${Utils.esc(c.nama_sekolah)}</p>
       <table class="info">
         <tr><td>Guru</td><td>:</td><td><strong>${Utils.esc(g?.nama)}</strong></td></tr>
