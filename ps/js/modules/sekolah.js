@@ -266,7 +266,7 @@ export const Sekolah = {
           <h2 style="margin:0">${Utils.esc(sk.nama_sekolah)}</h2>
           <div class="page-sub">
             NPSN <span style="font-family:monospace">${Utils.esc(sk.npsn || '-')}</span> ·
-            ${sesi3} Supervisi 3T · ${sesiPM} PM · ${sesiAk} Akademik · ${sesiCo} Coaching
+            ${sesi3} Supervisi 3T · ${sesiPM} PM · ${sesiAk} Digitalisasi · ${sesiCo} Coaching
           </div>
         </div>
         <button class="btn btn-secondary" id="btnExportCSV">${Icons.svg('download', 16)} Export CSV</button>
@@ -330,7 +330,7 @@ export const Sekolah = {
           <td style="text-align:center">${g.abstraksi ? `<span class="badge badge-${g.abstraksi === 'tinggi' ? 'success' : 'danger'}">${g.abstraksi === 'tinggi' ? 'Tinggi' : 'Rendah'}</span>` : '<span style="color:var(--slate-400);font-size:.75rem">—</span>'}</td>
           <td style="text-align:center">${g.komitmen ? `<span class="badge badge-${g.komitmen === 'tinggi' ? 'success' : 'danger'}">${g.komitmen === 'tinggi' ? 'Tinggi' : 'Rendah'}</span>` : '<span style="color:var(--slate-400);font-size:.75rem">—</span>'}</td>
           <td style="text-align:center">${g.tipe ? `<span class="badge badge-${tipeBadge[g.tipe] || 'neutral'}">${g.tipe}</span>` : '<span style="color:var(--slate-400);font-size:.75rem">Belum</span>'}</td>
-          <td style="text-align:center"><strong>${total}</strong> <span style="font-size:.7rem;color:var(--slate-500)">(${n3}T, ${nPM}PM, ${nA}A, ${nC}C)</span></td>
+          <td style="text-align:center"><strong>${total}</strong> <span style="font-size:.7rem;color:var(--slate-500)">(${n3}·3T, ${nPM}·PM, ${nA}·Dig, ${nC}·Coach)</span></td>
         </tr>`;
       }).join('')}</tbody>
     </table></div>`;
@@ -363,8 +363,8 @@ export const Sekolah = {
     const all = [
       ...(sk.supervisi || []).map(s => ({ ...s, _jenis: '3 Tahap' })),
       ...(sk.supervisiPM || []).map(s => ({ ...s, _jenis: 'Supervisi PM', _skorPM: (s.telaah && s.telaah.nilai) || 0 })),
-      ...(sk.akademik || []).map(s => ({ ...s, _jenis: 'Akademik' })),
-      ...(sk.coaching || []).map(s => ({ ...s, _jenis: 'Coaching' }))
+      ...(sk.akademik || []).map(s => ({ ...s, _jenis: 'Supervisi Digitalisasi' })),
+      ...(sk.coaching || []).map(s => ({ ...s, _jenis: 'Coaching Digitalisasi' }))
     ].sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''));
 
     if (all.length === 0) {
@@ -381,8 +381,8 @@ export const Sekolah = {
       </tr></thead>
       <tbody>${all.map(s => {
         const g = guru.find(x => x.id === s.gid);
-        const max = s._jenis === 'Akademik' ? 76 : s._jenis === 'Coaching' ? 32 : s._jenis === 'Supervisi PM' ? 100 : null;
-        const badge = s._jenis === 'Akademik' ? 'info' : s._jenis === 'Coaching' ? 'warning' : s._jenis === 'Supervisi PM' ? 'success' : 'neutral';
+        const max = s._jenis === 'Supervisi Digitalisasi' ? 76 : s._jenis === 'Coaching Digitalisasi' ? 32 : s._jenis === 'Supervisi PM' ? 100 : null;
+        const badge = s._jenis === 'Supervisi Digitalisasi' ? 'info' : s._jenis === 'Coaching Digitalisasi' ? 'warning' : s._jenis === 'Supervisi PM' ? 'success' : 'neutral';
         const skorVal = s._jenis === 'Supervisi PM' ? s._skorPM : s.skor;
         return `<tr>
           <td style="font-weight:600">${Utils.esc(g?.nama || '?')}</td>
@@ -427,11 +427,11 @@ export const Sekolah = {
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#dbeafe;color:#1e40af">${Icons.svg('laptop', 22)}</div>
-          <div><div style="font-size:.75rem;color:var(--slate-500)">Obs. Akademik</div><div style="font-size:1.5rem;font-weight:700">${totAk}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/${guru.length}</span></div></div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Supervisi Digitalisasi</div><div style="font-size:1.5rem;font-weight:700">${totAk}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/${guru.length}</span></div></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#fef3c7;color:#92400e">${Icons.svg('message-circle', 22)}</div>
-          <div><div style="font-size:.75rem;color:var(--slate-500)">Obs. Coaching</div><div style="font-size:1.5rem;font-weight:700">${totCo}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/${guru.length}</span></div></div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Coaching Digitalisasi</div><div style="font-size:1.5rem;font-weight:700">${totCo}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/${guru.length}</span></div></div>
         </div>
       </div>
 
@@ -463,7 +463,7 @@ export const Sekolah = {
 
       <div style="text-align:center;font-size:.75rem;color:var(--slate-500);margin-top:.75rem">
         <strong>Coverage Ringkas:</strong>
-        3T ${pct(tot3)}% · PM ${pct(totPM)}% · Akademik ${pct(totAk)}% · Coaching ${pct(totCo)}%
+        3T ${pct(tot3)}% · PM ${pct(totPM)}% · Digitalisasi ${pct(totAk)}% · Coaching ${pct(totCo)}%
       </div>
     `;
   },
@@ -479,7 +479,7 @@ export const Sekolah = {
       ['Status Klaim', sk.pengawas_status || 'Belum'],
       ['Terakhir Sync', Utils.date(sk.updated_at)],
       [],
-      ['Nama Guru', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Abstraksi', 'Komitmen', 'Tipe Glickman', 'Supervisi 3T', 'Supervisi PM', 'Akademik', 'Coaching']
+      ['Nama Guru', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Abstraksi', 'Komitmen', 'Tipe Glickman', 'Supervisi 3T', 'Supervisi PM', 'Supervisi Digitalisasi', 'Coaching Digitalisasi']
     ];
     (sk.guru || []).forEach(g => {
       const n3 = (sk.supervisi || []).filter(s => s.gid === g.id).length;
