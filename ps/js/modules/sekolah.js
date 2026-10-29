@@ -78,9 +78,6 @@ export const Sekolah = {
   },
 
   async _bindList() {
-    // ============================================
-    // Baca filter yang diminta dari Dashboard
-    // ============================================
     const pendingFilter = sessionStorage.getItem('sispa_sekolah_filter');
     if (pendingFilter) {
       sessionStorage.removeItem('sispa_sekolah_filter');
@@ -101,7 +98,6 @@ export const Sekolah = {
     Utils.el('btnImportJSON')?.addEventListener('click', () => this.startImportJSON());
     Utils.el('btnEmptyImportJSON')?.addEventListener('click', () => this.startImportJSON());
 
-    // Filter events
     Utils.el('filterSk')?.addEventListener('change', () => this._draw());
     Utils.el('filterKlaim')?.addEventListener('change', () => this._draw());
     Utils.el('filterCoverage')?.addEventListener('change', () => this._draw());
@@ -114,7 +110,6 @@ export const Sekolah = {
       this._draw();
     });
 
-    // Initial draw
     if (Store.get('sekolah').length > 0) {
       this._draw();
     }
@@ -132,10 +127,8 @@ export const Sekolah = {
 
     let filtered = list.slice();
 
-    // Filter sekolah
     if (filterSk) filtered = filtered.filter(sk => sk.id === filterSk);
 
-    // Filter klaim
     if (filterKlaim === 'confirmed') {
       filtered = filtered.filter(sk => sk.pengawas_status === 'confirmed');
     } else if (filterKlaim === 'pending') {
@@ -148,17 +141,17 @@ export const Sekolah = {
         const noData = (sk.guru || []).length === 0
           && (sk.supervisi || []).length === 0
           && (sk.akademik || []).length === 0
-          && (sk.coaching || []).length === 0;
+          && (sk.coaching || []).length === 0
+          && (sk.supervisiPM || []).length === 0;
         return isConfirmed && noData;
       });
     }
 
-    // Filter coverage
     if (filterCoverage) {
       filtered = filtered.filter(sk => {
         const totalGuru = (sk.guru || []).length;
         const gidsWithSesi = new Set();
-        [...(sk.supervisi || []), ...(sk.akademik || []), ...(sk.coaching || [])].forEach(s => gidsWithSesi.add(s.gid));
+        [...(sk.supervisi || []), ...(sk.akademik || []), ...(sk.coaching || []), ...(sk.supervisiPM || [])].forEach(s => gidsWithSesi.add(s.gid));
         const covered = (sk.guru || []).filter(g => gidsWithSesi.has(g.id)).length;
         const cov = totalGuru > 0 ? Math.round(covered / totalGuru * 100) : 0;
         if (filterCoverage === 'low') return cov < 50;
@@ -168,7 +161,6 @@ export const Sekolah = {
       });
     }
 
-    // Filter search
     if (filterQ) {
       filtered = filtered.filter(sk =>
         (sk.nama_sekolah || '').toLowerCase().includes(filterQ) ||
@@ -192,10 +184,10 @@ export const Sekolah = {
         <th style="text-align:right">Aksi</th>
       </tr></thead>
       <tbody>${filtered.map(sk => {
-        const sesi = (sk.supervisi || []).length + (sk.akademik || []).length + (sk.coaching || []).length;
+        const sesi = (sk.supervisi || []).length + (sk.akademik || []).length + (sk.coaching || []).length + (sk.supervisiPM || []).length;
         const totalGuru = (sk.guru || []).length;
         const gidsWithSesi = new Set();
-        [...(sk.supervisi || []), ...(sk.akademik || []), ...(sk.coaching || [])].forEach(s => gidsWithSesi.add(s.gid));
+        [...(sk.supervisi || []), ...(sk.akademik || []), ...(sk.coaching || []), ...(sk.supervisiPM || [])].forEach(s => gidsWithSesi.add(s.gid));
         const covered = (sk.guru || []).filter(g => gidsWithSesi.has(g.id)).length;
         const coverage = totalGuru > 0 ? Math.round(covered / totalGuru * 100) : 0;
         const covColor = coverage >= 80 ? 'success' : coverage >= 50 ? 'warning' : 'danger';
@@ -261,6 +253,7 @@ export const Sekolah = {
       : this._renderTabSupervisi(sk);
 
     const sesi3 = (sk.supervisi || []).length;
+    const sesiPM = (sk.supervisiPM || []).length;
     const sesiAk = (sk.akademik || []).length;
     const sesiCo = (sk.coaching || []).length;
 
@@ -273,7 +266,7 @@ export const Sekolah = {
           <h2 style="margin:0">${Utils.esc(sk.nama_sekolah)}</h2>
           <div class="page-sub">
             NPSN <span style="font-family:monospace">${Utils.esc(sk.npsn || '-')}</span> ·
-            ${sesi3} Supervisi 3T · ${sesiAk} Akademik · ${sesiCo} Coaching
+            ${sesi3} Supervisi 3T · ${sesiPM} PM · ${sesiAk} Akademik · ${sesiCo} Coaching
           </div>
         </div>
         <button class="btn btn-secondary" id="btnExportCSV">${Icons.svg('download', 16)} Export CSV</button>
@@ -324,9 +317,10 @@ export const Sekolah = {
       </tr></thead>
       <tbody>${guru.map(g => {
         const n3 = (sk.supervisi || []).filter(s => s.gid === g.id).length;
+        const nPM = (sk.supervisiPM || []).filter(s => s.gid === g.id).length;
         const nA = (sk.akademik || []).filter(s => s.gid === g.id).length;
         const nC = (sk.coaching || []).filter(s => s.gid === g.id).length;
-        const total = n3 + nA + nC;
+        const total = n3 + nPM + nA + nC;
         return `<tr>
           <td>
             <div style="font-weight:600">${Utils.esc(g.nama)}</div>
@@ -336,7 +330,7 @@ export const Sekolah = {
           <td style="text-align:center">${g.abstraksi ? `<span class="badge badge-${g.abstraksi === 'tinggi' ? 'success' : 'danger'}">${g.abstraksi === 'tinggi' ? 'Tinggi' : 'Rendah'}</span>` : '<span style="color:var(--slate-400);font-size:.75rem">—</span>'}</td>
           <td style="text-align:center">${g.komitmen ? `<span class="badge badge-${g.komitmen === 'tinggi' ? 'success' : 'danger'}">${g.komitmen === 'tinggi' ? 'Tinggi' : 'Rendah'}</span>` : '<span style="color:var(--slate-400);font-size:.75rem">—</span>'}</td>
           <td style="text-align:center">${g.tipe ? `<span class="badge badge-${tipeBadge[g.tipe] || 'neutral'}">${g.tipe}</span>` : '<span style="color:var(--slate-400);font-size:.75rem">Belum</span>'}</td>
-          <td style="text-align:center"><strong>${total}</strong> <span style="font-size:.7rem;color:var(--slate-500)">(${n3}T, ${nA}A, ${nC}C)</span></td>
+          <td style="text-align:center"><strong>${total}</strong> <span style="font-size:.7rem;color:var(--slate-500)">(${n3}T, ${nPM}PM, ${nA}A, ${nC}C)</span></td>
         </tr>`;
       }).join('')}</tbody>
     </table></div>`;
@@ -368,6 +362,7 @@ export const Sekolah = {
   _renderTabSupervisi(sk) {
     const all = [
       ...(sk.supervisi || []).map(s => ({ ...s, _jenis: '3 Tahap' })),
+      ...(sk.supervisiPM || []).map(s => ({ ...s, _jenis: 'Supervisi PM', _skorPM: (s.telaah && s.telaah.nilai) || 0 })),
       ...(sk.akademik || []).map(s => ({ ...s, _jenis: 'Akademik' })),
       ...(sk.coaching || []).map(s => ({ ...s, _jenis: 'Coaching' }))
     ].sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''));
@@ -386,13 +381,14 @@ export const Sekolah = {
       </tr></thead>
       <tbody>${all.map(s => {
         const g = guru.find(x => x.id === s.gid);
-        const max = s._jenis === 'Akademik' ? 76 : s._jenis === 'Coaching' ? 32 : null;
-        const badge = s._jenis === 'Akademik' ? 'info' : s._jenis === 'Coaching' ? 'warning' : 'neutral';
+        const max = s._jenis === 'Akademik' ? 76 : s._jenis === 'Coaching' ? 32 : s._jenis === 'Supervisi PM' ? 100 : null;
+        const badge = s._jenis === 'Akademik' ? 'info' : s._jenis === 'Coaching' ? 'warning' : s._jenis === 'Supervisi PM' ? 'success' : 'neutral';
+        const skorVal = s._jenis === 'Supervisi PM' ? s._skorPM : s.skor;
         return `<tr>
           <td style="font-weight:600">${Utils.esc(g?.nama || '?')}</td>
           <td><span class="badge badge-${badge}">${s._jenis}</span></td>
           <td>${Utils.date(s.tgl)}</td>
-          <td style="text-align:center;font-weight:700">${s.skor !== undefined ? s.skor : '—'}${max ? `<span style="font-weight:400;color:var(--slate-400);font-size:.7rem">/${max}</span>` : ''}</td>
+          <td style="text-align:center;font-weight:700">${skorVal !== undefined && skorVal !== null ? skorVal : '—'}${max ? `<span style="font-weight:400;color:var(--slate-400);font-size:.7rem">/${max}</span>` : ''}</td>
         </tr>`;
       }).join('')}</tbody>
     </table></div>`;
@@ -404,15 +400,17 @@ export const Sekolah = {
       return `<div class="card"><div class="card-body">${emptyState('users', 'Belum ada guru', 'Data guru belum tersedia.')}</div></div>`;
     }
 
-    let tot3 = 0, totAk = 0, totCo = 0;
+    let tot3 = 0, totPM = 0, totAk = 0, totCo = 0;
     const matrix = guru.map(g => {
       const has3 = (sk.supervisi || []).some(s => s.gid === g.id);
+      const hasPM = (sk.supervisiPM || []).some(s => s.gid === g.id);
       const hasAk = (sk.akademik || []).some(s => s.gid === g.id);
       const hasCo = (sk.coaching || []).some(s => s.gid === g.id);
       if (has3) tot3++;
+      if (hasPM) totPM++;
       if (hasAk) totAk++;
       if (hasCo) totCo++;
-      return { guru: g, has3, hasAk, hasCo };
+      return { guru: g, has3, hasPM, hasAk, hasCo };
     });
 
     const pct = (n) => Math.round(n / guru.length * 100);
@@ -422,6 +420,10 @@ export const Sekolah = {
         <div class="stat-card">
           <div class="stat-icon" style="background:#e0e7ff;color:#4338ca">${Icons.svg('clipboard-list', 22)}</div>
           <div><div style="font-size:.75rem;color:var(--slate-500)">Supervisi 3 Tahap</div><div style="font-size:1.5rem;font-weight:700">${tot3}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/${guru.length}</span></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fce7f3;color:#9d174d">${Icons.svg('book-open-check', 22)}</div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Supervisi PM</div><div style="font-size:1.5rem;font-weight:700">${totPM}<span style="color:var(--slate-400);font-size:1rem;font-weight:500">/${guru.length}</span></div></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#dbeafe;color:#1e40af">${Icons.svg('laptop', 22)}</div>
@@ -437,29 +439,31 @@ export const Sekolah = {
         <thead><tr>
           <th>Guru</th>
           <th style="text-align:center">3 Tahap</th>
+          <th style="text-align:center">PM</th>
           <th style="text-align:center">Akademik</th>
           <th style="text-align:center">Coaching</th>
           <th style="text-align:center">Coverage</th>
         </tr></thead>
         <tbody>${matrix.map(m => {
-          const cov = [m.has3, m.hasAk, m.hasCo].filter(Boolean).length;
-          const covColor = cov === 3 ? 'success' : cov >= 1 ? 'warning' : 'danger';
+          const cov = [m.has3, m.hasPM, m.hasAk, m.hasCo].filter(Boolean).length;
+          const covColor = cov === 4 ? 'success' : cov >= 2 ? 'warning' : cov >= 1 ? 'info' : 'danger';
           return `<tr>
             <td>
               <div style="font-weight:600">${Utils.esc(m.guru.nama)}</div>
               <div style="font-size:.75rem;color:var(--slate-500)">${Utils.esc(m.guru.mapel || '-')}${m.guru.tipe ? ` · <span class="badge badge-info" style="font-size:.6rem">${m.guru.tipe}</span>` : ''}</div>
             </td>
             <td style="text-align:center">${m.has3 ? `<span style="color:var(--success)">${Icons.svg('check-circle', 20)}</span>` : `<span style="color:var(--slate-300)">${Icons.svg('x', 20)}</span>`}</td>
+            <td style="text-align:center">${m.hasPM ? `<span style="color:var(--success)">${Icons.svg('check-circle', 20)}</span>` : `<span style="color:var(--slate-300)">${Icons.svg('x', 20)}</span>`}</td>
             <td style="text-align:center">${m.hasAk ? `<span style="color:var(--success)">${Icons.svg('check-circle', 20)}</span>` : `<span style="color:var(--slate-300)">${Icons.svg('x', 20)}</span>`}</td>
             <td style="text-align:center">${m.hasCo ? `<span style="color:var(--success)">${Icons.svg('check-circle', 20)}</span>` : `<span style="color:var(--slate-300)">${Icons.svg('x', 20)}</span>`}</td>
-            <td style="text-align:center"><span class="badge badge-${covColor}">${cov}/3</span></td>
+            <td style="text-align:center"><span class="badge badge-${covColor}">${cov}/4</span></td>
           </tr>`;
         }).join('')}</tbody>
       </table></div>
 
       <div style="text-align:center;font-size:.75rem;color:var(--slate-500);margin-top:.75rem">
         <strong>Coverage Ringkas:</strong>
-        3T ${pct(tot3)}% · Akademik ${pct(totAk)}% · Coaching ${pct(totCo)}%
+        3T ${pct(tot3)}% · PM ${pct(totPM)}% · Akademik ${pct(totAk)}% · Coaching ${pct(totCo)}%
       </div>
     `;
   },
@@ -475,13 +479,14 @@ export const Sekolah = {
       ['Status Klaim', sk.pengawas_status || 'Belum'],
       ['Terakhir Sync', Utils.date(sk.updated_at)],
       [],
-      ['Nama Guru', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Abstraksi', 'Komitmen', 'Tipe Glickman', 'Supervisi 3T', 'Akademik', 'Coaching']
+      ['Nama Guru', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Abstraksi', 'Komitmen', 'Tipe Glickman', 'Supervisi 3T', 'Supervisi PM', 'Akademik', 'Coaching']
     ];
     (sk.guru || []).forEach(g => {
       const n3 = (sk.supervisi || []).filter(s => s.gid === g.id).length;
+      const nPM = (sk.supervisiPM || []).filter(s => s.gid === g.id).length;
       const nA = (sk.akademik || []).filter(s => s.gid === g.id).length;
       const nC = (sk.coaching || []).filter(s => s.gid === g.id).length;
-      rows.push([g.nama, g.nip || '', g.mapel || '', g.kelas || '', g.peg || '', g.abstraksi || '', g.komitmen || '', g.tipe || '', n3, nA, nC]);
+      rows.push([g.nama, g.nip || '', g.mapel || '', g.kelas || '', g.peg || '', g.abstraksi || '', g.komitmen || '', g.tipe || '', n3, nPM, nA, nC]);
     });
 
     Utils.downloadCSV(rows, `SISPA_${sk.npsn}_${new Date().toISOString().slice(0, 10)}.csv`);
@@ -606,7 +611,7 @@ export const Sekolah = {
               ks_nama: '', ks_nip: '',
               pengawas_status: 'pending',
               imported_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-              guru: [], program: [], supervisi: [], akademik: [], coaching: []
+              guru: [], program: [], supervisi: [], supervisiPM: [], akademik: [], coaching: []
             });
           }
           await Store.set('sekolah', [...localSchools, ...newSk]);
@@ -681,7 +686,7 @@ export const Sekolah = {
     const sekolah = Store.get('sekolah');
     const existing = sekolah.find(sk => String(sk.npsn).trim() === npsn);
 
-    const arrays = ['guru', 'program', 'supervisi', 'akademik', 'coaching'];
+    const arrays = ['guru', 'program', 'supervisi', 'supervisiPM', 'akademik', 'coaching'];
     const diff = {};
     arrays.forEach(k => {
       const oldArr = existing[k] || [];
@@ -710,7 +715,13 @@ export const Sekolah = {
         <tr><td style="padding:.3rem .5rem;color:var(--slate-500);width:120px">Sekolah</td><td><strong>${Utils.esc(cfg.nama_sekolah)}</strong></td></tr>
         <tr><td style="padding:.3rem .5rem;color:var(--slate-500)">NPSN</td><td style="font-family:monospace">${Utils.esc(npsn)}</td></tr>
         <tr><td style="padding:.3rem .5rem;color:var(--slate-500)">Terakhir Sync</td><td>${Utils.relTime(existing.updated_at)}</td></tr>
+        ${data.version ? `<tr><td style="padding:.3rem .5rem;color:var(--slate-500)">Versi JSON</td><td><code>${Utils.esc(data.version)}</code></td></tr>` : ''}
       </table>
+      ${data.schema_flags && !data.schema_flags.supervisiPM && (data.supervisiPM || []).length === 0 ? `
+        <div style="padding:.6rem .85rem;background:#fef3c7;border-radius:8px;font-size:.8rem;color:#92400e;margin-bottom:1rem;line-height:1.5">
+          ⚠️ File ini dari aplikasi KS versi lama (tanpa data Supervisi PM). Data lain tetap bisa di-import.
+        </div>
+      ` : ''}
       <div style="margin-bottom:1rem">
         <label style="display:flex;gap:.5rem;padding:.6rem;border:1.5px solid var(--brand-500);background:var(--brand-50);border-radius:8px;cursor:pointer;margin-bottom:.4rem">
           <input type="radio" name="impMode" value="merge" checked><div><strong style="font-size:.85rem">Merge (aman)</strong><div style="font-size:.75rem;color:var(--slate-600)">Data lama dipertahankan.</div></div>
@@ -721,7 +732,7 @@ export const Sekolah = {
       </div>
       <div style="font-weight:600;font-size:.85rem;margin-bottom:.35rem">Perubahan:</div>
       <div style="border:1px solid var(--slate-200);border-radius:8px;overflow:hidden">
-        ${diffRow('Guru', diff.guru)}${diffRow('Program', diff.program)}${diffRow('Supervisi', diff.supervisi)}${diffRow('Akademik', diff.akademik)}${diffRow('Coaching', diff.coaching)}
+        ${diffRow('Guru', diff.guru)}${diffRow('Program', diff.program)}${diffRow('Supervisi 3T', diff.supervisi)}${diffRow('Supervisi PM', diff.supervisiPM)}${diffRow('Akademik', diff.akademik)}${diffRow('Coaching', diff.coaching)}
       </div>
     `, `<button class="btn btn-secondary" onclick="Utils.closeModal()">Batal</button><button class="btn btn-primary" id="btnConfirm">Import</button>`, true);
 
@@ -732,7 +743,7 @@ export const Sekolah = {
       existing.ks_nama = cfg.nama_ks || existing.ks_nama || '';
       existing.ks_nip = cfg.nip_ks || existing.ks_nip || '';
       existing.updated_at = now;
-      ['guru', 'program', 'supervisi', 'akademik', 'coaching'].forEach(k => {
+      ['guru', 'program', 'supervisi', 'supervisiPM', 'akademik', 'coaching'].forEach(k => {
         if (mode === 'replace') existing[k] = data[k] || [];
         else {
           const oldMap = new Map((existing[k] || []).map(x => [x.id, x]));
