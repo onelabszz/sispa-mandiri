@@ -28,8 +28,8 @@ export const allSesi = () => {
   Store.get('sekolah').forEach(sk => {
     (sk.supervisi || []).forEach(s => out.push({ ...s, _jenis: '3 Tahap', _skId: sk.id, _skNama: sk.nama_sekolah }));
     (sk.supervisiPM || []).forEach(s => out.push({ ...s, _jenis: 'Supervisi PM', _skId: sk.id, _skNama: sk.nama_sekolah }));
-    (sk.akademik || []).forEach(s => out.push({ ...s, _jenis: 'Akademik', _skId: sk.id, _skNama: sk.nama_sekolah }));
-    (sk.coaching || []).forEach(s => out.push({ ...s, _jenis: 'Coaching', _skId: sk.id, _skNama: sk.nama_sekolah }));
+    (sk.akademik || []).forEach(s => out.push({ ...s, _jenis: 'Supervisi Digitalisasi', _skId: sk.id, _skNama: sk.nama_sekolah }));
+    (sk.coaching || []).forEach(s => out.push({ ...s, _jenis: 'Coaching Digitalisasi', _skId: sk.id, _skNama: sk.nama_sekolah }));
   });
   return out.sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''));
 };
