@@ -4,6 +4,7 @@ import { Icons } from '../../../shared/js/icons.js';
 import { Router } from '../../../shared/js/router.js';
 import { emptyState } from '../helpers.js';
 import { Supervisi } from './supervisi.js';
+import { SupervisiPM } from './supervisi-pm.js';
 import { Akademik } from './akademik.js';
 import { Coaching } from './coaching.js';
 
@@ -14,7 +15,8 @@ export const Laporan = {
     const akad = Store.get('akademik').map(x => ({ ...x, type: 'Akademik', max: 76 }));
     const coach = Store.get('coaching').map(x => ({ ...x, type: 'Coaching', max: 32 }));
     const sup3 = Store.get('supervisi').map(x => ({ ...x, type: '3 Tahap', max: '-' }));
-    const all = [...akad, ...coach, ...sup3].sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''));
+    const pm = (Store.get('supervisiPM') || []).map(x => ({ ...x, type: 'Supervisi PM', max: 100, skor: (x.telaah && x.telaah.nilai) || 0 }));
+    const all = [...akad, ...coach, ...sup3, ...pm].sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''));
     const guru = Store.get('guru');
 
     return `
@@ -38,6 +40,7 @@ export const Laporan = {
                 <option value="3 Tahap" ${this._filters.jenis === '3 Tahap' ? 'selected' : ''}>3 Tahap</option>
                 <option value="Akademik" ${this._filters.jenis === 'Akademik' ? 'selected' : ''}>Akademik</option>
                 <option value="Coaching" ${this._filters.jenis === 'Coaching' ? 'selected' : ''}>Coaching</option>
+                <option value="Supervisi PM" ${this._filters.jenis === 'Supervisi PM' ? 'selected' : ''}>Supervisi PM</option>
               </select></div>
               <div><label class="label">Status</label><select class="select" id="fStatus">
                 <option value="">Semua</option>
@@ -97,9 +100,10 @@ export const Laporan = {
     const akad = Store.get('akademik').map(x => ({ ...x, type: 'Akademik', max: 76, status: 'selesai' }));
     const coach = Store.get('coaching').map(x => ({ ...x, type: 'Coaching', max: 32, status: 'selesai' }));
     const sup3 = Store.get('supervisi').map(x => ({ ...x, type: '3 Tahap', max: '-' }));
+    const pm = (Store.get('supervisiPM') || []).map(x => ({ ...x, type: 'Supervisi PM', max: 100, skor: (x.telaah && x.telaah.nilai) || 0 }));
     const guru = Store.get('guru');
 
-    let list = [...akad, ...coach, ...sup3].sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''));
+    let list = [...akad, ...coach, ...sup3, ...pm].sort((a, b) => (b.tgl || '').localeCompare(a.tgl || ''));
 
     // Apply filters
     if (this._filters.jenis) list = list.filter(s => s.type === this._filters.jenis);
@@ -129,7 +133,7 @@ export const Laporan = {
     </tr></thead><tbody>${list.map(s => {
       const g = guru.find(x => x.id === s.gid);
       const skor = (s.skor !== undefined && s.skor !== null) ? s.skor : '-';
-      const badge = s.type === 'Akademik' ? 'info' : s.type === 'Coaching' ? 'warning' : 'neutral';
+      const badge = s.type === 'Akademik' ? 'info' : s.type === 'Coaching' ? 'warning' : s.type === 'Supervisi PM' ? 'success' : 'neutral';
       const statusBadge = s.status === 'selesai' ? 'success' : s.status === 'draft' ? 'neutral' : 'warning';
       const statusLabel = s.status === 'selesai' ? 'Selesai' : s.status === 'draft' ? 'Draft' : 'Berjalan';
       return `<tr>
@@ -174,6 +178,7 @@ export const Laporan = {
     const sup = Store.get('supervisi');
     const akad = Store.get('akademik');
     const coach = Store.get('coaching');
+    const pm = Store.get('supervisiPM') || [];
 
     // Auto-detect periode aktif
     const now = new Date();
@@ -189,14 +194,16 @@ export const Laporan = {
     const supFiltered = sup.filter(s => (s.tgl || '') >= cutoffISO);
     const akadFiltered = akad.filter(s => (s.tgl || '') >= cutoffISO);
     const coachFiltered = coach.filter(s => (s.tgl || '') >= cutoffISO);
+    const pmFiltered = pm.filter(s => (s.tgl || '') >= cutoffISO);
 
-    const totalSesi = supFiltered.length + akadFiltered.length + coachFiltered.length;
+    const totalSesi = supFiltered.length + akadFiltered.length + coachFiltered.length + pmFiltered.length;
 
     // Statistik
     const guruIdsSup = new Set(supFiltered.map(s => s.gid));
     const guruIdsAkad = new Set(akadFiltered.map(s => s.gid));
     const guruIdsCoach = new Set(coachFiltered.map(s => s.gid));
-    const guruCovered = new Set([...guruIdsSup, ...guruIdsAkad, ...guruIdsCoach]);
+    const guruIdsPM = new Set(pmFiltered.map(s => s.gid));
+    const guruCovered = new Set([...guruIdsSup, ...guruIdsAkad, ...guruIdsCoach, ...guruIdsPM]);
     const coverage = guru.length > 0 ? Math.round(guruCovered.size / guru.length * 100) : 0;
 
     // Distribusi tipe
@@ -210,18 +217,23 @@ export const Laporan = {
     const avgCoach = coachFiltered.length > 0
       ? (coachFiltered.reduce((s, x) => s + (x.skor || 0), 0) / coachFiltered.length).toFixed(1)
       : '—';
+    const avgPM = pmFiltered.length > 0
+      ? (pmFiltered.reduce((s, x) => s + ((x.telaah && x.telaah.nilai) || 0), 0) / pmFiltered.length).toFixed(1)
+      : '—';
 
     // Tabel per guru
     const guruRows = guru.map((g, i) => {
       const s3 = supFiltered.filter(s => s.gid === g.id).length;
       const sA = akadFiltered.filter(s => s.gid === g.id).length;
       const sC = coachFiltered.filter(s => s.gid === g.id).length;
+      const sPM = pmFiltered.filter(s => s.gid === g.id).length;
       return `<tr>
         <td style="text-align:center">${i+1}</td>
         <td>${Utils.esc(g.nama)}</td>
         <td style="font-size:8.5pt">${Utils.esc(g.mapel || '-')}</td>
         <td style="text-align:center;font-size:8.5pt">${g.tipe || '—'}</td>
         <td style="text-align:center">${s3}</td>
+        <td style="text-align:center">${sPM}</td>
         <td style="text-align:center">${sA}</td>
         <td style="text-align:center">${sC}</td>
       </tr>`;
@@ -239,11 +251,12 @@ export const Laporan = {
       <h2>Ringkasan</h2>
       <table class="info">
         <tr><td>Total Guru</td><td>:</td><td><strong>${guru.length}</strong></td></tr>
-        <tr><td>Total Sesi Supervisi</td><td>:</td><td><strong>${totalSesi}</strong> (3T: ${supFiltered.length}, Akademik: ${akadFiltered.length}, Coaching: ${coachFiltered.length})</td></tr>
+        <tr><td>Total Sesi Supervisi</td><td>:</td><td><strong>${totalSesi}</strong> (3T: ${supFiltered.length}, PM: ${pmFiltered.length}, Akademik: ${akadFiltered.length}, Coaching: ${coachFiltered.length})</td></tr>
         <tr><td>Coverage (Guru Tersentuh)</td><td>:</td><td><strong>${guruCovered.size}/${guru.length} (${coverage}%)</strong></td></tr>
         <tr><td>Rata-rata Skor Akademik</td><td>:</td><td>${avgAkad} / 76</td></tr>
         <tr><td>Rata-rata Skor Coaching</td><td>:</td><td>${avgCoach} / 32</td></tr>
-      </table>
+        <tr><td>Rata-rata Skor Telaah PM</td><td>:</td><td>${avgPM} / 100</td></tr>
+      </table>      </table>
 
       <h2>Distribusi Tipe Guru (Glickman)</h2>
       <table class="ind">
@@ -266,15 +279,16 @@ export const Laporan = {
       <h2>Rekap per Guru</h2>
       <table class="ind">
         <thead><tr>
-          <th style="text-align:center;width:30px">#</th>
-          <th>Nama Guru</th>
-          <th>Mapel</th>
-          <th style="text-align:center">Tipe</th>
-          <th style="text-align:center">3T</th>
-          <th style="text-align:center">Akad</th>
-          <th style="text-align:center">Coach</th>
-        </tr></thead>
-        <tbody>${guruRows || '<tr><td colspan="7" style="text-align:center">Belum ada data guru</td></tr>'}</tbody>
+        <th style="text-align:center;width:30px">#</th>
+        <th>Nama Guru</th>
+        <th>Mapel</th>
+        <th style="text-align:center">Tipe</th>
+        <th style="text-align:center">3T</th>
+        <th style="text-align:center">PM</th>
+        <th style="text-align:center">Akad</th>
+        <th style="text-align:center">Coach</th>
+      </tr></thead>
+      <tbody>${guruRows || '<tr><td colspan="8" style="text-align:center">Belum ada data guru</td></tr>'}</tbody>
       </table>
 
       <div class="ttd-grid">
