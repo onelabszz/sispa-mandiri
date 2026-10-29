@@ -71,6 +71,7 @@ export const Laporan = {
     const ranked = sekolah.map(sk => ({ sk, m: metricsSekolah(sk) }));
     const totalGuru = ranked.reduce((s, x) => s + x.m.totalGuru, 0);
     const totalSesi = ranked.reduce((s, x) => s + x.m.totalSesi, 0);
+    const totalPM = ranked.reduce((s, x) => s + x.m.totalPM, 0);
     const avgCov = Math.round(ranked.reduce((s, x) => s + x.m.coverage, 0) / ranked.length);
     const avgScore = Math.round(ranked.reduce((s, x) => s + x.m.score, 0) / ranked.length);
 
@@ -84,7 +85,7 @@ export const Laporan = {
         <tr><td>Tanggal Cetak</td><td>:</td><td>${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</td></tr>
       </table>
       <h2>Ringkasan</h2>
-      <p>Total: <strong>${ranked.length} sekolah</strong> · <strong>${totalGuru} guru</strong> · <strong>${totalSesi} sesi</strong><br>
+      <p>Total: <strong>${ranked.length} sekolah</strong> · <strong>${totalGuru} guru</strong> · <strong>${totalSesi} sesi</strong> (termasuk <strong>${totalPM} Supervisi PM</strong>)<br>
       Rata-rata Coverage: <strong>${avgCov}%</strong> · Rata-rata Skor: <strong>${avgScore}</strong></p>
       <h2>Rincian per Sekolah</h2>
       <table class="ind"><thead><tr>
@@ -92,6 +93,7 @@ export const Laporan = {
         <th>Sekolah</th><th>Kepala Sekolah</th>
         <th style="text-align:center">Guru</th>
         <th style="text-align:center">Sesi</th>
+        <th style="text-align:center">PM</th>
         <th style="text-align:center">Coverage</th>
         <th style="text-align:center">Skor</th>
         <th style="text-align:center">Kategori</th>
@@ -102,6 +104,7 @@ export const Laporan = {
           <td>${Utils.esc(r.sk.ks_nama || '—')}</td>
           <td style="text-align:center">${r.m.totalGuru}</td>
           <td style="text-align:center">${r.m.totalSesi}</td>
+          <td style="text-align:center;font-weight:600;color:#9d174d">${r.m.totalPM}</td>
           <td style="text-align:center">${r.m.coverage}%</td>
           <td style="text-align:center">${r.m.score}</td>
           <td style="text-align:center">${r.m.kategori}</td>
@@ -121,16 +124,20 @@ export const Laporan = {
     const m = metricsSekolah(sk);
     const guruRows = (sk.guru || []).map((g, i) => {
       const sup3 = (sk.supervisi || []).filter(s => s.gid === g.id);
+      const pm = (sk.supervisiPM || []).filter(s => s.gid === g.id);
       const akad = (sk.akademik || []).filter(s => s.gid === g.id);
       const coach = (sk.coaching || []).filter(s => s.gid === g.id);
       const akAvg = akad.length > 0 ? Math.round(akad.reduce((s, x) => s + (x.skor || 0), 0) / akad.length) : null;
       const coAvg = coach.length > 0 ? Math.round(coach.reduce((s, x) => s + (x.skor || 0), 0) / coach.length) : null;
+      const pmNilais = pm.map(s => (s.telaah && s.telaah.nilai) || 0).filter(n => n > 0);
+      const pmAvg = pmNilais.length > 0 ? Math.round(pmNilais.reduce((a, b) => a + b, 0) / pmNilais.length) : null;
       return `<tr>
         <td style="text-align:center">${i + 1}</td>
         <td>${Utils.esc(g.nama)}</td>
         <td style="font-size:8.5pt">${Utils.esc(g.mapel || '-')}</td>
         <td style="text-align:center;font-size:8.5pt">${g.tipe || '—'}</td>
         <td style="text-align:center">${sup3.length}</td>
+        <td style="text-align:center;font-weight:600;color:#9d174d">${pm.length}${pmAvg !== null ? ` <span style="font-size:8pt;color:#64748b">(${pmAvg})</span>` : ''}</td>
         <td style="text-align:center">${akad.length}${akAvg !== null ? ` <span style="font-size:8pt;color:#64748b">(${akAvg}/76)</span>` : ''}</td>
         <td style="text-align:center">${coach.length}${coAvg !== null ? ` <span style="font-size:8pt;color:#64748b">(${coAvg}/32)</span>` : ''}</td>
       </tr>`;
@@ -150,7 +157,7 @@ export const Laporan = {
       <h2>Ringkasan Kinerja</h2>
       <table class="info">
         <tr><td>Total Guru</td><td>:</td><td><strong>${m.totalGuru}</strong></td></tr>
-        <tr><td>Total Sesi</td><td>:</td><td>${m.totalSesi} (3T: ${m.totalSup3}, Akademik: ${m.totalAkad}, Coaching: ${m.totalCo})</td></tr>
+        <tr><td>Total Sesi</td><td>:</td><td>${m.totalSesi} (3T: ${m.totalSup3}, PM: ${m.totalPM}, Akademik: ${m.totalAkad}, Coaching: ${m.totalCo})</td></tr>
         <tr><td>Coverage</td><td>:</td><td><strong>${m.coverage}%</strong></td></tr>
         <tr><td>Skor Kinerja</td><td>:</td><td><strong>${m.score}</strong> (${m.kategori})</td></tr>
       </table>
@@ -169,9 +176,10 @@ export const Laporan = {
         <th>Nama</th><th>Mapel</th>
         <th style="text-align:center">Tipe</th>
         <th style="text-align:center">3T</th>
+        <th style="text-align:center">PM</th>
         <th style="text-align:center">Akademik</th>
         <th style="text-align:center">Coaching</th>
-      </tr></thead><tbody>${guruRows || '<tr><td colspan="7" style="text-align:center">—</td></tr>'}</tbody></table>
+      </tr></thead><tbody>${guruRows || '<tr><td colspan="8" style="text-align:center">—</td></tr>'}</tbody></table>
       <div class="ttd-grid">
         <div class="ttd-box"><div>Kepala Sekolah</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(sk.ks_nama || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(sk.ks_nip || '...')}</div></div>
         <div class="ttd-box"><div>Pengawas</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(c.nama_pengawas || '...')}</div><div style="font-size:8.5pt;color:#64748b">NIP. ${Utils.esc(c.nip_pengawas || '...')}</div></div>
@@ -181,13 +189,14 @@ export const Laporan = {
 
   _csvGuru() {
     const list = allGuru();
-    const rows = [['Sekolah', 'NPSN', 'Nama', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Tipe', 'Pendekatan', '3T', 'Akademik', 'Coaching']];
+    const rows = [['Sekolah', 'NPSN', 'Nama', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Tipe', 'Pendekatan', '3T', 'PM', 'Akademik', 'Coaching']];
     list.sort((a, b) => a._skNama.localeCompare(b._skNama) || a.nama.localeCompare(b.nama)).forEach(g => {
       const sk = Store.get('sekolah').find(x => x.id === g._skId);
       const n3 = (sk?.supervisi || []).filter(s => s.gid === g.id).length;
+      const nPM = (sk?.supervisiPM || []).filter(s => s.gid === g.id).length;
       const nA = (sk?.akademik || []).filter(s => s.gid === g.id).length;
       const nC = (sk?.coaching || []).filter(s => s.gid === g.id).length;
-      rows.push([g._skNama, g._skNpsn || '', g.nama, g.nip || '', g.mapel || '', g.kelas || '', g.peg || '', g.tipe || '', g.pendekatan || '', n3, nA, nC]);
+      rows.push([g._skNama, g._skNpsn || '', g.nama, g.nip || '', g.mapel || '', g.kelas || '', g.peg || '', g.tipe || '', g.pendekatan || '', n3, nPM, nA, nC]);
     });
     Utils.downloadCSV(rows, `SISPA_Guru_${new Date().toISOString().slice(0, 10)}.csv`);
     Utils.toast(`${list.length} guru diekspor`, 'success');
@@ -198,9 +207,18 @@ export const Laporan = {
     const rows = [['Sekolah', 'Guru', 'Jenis', 'Tanggal', 'Status', 'Skor', 'Max']];
     list.forEach(s => {
       const g = guruBySekolah(s._skId, s.gid);
-      const max = s._jenis === 'Akademik' ? 76 : s._jenis === 'Coaching' ? 32 : '';
-      const status = s._jenis === '3 Tahap' ? (s.status || 'draft') : 'selesai';
-      rows.push([s._skNama, g?.nama || '?', s._jenis, s.tgl || '', status, s.skor ?? '', max]);
+      let max = '';
+      let skor = s.skor;
+      if (s._jenis === 'Akademik') { max = 76; }
+      else if (s._jenis === 'Coaching') { max = 32; }
+      else if (s._jenis === 'Supervisi PM') {
+        max = 100;
+        skor = (s.telaah && s.telaah.nilai) || 0;
+      }
+      const status = s._jenis === '3 Tahap' || s._jenis === 'Supervisi PM'
+        ? (s.status || 'draft')
+        : 'selesai';
+      rows.push([s._skNama, g?.nama || '?', s._jenis, s.tgl || '', status, skor ?? '', max]);
     });
     Utils.downloadCSV(rows, `SISPA_Supervisi_${new Date().toISOString().slice(0, 10)}.csv`);
     Utils.toast(`${list.length} sesi diekspor`, 'success');
@@ -208,10 +226,15 @@ export const Laporan = {
 
   _csvRekap() {
     const sekolah = Store.get('sekolah');
-    const rows = [['Sekolah', 'NPSN', 'KS', 'Guru', 'Sesi', 'Coverage', 'Avg Akademik', 'Avg Coaching', 'Kelengkapan RTL', 'Skor', 'Kategori']];
+    const rows = [['Sekolah', 'NPSN', 'KS', 'Guru', 'Sesi', 'PM', 'Coverage', 'Avg Akademik', 'Avg Coaching', 'Avg Telaah PM', 'Kelengkapan RTL', 'Skor', 'Kategori']];
     sekolah.forEach(sk => {
       const m = metricsSekolah(sk);
-      rows.push([sk.nama_sekolah, sk.npsn || '', sk.ks_nama || '', m.totalGuru, m.totalSesi, m.coverage, m.avgAk ?? '', m.avgCo ?? '', m.kelengkapan, m.score, m.kategori]);
+      rows.push([
+        sk.nama_sekolah, sk.npsn || '', sk.ks_nama || '',
+        m.totalGuru, m.totalSesi, m.totalPM, m.coverage,
+        m.avgAk ?? '', m.avgCo ?? '', m.avgPM ?? '',
+        m.kelengkapan, m.score, m.kategori
+      ]);
     });
     Utils.downloadCSV(rows, `SISPA_Rekap_${new Date().toISOString().slice(0, 10)}.csv`);
     Utils.toast(`${sekolah.length} sekolah diekspor`, 'success');
