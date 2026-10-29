@@ -32,8 +32,8 @@ export const Analisis = {
       <div class="tab-nav">
         <button class="tab-btn ${this._tab === 'overview' ? 'active' : ''}" data-tab="overview">${Icons.svg('bar-chart-3', 16)} Overview</button>
         <button class="tab-btn ${this._tab === 'pm' ? 'active' : ''}" data-tab="pm">${Icons.svg('book-open-check', 16)} Supervisi PM</button>
-        <button class="tab-btn ${this._tab === 'akademik' ? 'active' : ''}" data-tab="akademik">${Icons.svg('laptop', 16)} Obs. Akademik</button>
-        <button class="tab-btn ${this._tab === 'coaching' ? 'active' : ''}" data-tab="coaching">${Icons.svg('message-circle', 16)} Obs. Coaching</button>
+        <button class="tab-btn ${this._tab === 'akademik' ? 'active' : ''}" data-tab="akademik">${Icons.svg('laptop', 16)} Supervisi Digitalisasi</button>
+        <button class="tab-btn ${this._tab === 'coaching' ? 'active' : ''}" data-tab="coaching">${Icons.svg('message-circle', 16)} Coaching Digitalisasi</button>
       </div>
 
       ${tabContent}
@@ -366,7 +366,7 @@ export const Analisis = {
   _renderAkademik(sekolah) {
     const allAkad = sekolah.flatMap(sk => sk.akademik || []);
     if (allAkad.length === 0) {
-      return `<div class="card"><div class="card-body">${emptyState('laptop', 'Belum ada data', 'Belum ada observasi akademik yang diimpor dari KS.')}</div></div>`;
+      return `<div class="card"><div class="card-body">${emptyState('laptop', 'Belum ada data', 'Belum ada sesi Supervisi Digitalisasi yang diimpor dari KS.')}</div></div>`;
     }
 
     const perInd = INSTRUMEN_AKADEMIK.map(ind => {
@@ -384,7 +384,7 @@ export const Analisis = {
       <div class="grid-auto" style="margin-bottom:1.5rem">
         <div class="stat-card">
           <div class="stat-icon" style="background:#dbeafe;color:#1e40af">${Icons.svg('laptop', 22)}</div>
-          <div><div style="font-size:.75rem;color:var(--slate-500)">Total Observasi</div><div style="font-size:1.5rem;font-weight:700">${allAkad.length}</div></div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Total Sesi Digitalisasi</div><div style="font-size:1.5rem;font-weight:700">${allAkad.length}</div></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#dcfce7;color:#166534">${Icons.svg('trending-up', 22)}</div>
@@ -422,7 +422,7 @@ export const Analisis = {
   _renderCoaching(sekolah) {
     const allCoach = sekolah.flatMap(sk => sk.coaching || []);
     if (allCoach.length === 0) {
-      return `<div class="card"><div class="card-body">${emptyState('message-circle', 'Belum ada data', 'Belum ada observasi coaching yang diimpor dari KS.')}</div></div>`;
+      return `<div class="card"><div class="card-body">${emptyState('message-circle', 'Belum ada data', 'Belum ada sesi Coaching Digitalisasi yang diimpor dari KS.')}</div></div>`;
     }
 
     const perInd = INSTRUMEN_COACHING.map(ind => {
@@ -440,7 +440,7 @@ export const Analisis = {
       <div class="grid-auto" style="margin-bottom:1.5rem">
         <div class="stat-card">
           <div class="stat-icon" style="background:#fef3c7;color:#92400e">${Icons.svg('message-circle', 22)}</div>
-          <div><div style="font-size:.75rem;color:var(--slate-500)">Total Coaching</div><div style="font-size:1.5rem;font-weight:700">${allCoach.length}</div></div>
+          <div><div style="font-size:.75rem;color:var(--slate-500)">Total Sesi Coaching</div><div style="font-size:1.5rem;font-weight:700">${allCoach.length}</div></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#dcfce7;color:#166534">${Icons.svg('trending-up', 22)}</div>
