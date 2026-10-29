@@ -33,8 +33,8 @@ export const Supervisi = {
               <option value="">Semua</option>
               <option value="3 Tahap">3 Tahap</option>
               <option value="Supervisi PM">Supervisi PM</option>
-              <option value="Akademik">Akademik</option>
-              <option value="Coaching">Coaching</option>
+              <option value="Supervisi Digitalisasi">Supervisi Digitalisasi</option>
+              <option value="Coaching Digitalisasi">Coaching Digitalisasi</option>
             </select></div>
             <div><label class="label">Bulan</label><input type="month" class="input" id="fBulan"></div>
             <div><label class="label">Cari Guru</label><input class="input" id="fQ" placeholder="Nama guru..."></div>
@@ -93,10 +93,10 @@ export const Supervisi = {
         max = '/100';
       } else {
         skor = s.skor !== undefined && s.skor !== null ? s.skor : '-';
-        max = s._jenis === 'Akademik' ? '/76' : s._jenis === 'Coaching' ? '/32' : '';
+        max = s._jenis === 'Supervisi Digitalisasi' ? '/76' : s._jenis === 'Coaching Digitalisasi' ? '/32' : '';
       }
-      const badge = s._jenis === 'Akademik' ? 'info'
-        : s._jenis === 'Coaching' ? 'warning'
+      const badge = s._jenis === 'Supervisi Digitalisasi' ? 'info'
+        : s._jenis === 'Coaching Digitalisasi' ? 'warning'
         : s._jenis === 'Supervisi PM' ? 'success'
         : 'neutral';
       return `<tr>
@@ -128,8 +128,8 @@ export const Supervisi = {
   _detail(skId, id, jenis) {
     const sk = Store.get('sekolah').find(x => x.id === skId);
     if (!sk) return;
-    const arr = jenis === 'Akademik' ? 'akademik'
-      : jenis === 'Coaching' ? 'coaching'
+    const arr = jenis === 'Supervisi Digitalisasi' ? 'akademik'
+      : jenis === 'Coaching Digitalisasi' ? 'coaching'
       : jenis === 'Supervisi PM' ? 'supervisiPM'
       : 'supervisi';
     const s = (sk[arr] || []).find(x => x.id === id);
@@ -138,7 +138,7 @@ export const Supervisi = {
     let body = '';
     if (jenis === 'Supervisi PM') {
       body = this._detailPM(s, g, sk);
-    } else if (jenis === 'Akademik') {
+    } else if (jenis === 'Supervisi Digitalisasi') {
       const rows = (window.__INSTRUMEN_AKADEMIK || []).map(i =>
         `<tr><td style="padding:.35rem .5rem;font-family:monospace;font-weight:600;color:var(--brand-700)">${i.kode}</td>
          <td style="padding:.35rem .5rem;font-size:.8rem">${i.t}</td>
@@ -159,7 +159,7 @@ export const Supervisi = {
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
-    } else if (jenis === 'Coaching') {
+    } else if (jenis === 'Coaching Digitalisasi') {
       const rows = (window.__INSTRUMEN_COACHING || []).map(i =>
         `<tr><td style="padding:.35rem .5rem;font-family:monospace;font-weight:600;color:var(--brand-700)">${i.tahap}</td>
          <td style="padding:.35rem .5rem;font-size:.8rem">${i.t}</td>
@@ -305,8 +305,8 @@ export const Supervisi = {
   _print(skId, id, jenis) {
     const sk = Store.get('sekolah').find(x => x.id === skId);
     if (!sk) return;
-    const arr = jenis === 'Akademik' ? 'akademik'
-      : jenis === 'Coaching' ? 'coaching'
+    const arr = jenis === 'Supervisi Digitalisasi' ? 'akademik'
+      : jenis === 'Coaching Digitalisasi' ? 'coaching'
       : jenis === 'Supervisi PM' ? 'supervisiPM'
       : 'supervisi';
     const s = (sk[arr] || []).find(x => x.id === id);
@@ -319,13 +319,13 @@ export const Supervisi = {
       return;
     }
 
-    if (jenis === 'Akademik') {
+    if (jenis === 'Supervisi Digitalisasi') {
       let html = '';
       (window.__INSTRUMEN_AKADEMIK || []).forEach(i => {
         html += `<tr><td class="kode">${i.kode}</td><td>${i.t}</td><td class="skor">${(s.detail || {})[i.kode] || '-'}</td><td>${Utils.esc((s.catatan || {})[i.kode] || '')}</td></tr>`;
       });
       Utils.el('printArea').innerHTML = `
-        <h1>LEMBAR OBSERVASI AKADEMIK</h1>
+        <h1>LEMBAR SUPERVISI DIGITALISASI</h1>
         <p class="sub">${Utils.esc(sk.nama_sekolah)}</p>
         <table class="info">
           <tr><td>Guru</td><td>:</td><td><strong>${Utils.esc(g?.nama)}</strong></td></tr>
@@ -341,7 +341,7 @@ export const Supervisi = {
           <div class="ttd-box"><div>Kepala Sekolah</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(sk.ks_nama || '...')}</div></div>
           <div class="ttd-box"><div>Guru</div><div class="ttd-space"></div><div class="ttd-name">${Utils.esc(g?.nama)}</div></div>
         </div>`;
-    } else if (jenis === 'Coaching') {
+    } else if (jenis === 'Coaching Digitalisasi') {
       let html = '';
       (window.__INSTRUMEN_COACHING || []).forEach(i => {
         html += `<tr><td class="kode">${i.tahap}</td><td>${i.t}</td><td class="skor">${(s.detail || {})[i.kode] || '-'}</td><td>${Utils.esc((s.catatan || {})[i.kode] || '')}</td></tr>`;
@@ -350,7 +350,7 @@ export const Supervisi = {
         `<tr><td>${i + 1}</td><td>${Utils.esc(r.aksi)}</td><td>${Utils.esc(r.waktu)}</td><td>${Utils.esc(r.dukungan)}</td><td>${Utils.esc(r.indikator)}</td></tr>`
       ).join('');
       Utils.el('printArea').innerHTML = `
-        <h1>LEMBAR OBSERVASI COACHING</h1>
+        <h1>LEMBAR COACHING DIGITALISASI</h1>
         <p class="sub">${Utils.esc(sk.nama_sekolah)}</p>
         <table class="info">
           <tr><td>Guru</td><td>:</td><td><strong>${Utils.esc(g?.nama)}</strong></td></tr>
