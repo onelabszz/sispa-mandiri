@@ -27,6 +27,35 @@ const App = {
     const session = Auth.getSessionFor('PS');
     if (session) {
       const cfg = Store.config();
+
+      // ============================================
+      // GUARD: Session valid & konsisten dengan Store
+      // ============================================
+
+      // (a) Session harus punya NIP & role
+      if (!session.nip || !session.role) {
+        console.warn('[PS Init] Invalid session (no nip/role), logging out');
+        Auth.logout('PS');
+        this.showLogin();
+        return;
+      }
+
+      // (b) Stale session guard — INI FIX UTAMA
+      // Jika Store sudah punya nip_pengawas lain, JANGAN auto-login.
+      // Force logout → login screen → user ketik NIP →
+      // _showConflictModal (yang sudah ada) akan trigger.
+      if (cfg.nip_pengawas && cfg.nip_pengawas !== session.nip) {
+        console.warn(
+          '[PS Init] Stale session detected. Session:', session.nip,
+          'Store:', cfg.nip_pengawas, '→ forcing re-login'
+        );
+        Auth.logout('PS');
+        this.showLogin();
+        return;
+      }
+
+      // (c) Sync config — aman, karena (b) sudah memastikan tidak ada mismatch
+      //     (akan jadi no-op kalau cfg.nip_pengawas === session.nip)
       Store.setConfig({
         ...cfg,
         nip_pengawas: session.nip,
@@ -34,8 +63,10 @@ const App = {
         wilayah: session.wilayah
       });
 
-      if (cfg.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
-        PinLock.show(cfg, 'PS', () => this.boot());
+      // (d) PIN check — pakai config terbaru (cfg2)
+      const cfg2 = Store.config();
+      if (cfg2.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
+        PinLock.show(cfg2, 'PS', () => this.boot());
         return;
       }
       return this.boot();
