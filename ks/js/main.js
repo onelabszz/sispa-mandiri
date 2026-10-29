@@ -30,13 +30,45 @@ const App = {
     const session = Auth.getSessionFor('KS');
     if (session) {
       const cfg = Store.config();
-      if (cfg.nama_sekolah !== session.nama_sekolah) {
-        Store.setConfig({ ...cfg, nama_sekolah: session.nama_sekolah, npsn: session.npsn });
+
+      // ============================================
+      // GUARD: Session valid & konsisten dengan Store
+      // ============================================
+      // (a) Session harus punya identitas minimal
+      if (!session.npsn || !session.role) {
+        console.warn('[Init] Invalid session (no npsn/role), logging out');
+        Auth.logout('KS');
+        this.showLogin();
+        return;
       }
 
-      // Cek PIN
-      if (cfg.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
-        PinLock.show(cfg, 'KS', () => this.boot());
+      // (b) Stale session guard — INI FIX UTAMA
+      // Jika Store punya npsn A tapi session bilang npsn B,
+      // JANGAN auto-login. Force login screen → conflict modal akan trigger.
+      if (cfg.npsn && cfg.npsn !== session.npsn) {
+        console.warn(
+          '[Init] Stale session detected. Session:', session.npsn,
+          'Store:', cfg.npsn, '→ forcing re-login'
+        );
+        Auth.logout('KS');
+        this.showLogin();
+        return;
+      }
+
+      // (c) Sinkronisasi config jika Store masih minimal (fresh install)
+      // Aman dijalankan karena kita sudah pastikan tidak ada mismatch npsn
+      if (cfg.nama_sekolah !== session.nama_sekolah || !cfg.npsn) {
+        Store.setConfig({
+          ...cfg,
+          nama_sekolah: session.nama_sekolah,
+          npsn: session.npsn
+        });
+      }
+
+      // (d) PIN check
+      const cfg2 = Store.config();
+      if (cfg2.pin && sessionStorage.getItem('sispa_unlocked') !== '1') {
+        PinLock.show(cfg2, 'KS', () => this.boot());
         return;
       }
       return this.boot();
