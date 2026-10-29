@@ -157,7 +157,7 @@ export const Laporan = {
       <h2>Ringkasan Kinerja</h2>
       <table class="info">
         <tr><td>Total Guru</td><td>:</td><td><strong>${m.totalGuru}</strong></td></tr>
-        <tr><td>Total Sesi</td><td>:</td><td>${m.totalSesi} (3T: ${m.totalSup3}, PM: ${m.totalPM}, Akademik: ${m.totalAkad}, Coaching: ${m.totalCo})</td></tr>
+        <tr><td>Total Sesi</td><td>:</td><td>${m.totalSesi} (3T: ${m.totalSup3}, PM: ${m.totalPM}, Digitalisasi: ${m.totalAkad}, Coaching: ${m.totalCo})</td></tr>
         <tr><td>Coverage</td><td>:</td><td><strong>${m.coverage}%</strong></td></tr>
         <tr><td>Skor Kinerja</td><td>:</td><td><strong>${m.score}</strong> (${m.kategori})</td></tr>
       </table>
@@ -177,7 +177,7 @@ export const Laporan = {
         <th style="text-align:center">Tipe</th>
         <th style="text-align:center">3T</th>
         <th style="text-align:center">PM</th>
-        <th style="text-align:center">Akademik</th>
+        <th style="text-align:center">Digitalisasi</th>
         <th style="text-align:center">Coaching</th>
       </tr></thead><tbody>${guruRows || '<tr><td colspan="8" style="text-align:center">—</td></tr>'}</tbody></table>
       <div class="ttd-grid">
@@ -189,7 +189,7 @@ export const Laporan = {
 
   _csvGuru() {
     const list = allGuru();
-    const rows = [['Sekolah', 'NPSN', 'Nama', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Tipe', 'Pendekatan', '3T', 'PM', 'Akademik', 'Coaching']];
+    const rows = [['Sekolah', 'NPSN', 'Nama', 'NIP', 'Mapel', 'Kelas', 'Kepegawaian', 'Tipe', 'Pendekatan', '3T', 'PM', 'Supervisi Digitalisasi', 'Coaching Digitalisasi']];
     list.sort((a, b) => a._skNama.localeCompare(b._skNama) || a.nama.localeCompare(b.nama)).forEach(g => {
       const sk = Store.get('sekolah').find(x => x.id === g._skId);
       const n3 = (sk?.supervisi || []).filter(s => s.gid === g.id).length;
@@ -209,8 +209,8 @@ export const Laporan = {
       const g = guruBySekolah(s._skId, s.gid);
       let max = '';
       let skor = s.skor;
-      if (s._jenis === 'Akademik') { max = 76; }
-      else if (s._jenis === 'Coaching') { max = 32; }
+      if (s._jenis === 'Supervisi Digitalisasi') { max = 76; }
+      else if (s._jenis === 'Coaching Digitalisasi') { max = 32; }
       else if (s._jenis === 'Supervisi PM') {
         max = 100;
         skor = (s.telaah && s.telaah.nilai) || 0;
@@ -226,7 +226,7 @@ export const Laporan = {
 
   _csvRekap() {
     const sekolah = Store.get('sekolah');
-    const rows = [['Sekolah', 'NPSN', 'KS', 'Guru', 'Sesi', 'PM', 'Coverage', 'Avg Akademik', 'Avg Coaching', 'Avg Telaah PM', 'Kelengkapan RTL', 'Skor', 'Kategori']];
+    const rows = [['Sekolah', 'NPSN', 'KS', 'Guru', 'Sesi', 'PM', 'Coverage', 'Avg Digitalisasi', 'Avg Coaching', 'Avg Telaah PM', 'Kelengkapan RTL', 'Skor', 'Kategori']];
     sekolah.forEach(sk => {
       const m = metricsSekolah(sk);
       rows.push([
