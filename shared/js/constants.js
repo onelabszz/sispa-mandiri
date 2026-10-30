@@ -193,8 +193,8 @@ export const NAV_PS = [
   { section: 'Supervisi' },
   { key: 'supervisi', icon: 'clipboard-list', label: 'Semua Supervisi' },
   { key: 'analisis', icon: 'bar-chart-3', label: 'Analisis & Benchmark' },
-  { section: 'Evaluasi' },
-  { key: 'evaluasi', icon: 'target', label: 'Evaluasi Kinerja KS' },
+  { section: 'Pemantauan' },
+  { key: 'evaluasi', icon: 'clipboard-check', label: 'Pemantauan Supervisi KS' },
   { key: 'laporan', icon: 'file-text', label: 'Laporan Rekap' },
   { section: 'Akun' },
   { key: 'pengaturan', icon: 'settings', label: 'Pengaturan' }
