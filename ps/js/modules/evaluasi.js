@@ -289,7 +289,7 @@ export const Evaluasi = {
       <div class="page-head">
         <div>
           <button class="btn btn-secondary btn-sm" id="btnBack" style="margin-bottom:.75rem">${Icons.svg('chevron-left', 14)} Kembali</button>
-          <h2 style="margin:0">${existing ? (isReadonly ? 'Lihat Pemantauan' : 'Lanjutkan Pemantauan') : 'Pemantauan Baru'}</h2>
+          <h2 style="margin:0">${existing ? (isReadonly ? 'Lihat Pemantauan Supervisi' : 'Lanjutkan Pemantauan Supervisi') : 'Pemantauan Supervisi Baru'}</h2>
           <div class="page-sub">Isi 18 indikator dari 5 aspek · Skor 1-4</div>
         </div>
       </div>
