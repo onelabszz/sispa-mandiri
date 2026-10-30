@@ -106,6 +106,8 @@ export const Dashboard = {
 
       ${this._pendingKlaimHtml()}
 
+      ${this._pemantauanKsHtml()}
+
       ${belumAdaData.length > 0 ? `
         <div class="card" style="border-left:3px solid var(--info);margin-bottom:1rem">
           <div class="card-body" style="padding:1rem 1.25rem">
@@ -224,6 +226,31 @@ export const Dashboard = {
     </div>`;
   },
 
+  _pemantauanKsHtml() {
+    const semuaEval = Store.get('evaluasi') || [];
+    const evals = semuaEval.filter(e => e.instrumen_version === 'v2_pemantauan');
+    if (evals.length === 0) return '';
+    const final = evals.filter(e => e.status === 'final');
+    const avgNilai = evals.length > 0
+      ? (evals.reduce((s, e) => s + (e.nilai || 0), 0) / evals.length).toFixed(1)
+      : 0;
+    const belumFinal = evals.length - final.length;
+    return `<div class="card" style="border-left:3px solid #9d174d;margin-bottom:1rem">
+      <div class="card-body" style="padding:1rem 1.25rem">
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <span style="color:#9d174d">${Icons.svg('award', 28)}</span>
+          <div style="flex:1;min-width:200px">
+            <div style="font-weight:600;font-size:.9rem">Pemantauan Supervisi Akademik KS</div>
+            <div style="font-size:.8rem;color:var(--slate-600);margin-top:.15rem">
+              ${evals.length} pemantauan · ${final.length} final${belumFinal > 0 ? ` · ${belumFinal} draft` : ''} · Rata-rata nilai <strong>${avgNilai}</strong>
+            </div>
+          </div>
+          <button class="btn btn-secondary" id="btnGoPemantauan">Lihat →</button>
+        </div>
+      </div>
+    </div>`;
+  },
+
   async syncDabin(silent = false) {
     const myNip = Store.config().nip_pengawas;
     if (!myNip) return;
@@ -323,6 +350,8 @@ export const Dashboard = {
       if (Sekolah._setFilter) Sekolah._setFilter('nodata');
       Router.navigate('sekolah');
     });
+
+    Utils.el('btnGoPemantauan')?.addEventListener('click', () => Router.navigate('evaluasi'));
 
     setTimeout(() => this.syncDabin(true), 500);
   }
