@@ -92,6 +92,53 @@ export const REFLEKSI_PM = [
   { kode: 18, t: 'Rencana tindak lanjut apa yang akan dibuat untuk perbaikan ke depan?' }
 ];
 
+// ============================================================
+// PEMANTAUAN SUPERVISI AKADEMIK KS (oleh Pengawas)
+// 18 indikator × 4 = 72 poin
+// ============================================================
+
+export const INSTRUMEN_PEMANTAUAN_KS = [
+  // I. PERENCANAAN
+  { kode: '1.1', aspek: 'I. Perencanaan Supervisi Akademik', teks: 'Kepala sekolah menyusun Program Kerja Tahunan / Semester supervisi akademik.', bukti: 'SK Tim Supervisi, Dokumen Program Kerja' },
+  { kode: '1.2', aspek: 'I. Perencanaan Supervisi Akademik', teks: 'Kepala sekolah menyusun jadwal pelaksanaan supervisi akademik bagi guru secara berkala.', bukti: 'Jadwal Supervisi Kelas' },
+  { kode: '1.3', aspek: 'I. Perencanaan Supervisi Akademik', teks: 'Kepala sekolah menyusun/menyiapkan instrumen supervisi akademik (observasi kelas & perangkat ajar).', bukti: 'Format Instrumen Observasi Lengkap' },
+  { kode: '1.4', aspek: 'I. Perencanaan Supervisi Akademik', teks: 'Kepala sekolah mengadakan sosialisasi/koordinasi program supervisi dengan seluruh dewan guru.', bukti: 'Notulen Rapat, Daftar Hadir Sosialisasi' },
+  // II. PELAKSANAAN
+  { kode: '2.1', aspek: 'II. Pelaksanaan Supervisi Akademik', teks: 'Kepala sekolah melaksanakan supervisi persiapan mengajar (Modul Ajar / RPP / Silabus).', bukti: 'Dokumen penelaahan perangkat ajar' },
+  { kode: '2.2', aspek: 'II. Pelaksanaan Supervisi Akademik', teks: 'Kepala sekolah melakukan observasi kelas (pengamatan langsung proses pembelajaran guru).', bukti: 'Lembar Observasi Kelas yang terisi dan ditandatangani' },
+  { kode: '2.3', aspek: 'II. Pelaksanaan Supervisi Akademik', teks: 'Kepala sekolah mencatat data objektif proses pembelajaran (metode, media, interaksi, asesmen).', bukti: 'Catatan lapangan / catatan klinis pengawas/KS' },
+  { kode: '2.4', aspek: 'II. Pelaksanaan Supervisi Akademik', teks: 'Kepala sekolah menjaga objektivitas dan kenyamanan guru saat observasi berlangsung.', bukti: 'Dokumentasi/instrumen pendekatan supervisi klinis' },
+  // III. EVALUASI
+  { kode: '3.1', aspek: 'III. Evaluasi Hasil Supervisi Akademik', teks: 'Kepala sekolah menganalisis hasil temuan dari observasi kelas dan perangkat ajar secara berkala.', bukti: 'Rekapitulasi hasil analisis instrumen' },
+  { kode: '3.2', aspek: 'III. Evaluasi Hasil Supervisi Akademik', teks: 'Kepala sekolah mengklasifikasikan kekuatan dan kelemahan/kendala proses pembelajaran guru.', bukti: 'Daftar pemetaan kompetensi guru' },
+  { kode: '3.3', aspek: 'III. Evaluasi Hasil Supervisi Akademik', teks: 'Kepala sekolah menyusun laporan hasil evaluasi supervisi akademik secara sistematis.', bukti: 'Dokumen Laporan Evaluasi Supervisi Akademik' },
+  // IV. REFLEKSI
+  { kode: '4.1', aspek: 'IV. Refleksi Hasil Supervisi Akademik', teks: 'Kepala sekolah mengadakan sesi diskusi/percakapan pasca-observasi memberikan umpan balik konstruktif.', bukti: 'Lembar catatan umpan balik / dialog' },
+  { kode: '4.2', aspek: 'IV. Refleksi Hasil Supervisi Akademik', teks: 'Kepala sekolah mendengarkan refleksi diri dari guru yang disupervisi terkait kinerjanya.', bukti: 'Catatan dialog reflektif guru dan kepala sekolah' },
+  { kode: '4.3', aspek: 'IV. Refleksi Hasil Supervisi Akademik', teks: 'Kepala sekolah dan guru bersama-sama menyepakati akar masalah dari kendala pembelajaran.', bukti: 'Berita acara / catatan kesepakatan pemecahan masalah' },
+  // V. TINDAK LANJUT
+  { kode: '5.1', aspek: 'V. Tindak Lanjut Supervisi Akademik', teks: 'Kepala sekolah memberikan pembinaan / bimbingan individual bagi guru yang memerlukan peningkatan.', bukti: 'Program pembinaan / jurnal coaching mandiri' },
+  { kode: '5.2', aspek: 'V. Tindak Lanjut Supervisi Akademik', teks: 'Kepala sekolah memfasilitasi kegiatan peningkatan kompetensi (KKG mini, workshop, atau berbagi praktik).', bukti: 'Undangan, daftar hadir, materi, dokumentasi kegiatan' },
+  { kode: '5.3', aspek: 'V. Tindak Lanjut Supervisi Akademik', teks: 'Kepala sekolah memberikan penghargaan (reward) atau apresiasi kepada guru berprestasi.', bukti: 'Surat keputusan / piagam / catatan dokumentasi apresiasi' },
+  { kode: '5.4', aspek: 'V. Tindak Lanjut Supervisi Akademik', teks: 'Kepala sekolah memantau realisasi rencana tindak lanjut pada siklus berikutnya secara berkelanjutan.', bukti: 'Catatan monitoring lanjutan / tindak lanjut siklus dua' }
+];
+
+export const SKALA_PEMANTAUAN_KS = [
+  { skor: 1, label: 'Kurang', deskripsi: 'Dokumen/kegiatan belum ada atau tidak sesuai' },
+  { skor: 2, label: 'Cukup', deskripsi: 'Dokumen/kegiatan ada, namun belum lengkap atau kurang sesuai' },
+  { skor: 3, label: 'Baik', deskripsi: 'Dokumen/kegiatan ada, lengkap, dan sesuai ketentuan' },
+  { skor: 4, label: 'Sangat Baik', deskripsi: 'Dokumen/kegiatan sangat lengkap, inovatif, dan menjadi contoh praktik baik (best practice)' }
+];
+
+export const KATEGORI_PEMANTAUAN_KS = [
+  { min: 86, label: 'Sangat Baik (A)', cls: 'success' },
+  { min: 71, label: 'Baik (B)', cls: 'info' },
+  { min: 56, label: 'Cukup (C)', cls: 'warning' },
+  { min: 0,  label: 'Kurang (D)', cls: 'danger' }
+];
+
+export const MAX_SKOR_PEMANTAUAN_KS = 72; // 18 × 4
+
 export const DPL_LABELS = ['Keimanan','Kewargaan','Penalaran Kritis','Kreativitas','Kolaborasi','Kemandirian','Kesehatan','Komunikasi'];
 export const PRINSIP_LIST = [{ key:'berkesadaran', label:'Berkesadaran' },{ key:'bermakna', label:'Bermakna' },{ key:'menggembirakan', label:'Menggembirakan' }];
 export const PENGALAMAN_LIST = [{ key:'memahami', label:'Memahami' },{ key:'mengaplikasi', label:'Mengaplikasi' },{ key:'merefleksi', label:'Merefleksi' }];
