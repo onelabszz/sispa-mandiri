@@ -87,6 +87,29 @@ export const Laporan = {
       <h2>Ringkasan</h2>
       <p>Total: <strong>${ranked.length} sekolah</strong> · <strong>${totalGuru} guru</strong> · <strong>${totalSesi} sesi</strong> (termasuk <strong>${totalPM} Supervisi PM</strong>)<br>
       Rata-rata Coverage: <strong>${avgCov}%</strong> · Rata-rata Skor: <strong>${avgScore}</strong></p>
+      <h2>Pemantauan Supervisi Akademik KS</h2>
+      <table class="ind"><thead><tr>
+        <th style="text-align:center">#</th>
+        <th>Sekolah</th>
+        <th>Kepala Sekolah</th>
+        <th style="text-align:center">Skor</th>
+        <th style="text-align:center">Nilai</th>
+        <th style="text-align:center">Kategori</th>
+      </tr></thead><tbody>${
+        (() => {
+          const evals = (Store.get('evaluasi') || []).filter(e => e.instrument_version === 'v2_pemantauan' && e.status === 'final');
+          if (evals.length === 0) return '<tr><td colspan="6" style="text-align:center">Belum ada pemantauan final</td></tr>';
+          return evals.map((e, i) => `<tr>
+            <td style="text-align:center">${i + 1}</td>
+            <td>${Utils.esc(e.nama_sekolah || '-')}</td>
+            <td>${Utils.esc(e.ks_nama || '-')}</td>
+            <td style="text-align:center">${e.skor_total || 0}/72</td>
+            <td style="text-align:center">${(e.nilai || 0).toFixed(1)}</td>
+            <td style="text-align:center">${Utils.esc(e.kategori_label || '-')}</td>
+          </tr>`).join('');
+        })()
+      }</tbody></table>
+
       <h2>Rincian per Sekolah</h2>
       <table class="ind"><thead><tr>
         <th style="text-align:center">#</th>
